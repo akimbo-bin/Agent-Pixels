@@ -3,6 +3,7 @@ import { buildDynamicCatalog } from "../office/layout/furnitureCatalog.js";
 import { setCharacterTemplates } from "../office/sprites/spriteData.js";
 import type { OfficeLayout, SpriteData, TileType } from "../office/types.js";
 import { setWallSprites } from "../office/wallTiles.js";
+import { combineNebulaRooms, type NebulaCameraBounds } from "../office/layout/nebulaLayouts.js";
 
 type CharacterDirectionSprites = {
   down: SpriteData[];
@@ -53,7 +54,9 @@ export type LoadedPixelAssets = {
     office: OfficeLayout;
     boardroomKitchen: OfficeLayout;
     combined: OfficeLayout;
+    nebula: OfficeLayout;
   };
+  nebulaCameraBounds: NebulaCameraBounds;
   cameraBounds: {
     office: CameraBounds;
     boardroomKitchen: CameraBounds;
@@ -367,13 +370,16 @@ export function loadPixelAssets(): Promise<LoadedPixelAssets> {
     buildDynamicCatalog({ catalog: index.furniture, sprites: furnitureSprites });
 
     const combined = combineLayouts(officeLayout, boardroomKitchenLayout);
+    const nebula = combineNebulaRooms(officeLayout, boardroomKitchenLayout);
 
     return {
       layouts: {
         office: officeLayout,
         boardroomKitchen: boardroomKitchenLayout,
         combined: combined.layout,
+        nebula: nebula.layout,
       },
+      nebulaCameraBounds: nebula.cameraBounds,
       cameraBounds: combined.cameraBounds,
     };
   })();
