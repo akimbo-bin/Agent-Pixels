@@ -81,17 +81,17 @@ export function renderNebulaTelemetry(
     mode:"unconfigured",jobs:{},queue:{upcoming:null,in_progress:null,review:null},
     sources:{paperclip:false,jobs:false},
   };
-  const names:Record<NebulaRoom,string>={
+  const names:Partial<Record<NebulaRoom,string>>={
     training:"TRAINING LAB",rendering:"RENDER STUDIO",
     engineering:"ENGINEERING / REVIEW",experiments:"EXPERIMENT LAB",
   };
   (["training","rendering","engineering","experiments"] as NebulaRoom[]).forEach((name,i)=>{
-    roomSign(ctx,roomPoint(bounds,name,1,.7,zoom,offsetX,offsetY),zoom,names[name],"0"+(i+1));
+    roomSign(ctx,roomPoint(bounds,name,1,.7,zoom,offsetX,offsetY),zoom,names[name]!,"0"+(i+1));
   });
   machinePanel(ctx,roomPoint(bounds,"training",12.3,8.5,zoom,offsetX,offsetY),zoom,
     obs.sources.jobs?obs.jobs.training:undefined,"GPU / TRAINING",frameTime);
   machinePanel(ctx,roomPoint(bounds,"rendering",12.3,8.5,zoom,offsetX,offsetY),zoom,
-    obs.sources.jobs?obs.jobs.render:undefined,"REAPER / BATCH",frameTime);
+    obs.sources.jobs?obs.jobs.render:undefined,"DAWDREAMER",frameTime);
   machinePanel(ctx,roomPoint(bounds,"engineering",12.3,8.5,zoom,offsetX,offsetY),zoom,
     obs.sources.jobs?obs.jobs.ci:undefined,"CI / REVIEWS",frameTime);
   machinePanel(ctx,roomPoint(bounds,"experiments",13,10.5,zoom,offsetX,offsetY),zoom,
@@ -101,3 +101,4 @@ export function renderNebulaTelemetry(
   pixelPaper(ctx,roomPoint(bounds,"engineering",5.3,10,zoom,offsetX,offsetY),zoom,st.in_progress,"WORK","#7ce8ca");
   pixelPaper(ctx,roomPoint(bounds,"engineering",8.5,10,zoom,offsetX,offsetY),zoom,st.review,"REVIEW","#c5a4f7");
 }
+
