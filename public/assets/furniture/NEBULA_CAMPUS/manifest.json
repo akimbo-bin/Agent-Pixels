@@ -1,0 +1,1808 @@
+{
+  "id": "NEBULA_CAMPUS",
+  "name": "Original Nebula campus",
+  "type": "group",
+  "category": "decor",
+  "members": [
+    {
+      "type": "asset",
+      "id": "N_EXECUTIVE",
+      "name": "Executive",
+      "file": "N_EXECUTIVE.png",
+      "width": 80,
+      "height": 32,
+      "footprintW": 5,
+      "footprintH": 2,
+      "category": "desks",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "desk-main",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_SECONDARY",
+      "name": "Secondary",
+      "file": "N_SECONDARY.png",
+      "width": 48,
+      "height": 32,
+      "footprintW": 3,
+      "footprintH": 2,
+      "category": "desks",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "desk-secondary",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_CLERK",
+      "name": "Clerk",
+      "file": "N_CLERK.png",
+      "width": 64,
+      "height": 32,
+      "footprintW": 4,
+      "footprintH": 2,
+      "category": "desks",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "clerk",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_BENCH",
+      "name": "Bench",
+      "file": "N_BENCH.png",
+      "width": 48,
+      "height": 32,
+      "footprintW": 3,
+      "footprintH": 2,
+      "category": "desks",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "bench",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_REVIEW",
+      "name": "Review",
+      "file": "N_REVIEW.png",
+      "width": 48,
+      "height": 32,
+      "footprintW": 3,
+      "footprintH": 2,
+      "category": "desks",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "review",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_CHAIR",
+      "name": "Chair",
+      "file": "N_CHAIR.png",
+      "width": 16,
+      "height": 16,
+      "footprintW": 1,
+      "footprintH": 1,
+      "category": "chairs",
+      "backgroundTiles": 0,
+      "orientation": "back",
+      "nebula": {
+        "kind": "chair",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET",
+      "name": "Rocket",
+      "file": "N_ROCKET.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_idle_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_idle_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_queued_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_queued_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "queued",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_running_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_running_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "running",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_running_1",
+      "name": "Rocket",
+      "file": "N_ROCKET_running_1.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "running",
+        "frame": 1,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_stalled_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_stalled_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "stalled",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_failed_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_failed_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "failed",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ROCKET_done_0",
+      "name": "Rocket",
+      "file": "N_ROCKET_done_0.png",
+      "width": 64,
+      "height": 96,
+      "footprintW": 4,
+      "footprintH": 6,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rocket",
+        "state": "done",
+        "frame": 0,
+        "anchor": [
+          0,
+          96
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK",
+      "name": "Rack",
+      "file": "N_RACK.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_idle_0",
+      "name": "Rack",
+      "file": "N_RACK_idle_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_queued_0",
+      "name": "Rack",
+      "file": "N_RACK_queued_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "queued",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_running_0",
+      "name": "Rack",
+      "file": "N_RACK_running_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "running",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_running_1",
+      "name": "Rack",
+      "file": "N_RACK_running_1.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "running",
+        "frame": 1,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_stalled_0",
+      "name": "Rack",
+      "file": "N_RACK_stalled_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "stalled",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_failed_0",
+      "name": "Rack",
+      "file": "N_RACK_failed_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "failed",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RACK_done_0",
+      "name": "Rack",
+      "file": "N_RACK_done_0.png",
+      "width": 32,
+      "height": 48,
+      "footprintW": 2,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "rack",
+        "state": "done",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_MATH",
+      "name": "Math",
+      "file": "N_MATH.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "wall",
+      "backgroundTiles": 2,
+      "orientation": null,
+      "nebula": {
+        "kind": "math",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER",
+      "name": "Render",
+      "file": "N_RENDER.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_idle_0",
+      "name": "Render",
+      "file": "N_RENDER_idle_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_queued_0",
+      "name": "Render",
+      "file": "N_RENDER_queued_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "queued",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_running_0",
+      "name": "Render",
+      "file": "N_RENDER_running_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "running",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_running_1",
+      "name": "Render",
+      "file": "N_RENDER_running_1.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "running",
+        "frame": 1,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_stalled_0",
+      "name": "Render",
+      "file": "N_RENDER_stalled_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "stalled",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_failed_0",
+      "name": "Render",
+      "file": "N_RENDER_failed_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "failed",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_RENDER_done_0",
+      "name": "Render",
+      "file": "N_RENDER_done_0.png",
+      "width": 64,
+      "height": 48,
+      "footprintW": 4,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "render",
+        "state": "done",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE",
+      "name": "Judge",
+      "file": "N_JUDGE.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_idle_0",
+      "name": "Judge",
+      "file": "N_JUDGE_idle_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_queued_0",
+      "name": "Judge",
+      "file": "N_JUDGE_queued_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "queued",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_running_0",
+      "name": "Judge",
+      "file": "N_JUDGE_running_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "running",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_running_1",
+      "name": "Judge",
+      "file": "N_JUDGE_running_1.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "running",
+        "frame": 1,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_stalled_0",
+      "name": "Judge",
+      "file": "N_JUDGE_stalled_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "stalled",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_failed_0",
+      "name": "Judge",
+      "file": "N_JUDGE_failed_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "failed",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_JUDGE_done_0",
+      "name": "Judge",
+      "file": "N_JUDGE_done_0.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "judge",
+        "state": "done",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_BED",
+      "name": "Bed",
+      "file": "N_BED.png",
+      "width": 48,
+      "height": 48,
+      "footprintW": 3,
+      "footprintH": 3,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "bed",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          48
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_CABINET",
+      "name": "Cabinet",
+      "file": "N_CABINET.png",
+      "width": 32,
+      "height": 32,
+      "footprintW": 2,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "cabinet",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_LIBRARY",
+      "name": "Library",
+      "file": "N_LIBRARY.png",
+      "width": 48,
+      "height": 32,
+      "footprintW": 3,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "library",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_STAR_MAP",
+      "name": "Star Map",
+      "file": "N_STAR_MAP.png",
+      "width": 48,
+      "height": 32,
+      "footprintW": 3,
+      "footprintH": 2,
+      "category": "wall",
+      "backgroundTiles": 2,
+      "orientation": null,
+      "nebula": {
+        "kind": "star",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_LAMP",
+      "name": "Lamp",
+      "file": "N_LAMP.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 2,
+      "orientation": null,
+      "nebula": {
+        "kind": "lamp",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PLANT",
+      "name": "Plant",
+      "file": "N_PLANT.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "plant",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_DOOR",
+      "name": "Door",
+      "file": "N_DOOR.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 1,
+      "orientation": null,
+      "nebula": {
+        "kind": "door",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_OPTICS",
+      "name": "Optics",
+      "file": "N_OPTICS.png",
+      "width": 32,
+      "height": 32,
+      "footprintW": 2,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "optics",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_EMPTY",
+      "name": "Pod Empty",
+      "file": "N_POD_EMPTY.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_0",
+      "name": "Papers 0",
+      "file": "N_PAPERS_0.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_1",
+      "name": "Papers 1",
+      "file": "N_PAPERS_1.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_2",
+      "name": "Papers 2",
+      "file": "N_PAPERS_2.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_3",
+      "name": "Papers 3",
+      "file": "N_PAPERS_3.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_4",
+      "name": "Papers 4",
+      "file": "N_PAPERS_4.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_5",
+      "name": "Papers 5",
+      "file": "N_PAPERS_5.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_6",
+      "name": "Papers 6",
+      "file": "N_PAPERS_6.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_7",
+      "name": "Papers 7",
+      "file": "N_PAPERS_7.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_PAPERS_8",
+      "name": "Papers 8",
+      "file": "N_PAPERS_8.png",
+      "width": 32,
+      "height": 16,
+      "footprintW": 2,
+      "footprintH": 1,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "paper",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          16
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_0",
+      "name": "Pod 0",
+      "file": "N_POD_0.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_1",
+      "name": "Pod 1",
+      "file": "N_POD_1.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_2",
+      "name": "Pod 2",
+      "file": "N_POD_2.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_3",
+      "name": "Pod 3",
+      "file": "N_POD_3.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_4",
+      "name": "Pod 4",
+      "file": "N_POD_4.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_5",
+      "name": "Pod 5",
+      "file": "N_POD_5.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_6",
+      "name": "Pod 6",
+      "file": "N_POD_6.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_7",
+      "name": "Pod 7",
+      "file": "N_POD_7.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_0",
+      "name": "Telescope 0",
+      "file": "N_TELESCOPE_0.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_1",
+      "name": "Telescope 1",
+      "file": "N_TELESCOPE_1.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_2",
+      "name": "Telescope 2",
+      "file": "N_TELESCOPE_2.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_3",
+      "name": "Telescope 3",
+      "file": "N_TELESCOPE_3.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_4",
+      "name": "Telescope 4",
+      "file": "N_TELESCOPE_4.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_5",
+      "name": "Telescope 5",
+      "file": "N_TELESCOPE_5.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_TELESCOPE_6",
+      "name": "Telescope 6",
+      "file": "N_TELESCOPE_6.png",
+      "width": 96,
+      "height": 80,
+      "footprintW": 6,
+      "footprintH": 5,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "telescope",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          80
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    }
+  ]
+}

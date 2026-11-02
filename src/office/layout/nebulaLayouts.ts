@@ -69,24 +69,35 @@ export function buildNebulaWorld(stage = 0): {layout:OfficeLayout;cameraBounds:N
   const furniture:PlacedFurniture[]=[];
   const prop=(uid:string,type:string,col:number,row:number)=>furniture.push({uid,type,col,row});
   for(const s of ROLE_SEATS){
-    prop(`desk-${s.role}`,'DESK_FRONT',s.col-1,s.row-2);
-    prop(`terminal-${s.role}`,'PC_FRONT_OFF',s.col,s.row-2);
-    prop(s.seatId,'WOODEN_CHAIR_BACK',s.col,s.row-1);
+    const type=s.role==='Lead'?'N_EXECUTIVE':s.role==='Lead-Sol'?'N_SECONDARY':s.role==='Clerk'?'N_CLERK':s.room==='review'?'N_REVIEW':'N_BENCH';
+    prop(`desk-${s.role}`,type,s.col-(s.role==='Lead'?2:1),s.row-2);
+    prop(s.seatId,'N_CHAIR',s.col,s.row);
   }
-  // Catalog fixtures establish real collision before the original art slice.
-  prop('telescope-foundation','COFFEE_TABLE',40,5);
-  prop('rocket-gantry','ARCADE_MACHINE',20,21);
-  prop('data-board','WHITEBOARD',44,18);
-  prop('render-rack','ARCADE_MACHINE',54,21);
-  prop('clinic-cabinet','BOOKSHELF',9,36);
-  prop('filing-cabinet','BOOKSHELF',10,23);
-  prop('audio-judge','ARCADE_MACHINE',54,37);
-  for(let i=0;i<4;i++)prop(`gpu-${i}`,'ARCADE_MACHINE',39+i*2,35);
-  for(let i=0;i<8;i++)prop(`pod-${i}`,'PLANT',i<4?54:60,3+(i%4)*2);
-  for(const slot of STAGE_SLOTS.filter(s=>s.stage<=stage))prop(slot.id,'PLANT',slot.col,slot.row);
+  prop('telescope-foundation',`N_TELESCOPE_${Math.max(0,Math.min(6,Math.floor(stage)))}`,38,3);
+  prop('rocket-gantry','N_ROCKET',20,19);
+  prop('data-board','N_MATH',43,18);
+  prop('render-rack','N_RENDER',53,21);
+  prop('clinic-cabinet','N_CABINET',9,36);
+  prop('clinic-bed','N_BED',8,38);
+  prop('filing-cabinet','N_CABINET',10,23);
+  prop('audio-judge','N_JUDGE',54,37);
+  for(let i=0;i<4;i++)prop(`gpu-${i}`,'N_RACK',39+i*2,36);
+  for(let i=0;i<8;i++)prop(`pod-${i}`,'N_POD_EMPTY',i<4?54:60,3+(i%4)*2);
+  prop('principal-library','N_LIBRARY',3,3);prop('principal-map','N_STAR_MAP',12,2);
+  prop('secondary-library','N_LIBRARY',19,3);prop('secondary-map','N_STAR_MAP',25,2);
+  prop('workshop-tools','N_CABINET',16,18);prop('workshop-plans','N_STAR_MAP',25,18);
+  prop('data-records','N_CABINET',34,18);prop('data-library','N_LIBRARY',44,26);
+  prop('render-spools','N_CABINET',59,19);prop('render-spools-2','N_CABINET',59,26);
+  prop('review-files','N_CABINET',16,43);prop('review-files-2','N_CABINET',26,43);
+  prop('clinic-chart','N_STAR_MAP',3,35);prop('lab-checkpoints','N_CABINET',43,43);
+  prop('experiment-records','N_LIBRARY',58,43);
+  ['upcoming','in_progress','review','blocked'].forEach((stage,i)=>prop(`queue-${stage}`,'N_PAPERS_0',2+i*3,27));
+  for(const r of ROOMS){
+    prop(`${r.id}-plant`,'N_PLANT',r.bounds.col+1,r.bounds.row+r.bounds.rows-3);
+    prop(`${r.id}-light`,'N_LAMP',r.bounds.col+r.bounds.cols-2,r.bounds.row+1);
+    r.doors.forEach((door,i)=>prop(`${r.id}-door-${i}`,'N_DOOR',door[0].col,door[0].row));
+  }
   return {layout:{version:1,layoutRevision:2,cols,rows,tiles,tileColors,furniture,spawnTile:{col:31,row:46}},cameraBounds};
 }
 // Legacy plugin import retained; original plugin layouts are never mutated.
 export function combineNebulaRooms(_office:OfficeLayout,_boardroom:OfficeLayout){return buildNebulaWorld();}
-
-
