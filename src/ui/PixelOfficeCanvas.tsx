@@ -204,6 +204,23 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false, telemetr
           ctx.fillText(name, x, y);
         }
         ctx.restore();
+
+        // A camera shows only its chosen room. On portrait screens the whole
+        // four-room office can otherwise leak into the unused top/bottom space.
+        // Mask neighbors instead of altering Agent Pixels physics or actors.
+        if (nebulaMode && camera !== "overview") {
+          const left = offsetX + focus.col * TILE_SIZE * zoom;
+          const top = offsetY + focus.row * TILE_SIZE * zoom;
+          const right = left + focus.cols * TILE_SIZE * zoom;
+          const bottom = top + focus.rows * TILE_SIZE * zoom;
+          ctx.save();
+          ctx.fillStyle = "#1d2b38";
+          ctx.fillRect(0, 0, canvas.width, Math.max(0, top));
+          ctx.fillRect(0, bottom, canvas.width, Math.max(0, canvas.height - bottom));
+          ctx.fillRect(0, 0, Math.max(0, left), canvas.height);
+          ctx.fillRect(right, 0, Math.max(0, canvas.width - right), canvas.height);
+          ctx.restore();
+        }
       },
     });
 
