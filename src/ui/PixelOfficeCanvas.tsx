@@ -4,6 +4,8 @@ import { OfficeState } from "../office/engine/officeState.js";
 import { startGameLoop } from "../office/engine/gameLoop.js";
 import { renderFrame } from "../office/engine/renderer.js";
 import { type CameraBounds, loadPixelAssets } from "./pixelAssets.js";
+import { renderNebulaTelemetry, type NebulaTelemetry } from "../office/observatory/nebulaOverlay.js";
+import type { NebulaRoom, NebulaCamera, NebulaCameraBounds } from "../office/layout/nebulaLayouts.js";
 
 export type CameraAgent = {
   id: string;
@@ -11,12 +13,14 @@ export type CameraAgent = {
   status?: string | null;
   activityKind?: "coding" | "research" | "writing" | "meeting" | "idle";
   characterIndex?: number;
+  room?: NebulaRoom;
 };
 
 type PixelOfficeCanvasProps = {
   agents: CameraAgent[];
-  camera: "office" | "boardroomKitchen" | "overflowOffice";
+  camera: "office" | "boardroomKitchen" | "overflowOffice" | NebulaCamera;
   seedSeated?: boolean;
+  telemetry?: NebulaTelemetry;
 };
 
 function stableNumericId(id: string): number {
@@ -27,11 +31,14 @@ function stableNumericId(id: string): number {
   return Math.abs(hash) || 1;
 }
 
-export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelOfficeCanvasProps) {
+export function PixelOfficeCanvas({ agents, camera, seedSeated = false, telemetry }: PixelOfficeCanvasProps) {
+  const nebulaMode = camera === "training" || camera === "rendering" || camera === "engineering" ||
+    camera === "experiments" || camera === "overview";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const officeRef = useRef<OfficeState | null>(null);
-  const cameraBoundsRef = useRef<Record<"office" | "boardroomKitchen" | "overflowOffice", CameraBounds> | null>(null);
+  const cameraBoundsRef = useRef<Record<"office" | "boardroomKitchen" | "overflowOffice" | NebulaCamera, CameraBounds> | null>(null);
+  const nebulaBoundsRef = useRef<NebulaCameraBounds | null>(null);
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const agentMeta = useMemo(
@@ -43,10 +50,11 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
     let cancelled = false;
 
     void loadPixelAssets()
-      .then(({ layouts, cameraBounds }) => {
+      .then(({ layouts, cameraBounds, nebulaCameraBounds }) => {
         if (cancelled) return;
-        const office = new OfficeState(layouts.combined);
-        cameraBoundsRef.current = cameraBounds;
+        const office = new OfficeState(nebulaMode ? layouts.nebula : layouts.combined);
+        cameraBoundsRef.current = {...cameraBounds, ...nebulaCameraBounds};
+        nebulaBoundsRef.current = nebulaCameraBounds;
         officeRef.current = office;
         setReady(true);
       })
@@ -58,7 +66,7 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [nebulaMode]);
 
   useEffect(() => {
     const office = officeRef.current;
@@ -68,7 +76,19 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
     for (const agent of agents) {
       const id = stableNumericId(agent.id);
       const existed = office.characters.has(id);
-      office.addAgent(id, agent.characterIndex, 0, undefined, true);
+      const zone = nebulaMode && agent.room ? nebulaBoundsRef.current?.[agent.room] : null;
+      let seatChoice: string | undefined;
+      if (zone && !existed) {
+        for (const [seatId, seat] of office.seats) {
+          if (seat.assigned) continue;
+          if (seat.seatCol >= zone.col && seat.seatCol < zone.col + zone.cols &&
+              seat.seatRow >= zone.row && seat.seatRow < zone.row + zone.rows) {
+            seatChoice = seatId;
+            break;
+          }
+        }
+      }
+      office.addAgent(id, agent.characterIndex, 0, seatChoice, true);
       const character = office.characters.get(id);
       // Nebula observer mode: place newly observed sprites at actual Agent Pixels seats
       // immediately, rather than piling everybody into the shared entrance corridor.
@@ -99,7 +119,7 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
     for (const id of office.characters.keys()) {
       if (!incoming.has(id)) office.removeAgent(id);
     }
-  }, [agents, ready, seedSeated]);
+  }, [agents, ready, seedSeated, nebulaMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -165,6 +185,9 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
           layout.rows,
         );
 
+        if (nebulaMode && nebulaBoundsRef.current) {
+          renderNebulaTelemetry(ctx, nebulaBoundsRef.current, telemetry, offsetX, offsetY, zoom, Date.now());
+        }
         ctx.save();
         ctx.font = `${Math.max(10, Math.floor(5 * zoom))}px sans-serif`;
         ctx.textAlign = "center";
@@ -188,7 +211,7 @@ export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelO
       observer.disconnect();
       stop();
     };
-  }, [agentMeta, camera, ready]);
+  }, [agentMeta, camera, ready, nebulaMode, telemetry]);
 
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "100%", height: "min(725px, calc(100vh - 185px))", minHeight: "520px" }}>
