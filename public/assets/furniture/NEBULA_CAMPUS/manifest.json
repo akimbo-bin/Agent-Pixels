@@ -1631,6 +1631,131 @@
     },
     {
       "type": "asset",
+      "id": "N_POD_REJECTED",
+      "name": "Pod Rejected",
+      "file": "N_POD_REJECTED.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_TRAINING",
+      "name": "Pod Training",
+      "file": "N_POD_TRAINING.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_EVALUATED",
+      "name": "Pod Evaluated",
+      "file": "N_POD_EVALUATED.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_EXPORTED",
+      "name": "Pod Exported",
+      "file": "N_POD_EXPORTED.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_POD_LOADED",
+      "name": "Pod Loaded",
+      "file": "N_POD_LOADED.png",
+      "width": 16,
+      "height": 32,
+      "footprintW": 1,
+      "footprintH": 2,
+      "category": "decor",
+      "backgroundTiles": 0,
+      "orientation": null,
+      "nebula": {
+        "kind": "pod",
+        "state": "unknown",
+        "frame": 0,
+        "anchor": [
+          0,
+          32
+        ],
+        "layer": "furniture",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
       "id": "N_TELESCOPE_0",
       "name": "Telescope 0",
       "file": "N_TELESCOPE_0.png",

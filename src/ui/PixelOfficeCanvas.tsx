@@ -7,12 +7,13 @@ import {loadPixelAssets} from './pixelAssets.js';
 import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/nebulaOverlay.js';
 import {ROOMS,ROLE_SEATS,type NebulaRoom,type NebulaCamera,type NebulaBounds} from '../office/layout/nebulaLayouts.js';
 import {WorldCamera} from '../office/observatory/camera.js';
+import {furnitureProjection} from '../office/observatory/sceneProjection.js';
 import {DemoWalks} from '../office/observatory/demoWalks.js';
 import {getCatalogEntry} from '../office/layout/furnitureCatalog.js';
 export {ROOMS,ROLE_SEATS};
 export type {NebulaRoom,NebulaCamera};
 export type CameraAgent={id:string;name:string;role?:string;seatId?:string;status?:string|null;activityKind?:'coding'|'research'|'writing'|'meeting'|'idle';characterIndex?:number;room?:NebulaRoom};
-export type WorldSelection={kind:'room'|'agent'|'furniture';id:string;name:string;room?:NebulaRoom};
+export type WorldSelection={kind:'room'|'agent'|'furniture'|'model';id:string;name:string;room?:NebulaRoom};
 export type SceneHandle={fit:()=>void;focus:(room:NebulaRoom)=>void;follow:(id:string|null)=>void;inspect:()=>unknown};
 export type PixelOfficeCanvasProps={agents:CameraAgent[];camera:'office'|'boardroomKitchen'|'overflowOffice'|NebulaCamera;seedSeated?:boolean;telemetry?:NebulaTelemetry;onSelect?:(selection:WorldSelection)=>void;onReady?:(handle:SceneHandle)=>void;reducedMotion?:boolean};
 export function stableNumericId(id:string){let hash=0;for(let i=0;i<id.length;i++)hash=(hash*31+id.charCodeAt(i))|0;return Math.abs(hash)||1;}
@@ -123,19 +124,8 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       office.update(dt);
       artClock+=dt;
       if(Math.floor(artClock*4)!==artFrame){
-        artFrame=Math.floor(artClock*4);const types=new Map<string,string>();
-        const frame=p.reducedMotion?0:artFrame%2;
-        const variant=(base:string,key:'training'|'render'|'ci'|'evaluation')=>{
-          const state=p.telemetry?.sources.jobs?p.telemetry.jobs[key]?.state??'unknown':'unknown';
-          const id=state==='unknown'?base:`${base}_${state}_${state==='running'?frame:0}`;
-          return getCatalogEntry(id)?id:base;
-        };
-        types.set('rocket-gantry',variant('N_ROCKET','ci'));types.set('render-rack',variant('N_RENDER','render'));types.set('audio-judge',variant('N_JUDGE','evaluation'));
-        for(let i=0;i<4;i++)types.set(`gpu-${i}`,variant('N_RACK','training'));
-        const stage=Math.max(0,Math.min(6,p.telemetry?.stage??0));types.set('telescope-foundation',`N_TELESCOPE_${stage}`);
-        for(let i=0;i<8;i++)types.set(`pod-${i}`,i<(p.telemetry?.modelCount??0)?`N_POD_${i}`:'N_POD_EMPTY');
-        for(const key of ['upcoming','in_progress','review','blocked'] as const){const count=p.telemetry?.sources.paperclip?p.telemetry.queue[key]??0:0;types.set(`queue-${key}`,`N_PAPERS_${Math.min(8,Math.max(0,count))}`);}
-        if(nebulaMode)office.setFurnitureVisuals(types);
+        artFrame=Math.floor(artClock*4);
+        if(nebulaMode)office.setFurnitureVisuals(furnitureProjection(p.telemetry,p.reducedMotion?0:artFrame%2));
       }
     },render:ctx=>{
       const now=performance.now();frames.push(now-lastFrame);lastFrame=now;if(frames.length>600)frames.shift();

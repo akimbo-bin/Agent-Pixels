@@ -112,6 +112,15 @@ def sprite(kind,w,h,variant=0,state='unknown',frame=0):
   rect(d,(1,1,w-2,h-2),WOOD,INK);rect(d,(3,3,w-4,h-4),'#172d4c');
   for x,y in ((8,8),(18,14),(31,7),(44,18),(21,26)):d.line((x-2,y,x+2,y),fill=GOLD);d.line((x,y-2,x,y+2),fill=GOLD)
   d.line((8,8,18,14,31,7,44,18,21,26,8,8),fill=METAL)
+ if kind=='pod' and variant>=8:
+  if variant==8:
+   for y in range(h):
+    for x in range(w):
+     r,g,b,a=im.getpixel((x,y));gray=(r+g+b)//3;im.putpixel((x,y),(gray,gray,gray,a))
+  elif variant==9:d.rectangle((4,8,w-5,h-12),fill=INK);d.line((4,h-11,w-5,h-11),fill=GOLD)
+  elif variant==10:d.ellipse((w-8,5,w-3,10),fill=GOLD)
+  elif variant==11:rect(d,(w-5,h-10,w-1,h-7),TEAL)
+  elif variant==12:d.line((5,15,5,8,10,6,10,13),fill=PAPER,width=1);d.ellipse((3,14,5,16),fill=PAPER);d.ellipse((8,12,10,14),fill=PAPER)
  # Status beacon is a tiny distinct layer on machines, never a decorative fan.
  if kind in ('rocket','rack','render','judge'):
   rect(d,(w-7,h-7,w-4,h-4),led);d.point((w-6,h-6),fill=PAPER if state=='running' and frame%2 else led)
@@ -149,6 +158,7 @@ add('N_OPTICS','optics',32,32)
 add('N_POD_EMPTY','pod',16,32,variant=-1)
 for i in range(9):add(f'N_PAPERS_{i}','paper',32,16,variant=i)
 for i in range(8):add(f'N_POD_{i}','pod',16,32,variant=i)
+for i,state in enumerate(['REJECTED','TRAINING','EVALUATED','EXPORTED','LOADED']):add('N_POD_'+state,'pod',16,32,variant=8+i)
 for i in range(7):add(f'N_TELESCOPE_{i}','telescope',96,80,variant=i)
 (ROOT/'manifest.json').write_text(json.dumps(dict(id='NEBULA_CAMPUS',name='Original Nebula campus',type='group',category='decor',members=assets),indent=2)+'\n')
 # Contact sheet is an actual export of the registered PNGs, not a mock-up.

@@ -1,7 +1,7 @@
 import {TILE_SIZE} from '../types.js';
 import {ROOMS,type NebulaCameraBounds} from '../layout/nebulaLayouts.js';
 export type ReadOnlyJob={state:string;ticket?:string;progress?:number|null;machine?:string};
-export type NebulaTelemetry={mode:'demo'|'live'|'unconfigured';jobs:Partial<Record<'training'|'render'|'ci'|'evaluation',ReadOnlyJob>>;queue:{upcoming:number|null;in_progress:number|null;review:number|null;blocked?:number|null};sources:{paperclip:boolean;jobs:boolean};stage?:number|null;modelCount?:number|null;renderCount?:number|null};
+export type NebulaTelemetry={mode:'demo'|'live'|'unconfigured';jobs:Partial<Record<'training'|'render'|'ci'|'evaluation',ReadOnlyJob>>;queue:{upcoming:number|null;in_progress:number|null;review:number|null;blocked?:number|null};sources:{paperclip:boolean;jobs:boolean};stage?:number|null;modelCount?:number|null;modelPods?:Array<{id:string;state:string}>;renderCount?:number|null};
 const shades:Record<string,string>={running:'#79d6b1',queued:'#e6b56a',done:'#6bafe8',failed:'#f07b77',stalled:'#f07b77',unknown:'#87939f'};
 export function renderNebulaTelemetry(ctx:CanvasRenderingContext2D,_bounds:NebulaCameraBounds,data:NebulaTelemetry|undefined,ox:number,oy:number,zoom:number,now:number){
  ctx.save();ctx.textBaseline='middle';ctx.textAlign='left';ctx.font=`${Math.max(8,5*zoom)}px monospace`;
