@@ -3,3 +3,5 @@ AGENTS.md
 node_modules
 dist
 release
+
+__pycache__/

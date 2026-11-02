@@ -8,6 +8,7 @@ import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/
 import {ROOMS,ROLE_SEATS,type NebulaRoom,type NebulaCamera,type NebulaBounds} from '../office/layout/nebulaLayouts.js';
 import {WorldCamera} from '../office/observatory/camera.js';
 import {furnitureProjection} from '../office/observatory/sceneProjection.js';
+import {LoungeWalks} from '../office/observatory/loungeWalks.js';
 import {DemoWalks} from '../office/observatory/demoWalks.js';
 import {getCatalogEntry} from '../office/layout/furnitureCatalog.js';
 export {ROOMS,ROLE_SEATS};
@@ -21,7 +22,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
   const canvasRef=useRef<HTMLCanvasElement>(null),wrapRef=useRef<HTMLDivElement>(null);
   const officeRef=useRef<OfficeState|null>(null),latest=useRef(props),view=useRef(new WorldCamera());
   const handleRef=useRef<SceneHandle|null>(null),walksRef=useRef(new DemoWalks()),followRef=useRef<string|null>(null);
-  const modeRef=useRef<string|undefined>(undefined);
+  const modeRef=useRef<string|undefined>(undefined),loungeRef=useRef(new LoungeWalks());
   const boundsRef=useRef<Record<string,NebulaBounds>>({});
   const [ready,setReady]=useState(false),[error,setError]=useState<string|null>(null);
   latest.current=props;
@@ -41,7 +42,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     if(modeRef.current!==undefined&&modeRef.current!==mode){
       // Clear synthetic occupancy immediately at the source boundary.
       for(const ch of office.characters.values())if(ch.seatId){const s=office.seats.get(ch.seatId);if(s)s.assigned=false;}
-      office.characters.clear();walksRef.current=new DemoWalks();followRef.current=null;
+      office.characters.clear();walksRef.current=new DemoWalks();loungeRef.current=new LoungeWalks();followRef.current=null;
     }
     modeRef.current=mode;
     const incoming=new Set<number>();
@@ -61,7 +62,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       }
       if(ch){
         // Do not use setAgentActive(false): upstream clears in-progress paths.
-        ch.isActive=agent.activityKind!=='idle'&&!!agent.activityKind&&!walksRef.current.travelers.has(id);
+        ch.isActive=agent.activityKind!=='idle'&&!!agent.activityKind&&!walksRef.current.travelers.has(id)&&!loungeRef.current.travelers.has(id);
         ch.currentTool=ch.isActive?(agent.activityKind==='research'?'Read':'Edit'):null;
         if(!ch.isActive&&ch.state===CharacterState.TYPE)ch.state=CharacterState.IDLE;
         ch.wanderTimer=999;ch.seatTimer=999;
@@ -81,7 +82,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     const camera=view.current,instanceId=crypto.randomUUID(),frames:number[]=[];
     let lastFrame=performance.now(),artClock=0,artFrame=-1;
     const handle:SceneHandle={fit:()=>{camera.fit();followRef.current=null;},focus:room=>{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);followRef.current=null;},follow:id=>{followRef.current=id;},inspect:()=>({instanceId,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
-      actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,path:ch.path.length,state:ch.state})),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
+      actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,path:ch.path.length,state:ch.state})),lounge:[...loungeRef.current.travelers.entries()].map(([id,t])=>({id,...t})),visuals:Object.fromEntries(furnitureProjection(latest.current.telemetry,latest.current.reducedMotion?0:artFrame%4)),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
     handleRef.current=handle;latest.current.onReady?.(handle);
     let firstSize=true;
     const resize=()=>{const r=wrap.getBoundingClientRect(),dpr=devicePixelRatio||1;camera.width=r.width;camera.height=r.height;
@@ -105,7 +106,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       const actor=[...office.characters.values()].find(ch=>Math.hypot(ch.x-w.x,ch.y-w.y)<13);
       const meta=actor?latest.current.agents.find(a=>stableNumericId(a.id)===actor.id):undefined;
       if(meta){latest.current.onSelect?.({kind:'agent',id:meta.id,name:meta.name,room:meta.room});return;}
-      const f=[...office.getLayout().furniture].reverse().find(f=>{const e=getCatalogEntry(f.type);return e&&col>=f.col&&col<f.col+e.footprintW&&row>=f.row&&row<f.row+e.footprintH;});
+      const f=[...office.getLayout().furniture].reverse().find(f=>{const e=getCatalogEntry(f.type);return e&&e.renderLayer!=='ground'&&e.category!=='wall'&&col>=f.col&&col<f.col+e.footprintW&&row>=f.row&&row<f.row+e.footprintH;});
       const r=ROOMS.find(r=>col>=r.bounds.col&&col<r.bounds.col+r.bounds.cols&&row>=r.bounds.row&&row<r.bounds.row+r.bounds.rows);
       if(f){latest.current.onSelect?.({kind:'furniture',id:f.uid,name:f.uid.replaceAll('-',' '),room:r?.key});return;}
       if(r){handle.focus(r.key);latest.current.onSelect?.({kind:'room',id:r.id,name:r.name,room:r.key});}
@@ -119,13 +120,17 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('wheel',wheel,{passive:false});canvas.addEventListener('keydown',key);
     const stop=startGameLoop(canvas,{update:dt=>{
       const p=latest.current;
-      if(p.telemetry?.mode==='demo'&&!p.reducedMotion)walksRef.current.update(office,dt,new Map(p.agents.map(a=>[a.role??'',stableNumericId(a.id)])));
+      if(p.telemetry?.mode==='demo'&&p.telemetry?.hqMode!=='cooldown'&&!loungeRef.current.travelers.size&&!p.reducedMotion)walksRef.current.update(office,dt,new Map(p.agents.map(a=>[a.role??'',stableNumericId(a.id)])));
+      if(!p.reducedMotion){
+        const eligible=new Set(p.telemetry?.loungeIds??[]);
+        loungeRef.current.update(office,new Map(p.agents.filter(a=>eligible.has(a.id)).map(a=>[stableNumericId(a.id),a.role??''])));
+      }
       for(const ch of office.characters.values()){ch.wanderTimer=999;ch.seatTimer=999;}
-      office.update(dt);
+      if(!p.reducedMotion)office.update(dt);
       artClock+=dt;
       if(Math.floor(artClock*4)!==artFrame){
         artFrame=Math.floor(artClock*4);
-        if(nebulaMode)office.setFurnitureVisuals(furnitureProjection(p.telemetry,p.reducedMotion?0:artFrame%2));
+        if(nebulaMode)office.setFurnitureVisuals(furnitureProjection(p.telemetry,p.reducedMotion?0:artFrame%4));
       }
     },render:ctx=>{
       const now=performance.now();frames.push(now-lastFrame);lastFrame=now;if(frames.length>600)frames.shift();
@@ -140,6 +145,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       }
       ctx.save();ctx.textAlign='center';ctx.font=`${Math.max(9*dpr,5*zoom)}px monospace`;ctx.lineWidth=3*dpr;ctx.strokeStyle='#101827';ctx.fillStyle='#f0e5c8';
       if(camera.zoom>.7)for(const ch of office.characters.values()){
+        if(camera.zoom<2&&loungeRef.current.travelers.has(ch.id)&&!ch.path.length)continue;
         const a=p.agents.find(a=>stableNumericId(a.id)===ch.id);if(!a)continue;const x=offsetX+ch.x*zoom,y=offsetY+(ch.y+14)*zoom;
         ctx.strokeText(a.name,x,y);ctx.fillText(a.name,x,y);
       }ctx.restore();

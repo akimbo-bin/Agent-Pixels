@@ -4,14 +4,16 @@ Rebuild with Python + Pillow. Runtime needs only checked-in PNG and manifest JSO
 from pathlib import Path
 from PIL import Image, ImageDraw
 import json, math
+from nebula_art_details import KINDS, draw_detail
 ROOT=Path(__file__).resolve().parents[1]/'public/assets/furniture/NEBULA_CAMPUS'
 ROOT.mkdir(parents=True,exist_ok=True)
 INK='#101c2d';EDGE='#304759';METAL='#557583';LIGHT='#b9d1ca';GOLD='#e6b56a';WOOD='#866047';PAPER='#eee0bc';TEAL='#79d6b1';PURPLE='#b88bee'
 assets=[];atlas=[]
 def rect(d,box,fill,outline=None):d.rectangle(tuple(map(int,box)),fill=fill,outline=outline)
 def sprite(kind,w,h,variant=0,state='unknown',frame=0):
+ if kind in KINDS:return draw_detail(kind,w,h,variant,state,frame)
  im=Image.new('RGBA',(w,h));d=ImageDraw.Draw(im)
- led={'unknown':'#7b8997','idle':'#8daeb3','queued':GOLD,'running':TEAL,'stalled':'#f07b77','failed':'#e66c72','done':'#82c6ed'}[state]
+ led={'unknown':'#7b8997','idle':'#8daeb3','queued':GOLD,'running':TEAL,'stalled':'#f07b77','failed':'#e66c72','done':'#82c6ed','waiting':'#e6b56a','cooldown':'#8296b8'}[state]
  if kind.startswith('desk') or kind in ('bench','review','clerk'):
   hue=WOOD if kind.startswith('desk') or kind=='clerk' else LIGHT if kind=='review' else METAL
   rect(d,(2,9,w-3,h-6),INK);rect(d,(3,7,w-4,h-10),hue,EDGE);rect(d,(4,8,w-5,10),GOLD if kind=='desk-main' else LIGHT)
@@ -126,17 +128,17 @@ def sprite(kind,w,h,variant=0,state='unknown',frame=0):
   rect(d,(w-7,h-7,w-4,h-4),led);d.point((w-6,h-6),fill=PAPER if state=='running' and frame%2 else led)
  return im
 
-def add(id,kind,w,h,category='decor',bg=0,variant=0,states=False):
+def add(id,kind,w,h,category='decor',bg=0,variant=0,states=False,layer='furniture'):
  records=[]
- for state in (['unknown','idle','queued','running','stalled','failed','done'] if states else ['unknown']):
-  for frame in range(2 if state=='running' else 1):
+ for state in (['unknown','idle','queued','running','stalled','failed','done','waiting','cooldown'] if states else ['unknown']):
+  for frame in range(4 if state=='running' else 1):
    aid=id if state=='unknown' else f'{id}_{state}_{frame}'
    im=sprite(kind,w,h,variant,state,frame);im.save(ROOT/(aid+'.png'));atlas.append((aid,im))
    rec=dict(type='asset',id=aid,name=id.removeprefix('N_').replace('_',' ').title(),file=aid+'.png',width=w,height=h,footprintW=w//16,footprintH=h//16,category=category,backgroundTiles=bg,orientation='back' if category=='chairs' else None,
-    nebula=dict(kind=kind,state=state,frame=frame,anchor=[0,h],layer='furniture',approach='south',ambient=False))
+    renderLayer=layer,nebula=dict(kind=kind,state=state,frame=frame,anchor=[0,h],layer=layer,approach='south',ambient=False))
    records.append(rec)
  assets.extend(records)
-add('N_EXECUTIVE','desk-main',80,32,'desks',1)
+add('N_EXECUTIVE','desk-main',96,48,'desks',1)
 add('N_SECONDARY','desk-secondary',48,32,'desks',1)
 add('N_CLERK','clerk',64,32,'desks',1)
 add('N_BENCH','bench',48,32,'desks',1)
@@ -159,20 +161,46 @@ add('N_POD_EMPTY','pod',16,32,variant=-1)
 for i in range(9):add(f'N_PAPERS_{i}','paper',32,16,variant=i)
 for i in range(8):add(f'N_POD_{i}','pod',16,32,variant=i)
 for i,state in enumerate(['REJECTED','TRAINING','EVALUATED','EXPORTED','LOADED']):add('N_POD_'+state,'pod',16,32,variant=8+i)
-for i in range(7):add(f'N_TELESCOPE_{i}','telescope',96,80,variant=i)
+for i in range(7):add(f'N_TELESCOPE_{i}','telescope-rich',256,144,bg=7,variant=i)
+# Architectural layers and room dressing: all original, reusable catalog assets.
+for i in range(4):add(f'N_RUG_{i}','rug',128,80,bg=5,variant=i,layer='ground')
+for i in range(3):add(f'N_GLOW_{i}','glow',96,96,bg=6,variant=i,layer='ground')
+add('N_WINDOW','window',48,64,'wall',4)
+add('N_BOOKWALL','bookwall',96,64,'wall',4)
+add('N_MISSION','mission',64,48,'wall',3)
+add('N_SOFA','sofa',64,32,'decor',1)
+add('N_TABLE','table',32,32,'decor',1)
+add('N_GLOBE','globe',32,48,'decor',2)
+add('N_TOOLS','toolwall',64,48,'wall',3)
+add('N_TURBINE','turbine',48,48,states=True)
+add('N_CRANE','crane',96,96,'decor',6)
+add('N_CONSOLE','console',64,48,'decor',1)
+add('N_CORE','core',48,64,'decor',3)
+add('N_FLUORESCENT','fluorescent',64,16,'decor',1)
+add('N_CURTAIN','curtain',48,64,'decor',4)
+add('N_MEDCART','medcart',32,48,'decor',2)
+add('N_POSTER','poster',32,48,'wall',3)
+add('N_PLANTER','planter',32,48,'decor',2)
+add('N_PIPE','pipe',96,16,'decor',1)
+add('N_ARCH','arch',64,32,'decor',2)
+add('N_TRIM','floortrim',128,80,'decor',5,layer='ground')
+add('N_DIVIDER','divider',64,32,'decor',2)
+add('N_COFFEE','coffee',48,32,'decor',1)
+add('N_GAMES','games',32,48,'decor',1)
+add('N_SIGNAL','signal',64,32,'wall',2,states=True)
 (ROOT/'manifest.json').write_text(json.dumps(dict(id='NEBULA_CAMPUS',name='Original Nebula campus',type='group',category='decor',members=assets),indent=2)+'\n')
 # Contact sheet is an actual export of the registered PNGs, not a mock-up.
-cols=8;cw=128;ch=128;sheet=Image.new('RGB',(cols*cw,math.ceil(len(atlas)/cols)*ch),'#152233');d=ImageDraw.Draw(sheet)
+cols=6;cw=288;ch=176;sheet=Image.new('RGB',(cols*cw,math.ceil(len(atlas)/cols)*ch),'#152233');d=ImageDraw.Draw(sheet)
 for i,(name,im) in enumerate(atlas):
- x=(i%cols)*cw;y=(i//cols)*ch;sheet.paste(im,(x+(cw-im.width)//2,y+8),im);d.text((x+4,y+108),name,fill=PAPER)
+ x=(i%cols)*cw;y=(i//cols)*ch;sheet.paste(im,(x+(cw-im.width)//2,y+8),im);d.text((x+4,y+158),name,fill=PAPER)
 sheet.save(ROOT/'atlas.png')
 # Subtle original grayscale floor patterns use the upstream colorization pipeline.
 floors=ROOT.parent.parent/'nebula-floors';floors.mkdir(exist_ok=True)
 for i in range(9):
  im=Image.new('RGBA',(16,16),(98+i*3,98+i*3,98+i*3,255));d=ImageDraw.Draw(im)
  if i in (1,3):
-  for y in (0,8):d.line((0,y,15,y),fill='#555555');d.line((7 if y==0 else 3,y,7 if y==0 else 3,y+7),fill='#666666')
- elif i in (6,7):d.line((0,15,15,15),fill='#505050');d.line((15,0,15,15),fill='#505050');d.point((2,2),fill='#888888')
+  for y in (0,8):d.line((0,y,15,y),fill='#626262');d.line((7 if y==0 else 3,y,7 if y==0 else 3,y+7),fill='#666666')
+ elif i in (6,7):d.line((0,15,15,15),fill='#686868');d.line((15,0,15,15),fill='#686868');d.point((2,2),fill='#888888')
  else:d.line((0,15,15,15),fill='#696969');d.line((15,0,15,15),fill='#696969')
  im.save(floors/f'floor_{i}.png')
 print(f'Authored {len(assets)} original catalog sprites, atlas and nine floors')

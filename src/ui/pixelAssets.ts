@@ -30,6 +30,7 @@ export type AssetIndex = {
     rotationScheme?: string;
     animationGroup?: string;
     frame?: number;
+    renderLayer?: 'ground' | 'furniture' | 'overhead';
     canPlaceOnSurfaces?: boolean;
     backgroundTiles?: number;
     canPlaceOnWalls?: boolean;

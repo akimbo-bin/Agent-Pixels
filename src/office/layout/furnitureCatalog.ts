@@ -20,6 +20,7 @@ export interface LoadedAssetData {
     rotationScheme?: string;
     animationGroup?: string;
     frame?: number;
+    renderLayer?: 'ground' | 'furniture' | 'overhead';
   }>;
   sprites: Record<string, SpriteData>;
 }
@@ -93,6 +94,7 @@ export function buildDynamicCatalog(assets: LoadedAssetData): boolean {
         sprite,
         isDesk: asset.isDesk,
         category: asset.category as FurnitureCategory,
+        ...(asset.renderLayer ? {renderLayer:asset.renderLayer} : {}),
         ...(asset.orientation ? { orientation: asset.orientation } : {}),
         ...(asset.canPlaceOnSurfaces ? { canPlaceOnSurfaces: true } : {}),
         ...(asset.backgroundTiles ? { backgroundTiles: asset.backgroundTiles } : {}),

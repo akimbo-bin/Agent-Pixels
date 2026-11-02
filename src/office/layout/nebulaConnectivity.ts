@@ -2,7 +2,7 @@ import type { OfficeLayout } from '../types.js';
 import { OfficeState } from '../engine/officeState.js';
 import { findPath, isWalkable } from './tileMap.js';
 import { getCatalogEntry } from './furnitureCatalog.js';
-import { ROOMS, ROLE_SEATS, ACCESS_POINTS, PUBLIC_ROUTES } from './nebulaLayouts.js';
+import { ROOMS, ROLE_SEATS, ACCESS_POINTS, PUBLIC_ROUTES, LOUNGE_POINTS } from './nebulaLayouts.js';
 
 /** Validate the decoded production catalog, never an approximation of collisions. */
 export function validateCampus(layout: OfficeLayout) {
@@ -53,6 +53,7 @@ export function validateCampus(layout: OfficeLayout) {
     return {role:s.role,seat:s.seatId,pathLength:check(`${s.role} approach`,s.approach.col,s.approach.row)};
   });
   const machines=ACCESS_POINTS.map(p=>({id:p.id,pathLength:check(p.id,p.col,p.row)}));
+  const lounge=LOUNGE_POINTS.map((p,i)=>({id:i,pathLength:check(`lounge ${i}`,p.col,p.row)}));
   if(reachable.size!==office.walkableTiles.length)failures.push(`${office.walkableTiles.length-reachable.size} disconnected walk tiles`);
-  return {failures,doors,roles,machines,seats,walkableCount:office.walkableTiles.length,reachableWalkableCount:reachable.size};
+  return {failures,doors,roles,machines,lounge,seats,walkableCount:office.walkableTiles.length,reachableWalkableCount:reachable.size};
 }

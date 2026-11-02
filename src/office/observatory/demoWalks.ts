@@ -3,7 +3,7 @@ export const DEMO_JOURNEYS = [
   {role:'Clerk',start:3,to:{col:9,row:8}},
   {role:'Engine',start:7,to:{col:36,row:24}},
   {role:'Reviewer',start:11,to:{col:10,row:26}},
-  {role:'Training',start:15,to:{col:42,row:9}},
+  {role:'Training',start:15,to:{col:42,row:11}},
   {role:'Doctor',start:19,to:{col:23,row:8}},
 ];
 /** Demo-only journeys use upstream walkToTile/sendToSeat and ordinary updates. */
