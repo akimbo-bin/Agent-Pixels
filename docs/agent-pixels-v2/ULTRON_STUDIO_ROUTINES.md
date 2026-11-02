@@ -1,29 +1,29 @@
-# Proposed Ultron Studio — Agent Pixels V2
+# Ultron Studio — Agent Pixels V2 (registered, route pending)
 
-> **Status: NOT REGISTERED / NOT ENABLED.** This is a durable role and schedule specification, **not evidence that Shepherd routines exist or are sending**. Last API attempt: Shepherd reads returned `SHEPHERD_READ_SOURCE_UNAVAILABLE`; `preview_studio` returned `STUDIO_CREATE_CANONICAL_INTENT_REQUIRED`. Do not claim activation or create a competing scheduler. After the authorized Host route recovers, preview/register using exact signed Host admission and compare resulting routine receipts.
+> **Verified status (2026-11-02, 16:27 MST): REGISTERED / DISABLED / NEEDS_ROUTE_AUTH.** Shepherd Host registry revision **5** confirmed creation operation `agent-pixels-v2-create-20261102-01`; four routine IDs exist, **zero enabled**, and no Send was authorized. The Host has not attested the Aidan account's membership in the new ChatGPT Project; do not activate until Host route preflight qualifies. All **79 older** routines were separately disabled, with original 1,329 fire records preserved. Host service `ultron-v3-shepherd-shadow-host.service` is **active** on VM118; VM118 Business runtime supervisor remains **inactive**. Owner emergency-pause marker is preserved as `PAUSED.resumed-for-agent-pixels-20261102`. Do not bulk resume legacy schedules.
 
-## Canonical intent to register
+## Actual registered Studio binding
 
 - Studio slug: `agent-pixels-v2`
 - Display name: **Agent Pixels V2 — Dollhouse Builder**
 - Authorized GitHub repository: `https://github.com/akimbo-bin/Agent-Pixels`
 - Runtime source-of-truth: [V2 START_HERE](START_HERE_FOR_CODEX.md) and [delivery tickets](docs/06_EXECUTION_PLAN_AND_ACCEPTANCE.md).
 - GitHub anchor: [documentation PR #2](https://github.com/akimbo-bin/Agent-Pixels/pull/2). The fork's Issues feature was disabled (HTTP 410) at setup, so do not invent an issue ID or use `start_mission` without a real, authorized issue.
-- Sender: **Aidan** when an exact destination is authorized. The prior owner policy requires the appropriate **ChatGPT Project route**, not the HOME fallback. A dedicated Agent Pixels Project URL and host admission are not yet available; don't quietly substitute the old Ultron/Nebula Project.
+- Sender: **Aidan** (registered). Dedicated ChatGPT Project: [Agent Pixels V2](https://chatgpt.com/g/g-p-6ae91c3547fc8191bc10714f8c184f62/project), Project ID `g-p-6ae91c3547fc8191bc10714f8c184f62`. The URL exists and was verified in a logged-in Chrome session, but **Host account-to-Project route attestation remains UNKNOWN**, so activation is unavailable. Do not substitute an existing Ultron/Nebula Project or default HOME.
 - Executor: ChatGPT browser/Studio using connected GitHub and Machine Portal under existing permissions, **not Codex CLI while its account usage is exhausted**. Check quotas and other active workers before claiming any implementation work.
 
-## Operating cadence — proposed, must validate with Host schedule preview
+## Registered defaults vs future proposed cadence
 
-Start conservatively to avoid wasting expensive ChatGPT messages when source/credits/Host are unavailable:
+The Host created disabled **GPT-6 Extra High** routines with default cadence: **Director every 4 hours; three Executors every 1 hour**. Do not enable on those defaults while quota/route are unknown. The following proposed slower cadences are **not yet applied**:
 
 | Role | Intended scope | Proposed interval and stagger | Initial state |
 | --- | --- | --- | --- |
-| Director | Reconcile exact heads, available quota, existing work/PR review, unblock highest-priority valid ticket, integrate only independently accepted changes | Every 4 hours during 09:00–21:00 America/Edmonton | DISABLED pending Host admission |
-| Executor A — Scene + Elevator | V2-00/01/02/03 scene graph, multi-floor cutaway renderer, continuous elevator test | Every 6 hours, offset 60 minutes from Director | DISABLED |
-| Executor B — Asset Studio | V2-05/07 and first authentic image-generated telescope/room materials, asset normalization and approval UI | Every 6 hours, offset 120 minutes from Director | DISABLED |
-| Executor C — Editor + Review | V2-04/06 direct manipulation, save/reload, snapshot adapter and independent cross-role review/QA | Every 8 hours, offset 180 minutes from Director | DISABLED |
+| Director | Reconcile exact heads, available quota, existing work/PR review, unblock highest-priority valid ticket, integrate only independently accepted changes | Proposed: every 4 hours during 09:00–21:00 America/Edmonton; current Host: 4h interval | REGISTERED DISABLED |
+| Executor A — Scene + Elevator | V2-00/01/02/03 scene graph, multi-floor cutaway renderer, continuous elevator test | Proposed: every 6 hours; current Host: 1h interval | REGISTERED DISABLED |
+| Executor B — Asset Studio | V2-05/07 and first authentic image-generated telescope/room materials, asset normalization and approval UI | Proposed: every 6 hours; current Host: 1h interval | REGISTERED DISABLED |
+| Executor C — Editor + Review | V2-04/06 direct manipulation, save/reload, snapshot adapter and independent cross-role review/QA | Proposed: every 8 hours; current Host: 1h interval | REGISTERED DISABLED |
 
-Only one physical Shepherd scheduler should own each routine; no second Automations schedule or independent cron sending ChatGPT messages. Do not enable more than Host and owner budget allow. Schedule shape is **intent**, not an executable `schedule_spec` until Host preview qualifies it.
+**Registered routine IDs:** `agent-pixels-v2-studio-director`, `agent-pixels-v2-studio-exec-a`, `agent-pixels-v2-studio-exec-b`, `agent-pixels-v2-studio-exec-c`. The role-specific prompts below are **planned**, not verified as the persisted Host prompts. Once the authenticated Settings reader works, review and install them using exact revision-fenced Host operations, configure conservative cadences, and qualify the Project route **before activation**. One physical Shepherd scheduler remains the sole authority; no extra Automations or cron.
 
 ## Common immutable instructions for all four roles
 
@@ -57,7 +57,7 @@ Implement reusable asset library and candidate approval pipeline: natural-langua
 
 Implement authenticated edit mode separate from read-only Nebula viewer, select/move/resize/rotate props with snap+free placement, tile/texture paint, rooms/floors/prefabs, undo/redo and save/reload versioned scene. Verify invalid placement/reachability and collisions fail clearly; telemetry-bound equipment remains truthful. Review A/B PRs independently on exact heads, exercise the rendered app in Chrome desktop/mobile and record visual gaps against target. No new project-wide UI rewrite or raw content publishing.
 
-## Initial acceptance receipts to capture
+## Activation gates and acceptance receipts
 
 - Every routine registration and enablement: Host revision, exact four routine IDs, prompt content hash, actual schedule + timezone, sender account, target ChatGPT Project ID, enabled status and next fire; separate one-fire delivery receipt from executed code.
 - GitHub code: exact head, tests, screenshot/video, evidence-based acceptance.
