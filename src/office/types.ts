@@ -87,6 +87,7 @@ export const EditTool = {
 export type EditTool = (typeof EditTool)[keyof typeof EditTool];
 
 export interface FurnitureCatalogEntry {
+  renderLayer?: 'ground' | 'furniture' | 'overhead';
   type: string; // asset ID from furniture manifest
   label: string;
   footprintW: number;

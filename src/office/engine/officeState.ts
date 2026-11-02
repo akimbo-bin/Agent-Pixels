@@ -53,6 +53,19 @@ export class OfficeState {
   /** Reverse lookup: sub-agent character ID → parent info */
   subagentMeta: Map<number, { parentAgentId: number; parentToolId: string }> = new Map();
   private nextSubagentId = -1;
+  private visualTypes = new Map<string, string>();
+
+  /** Observer-only art projection. Footprints cannot change the walking world. */
+  setFurnitureVisuals(types: Map<string, string>): void {
+    for (const [uid, type] of types) {
+      const item = this.layout.furniture.find(f => f.uid === uid);
+      const before = item && getCatalogEntry(item.type), after = getCatalogEntry(type);
+      if (!before || !after || before.footprintW !== after.footprintW || before.footprintH !== after.footprintH ||
+          (before.backgroundTiles ?? 0) !== (after.backgroundTiles ?? 0)) throw Error(`Unsafe visual footprint: ${uid}`);
+    }
+    this.visualTypes = new Map(types);
+    this.rebuildFurnitureInstances();
+  }
 
   constructor(layout?: OfficeLayout) {
     this.layout = layout || createDefaultLayout();
@@ -591,6 +604,8 @@ export class OfficeState {
 
   /** Rebuild furniture instances with auto-state applied (active agents turn electronics ON) */
   private rebuildFurnitureInstances(): void {
+    const visualFurniture = this.layout.furniture.map(item => this.visualTypes.has(item.uid)
+      ? { ...item, type: this.visualTypes.get(item.uid)! } : item);
     // Collect tiles where active agents face desks
     const autoOnTiles = new Set<string>();
     for (const ch of this.characters.values()) {
@@ -624,13 +639,13 @@ export class OfficeState {
     }
 
     if (autoOnTiles.size === 0) {
-      this.furniture = layoutToFurnitureInstances(this.layout.furniture);
+      this.furniture = layoutToFurnitureInstances(visualFurniture);
       return;
     }
 
     // Build modified furniture list with auto-state and animation applied
     const animFrame = Math.floor(this.furnitureAnimTimer / FURNITURE_ANIM_INTERVAL_SEC);
-    const modifiedFurniture: PlacedFurniture[] = this.layout.furniture.map((item) => {
+    const modifiedFurniture: PlacedFurniture[] = visualFurniture.map((item) => {
       const entry = getCatalogEntry(item.type);
       if (!entry) return item;
       // Check if any tile of this furniture overlaps an auto-on tile

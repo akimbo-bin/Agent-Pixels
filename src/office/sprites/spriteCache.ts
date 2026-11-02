@@ -1,6 +1,8 @@
 import type { SpriteData } from '../types.js';
 
 const zoomCaches = new Map<number, WeakMap<SpriteData, HTMLCanvasElement>>();
+const nativeCache = new WeakMap<SpriteData, HTMLCanvasElement>();
+const MAX_ZOOM_CACHES = 8;
 
 // ── Outline sprite generation ─────────────────────────────────
 
@@ -46,32 +48,26 @@ export function getOutlineSprite(sprite: SpriteData): SpriteData {
 }
 
 export function getCachedSprite(sprite: SpriteData, zoom: number): HTMLCanvasElement {
-  let cache = zoomCaches.get(zoom);
-  if (!cache) {
-    cache = new WeakMap();
-    zoomCaches.set(zoom, cache);
-  }
-
-  const cached = cache.get(sprite);
-  if (cached) return cached;
-
-  const rows = sprite.length;
-  const cols = sprite[0].length;
-  const canvas = document.createElement('canvas');
-  canvas.width = cols * zoom;
-  canvas.height = rows * zoom;
-  const ctx = canvas.getContext('2d')!;
-  ctx.imageSmoothingEnabled = false;
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const color = sprite[r][c];
-      if (color === '') continue;
-      ctx.fillStyle = color;
-      ctx.fillRect(c * zoom, r * zoom, zoom, zoom);
+  let cache=zoomCaches.get(zoom);
+  if(!cache){cache=new WeakMap();zoomCaches.set(zoom,cache);}
+  else {zoomCaches.delete(zoom);zoomCaches.set(zoom,cache);}
+  if(zoomCaches.size>MAX_ZOOM_CACHES)zoomCaches.delete(zoomCaches.keys().next().value!);
+  const cached=cache.get(sprite);if(cached)return cached;
+  const rows=sprite.length,cols=sprite[0].length;
+  let native=nativeCache.get(sprite);
+  if(!native){
+    native=document.createElement('canvas');native.width=cols;native.height=rows;
+    const ctx=native.getContext('2d')!;
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+      if(!sprite[r][c])continue;ctx.fillStyle=sprite[r][c];ctx.fillRect(c,r,1,1);
     }
+    nativeCache.set(sprite,native);
   }
-
-  cache.set(sprite, canvas);
-  return canvas;
+  if(zoom===1){cache.set(sprite,native);return native;}
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(cols*zoom));canvas.height=Math.max(1,Math.round(rows*zoom));
+  const ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=false;
+  // Rasterize once at native pixels. Fractional fillRect per source pixel creates
+  // antialiased gaps and compounds alpha, even with imageSmoothingEnabled=false.
+  ctx.drawImage(native,0,0,canvas.width,canvas.height);cache.set(sprite,canvas);return canvas;
 }

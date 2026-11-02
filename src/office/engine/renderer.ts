@@ -96,7 +96,8 @@ export function renderTileGrid(
       const color = tileColors?.[colorIdx] ?? { h: 0, s: 0, b: 0, c: 0 };
       const sprite = getColorizedFloorSprite(tile, color);
       const cached = getCachedSprite(sprite, zoom);
-      ctx.drawImage(cached, offsetX + c * s, offsetY + r * s);
+      const x=Math.round(offsetX+c*s),y=Math.round(offsetY+r*s);
+      ctx.drawImage(cached,x,y,Math.round(offsetX+(c+1)*s)-x,Math.round(offsetY+(r+1)*s)-y);
     }
   }
 }
