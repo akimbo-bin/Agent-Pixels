@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { TILE_SIZE } from "../office/types.js";
+import { CharacterState, TILE_SIZE } from "../office/types.js";
 import { OfficeState } from "../office/engine/officeState.js";
 import { startGameLoop } from "../office/engine/gameLoop.js";
 import { renderFrame } from "../office/engine/renderer.js";
@@ -16,6 +16,7 @@ export type CameraAgent = {
 type PixelOfficeCanvasProps = {
   agents: CameraAgent[];
   camera: "office" | "boardroomKitchen" | "overflowOffice";
+  seedSeated?: boolean;
 };
 
 function stableNumericId(id: string): number {
@@ -26,7 +27,7 @@ function stableNumericId(id: string): number {
   return Math.abs(hash) || 1;
 }
 
-export function PixelOfficeCanvas({ agents, camera }: PixelOfficeCanvasProps) {
+export function PixelOfficeCanvas({ agents, camera, seedSeated = false }: PixelOfficeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const officeRef = useRef<OfficeState | null>(null);
@@ -66,8 +67,25 @@ export function PixelOfficeCanvas({ agents, camera }: PixelOfficeCanvasProps) {
     const incoming = new Set(agents.map((agent) => stableNumericId(agent.id)));
     for (const agent of agents) {
       const id = stableNumericId(agent.id);
+      const existed = office.characters.has(id);
       office.addAgent(id, agent.characterIndex, 0, undefined, true);
       const character = office.characters.get(id);
+      // Nebula observer mode: place newly observed sprites at actual Agent Pixels seats
+      // immediately, rather than piling everybody into the shared entrance corridor.
+      // The upstream Paperclip plugin retains its normal walk-in behavior by default.
+      if (seedSeated && !existed && character?.seatId) {
+        const seat = office.seats.get(character.seatId);
+        if (seat) {
+          character.tileCol = seat.seatCol;
+          character.tileRow = seat.seatRow;
+          character.x = seat.seatCol * TILE_SIZE + TILE_SIZE / 2;
+          character.y = seat.seatRow * TILE_SIZE + TILE_SIZE / 2;
+          character.path = [];
+          character.moveProgress = 0;
+          character.state = CharacterState.TYPE;
+          character.dir = seat.facingDir;
+        }
+      }
       if (character && agent.characterIndex !== undefined) {
         if (character.palette !== agent.characterIndex) character.palette = agent.characterIndex;
         if (character.hueShift !== 0) character.hueShift = 0;
@@ -81,7 +99,7 @@ export function PixelOfficeCanvas({ agents, camera }: PixelOfficeCanvasProps) {
     for (const id of office.characters.keys()) {
       if (!incoming.has(id)) office.removeAgent(id);
     }
-  }, [agents, ready]);
+  }, [agents, ready, seedSeated]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
