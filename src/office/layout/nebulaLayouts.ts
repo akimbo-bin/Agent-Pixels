@@ -126,8 +126,8 @@ export function combineNebulaRooms(office: OfficeLayout, boardroom: OfficeLayout
   }
 
   // Four-way walkable central hall with actual pathfinding floor tiles.
-  const hallFloor=9 as TileType;
-  const hallTint: Color={h:190,s:10,b:-24,c:-18};
+  const hallFloor=7 as TileType;
+  const hallTint: Color={h:205,s:12,b:-20,c:-22};
   function walkway(x:number,y:number){
     if(x<0||x>=cols||y<0||y>=rows)return;
     const i=y*cols+x;
