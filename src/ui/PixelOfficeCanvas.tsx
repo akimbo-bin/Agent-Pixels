@@ -4,7 +4,7 @@ import {OfficeState} from '../office/engine/officeState.js';
 import {startGameLoop} from '../office/engine/gameLoop.js';
 import {renderFrame} from '../office/engine/renderer.js';
 import {drawDollhouse} from '../office/observatory/dollhouseRenderer.js';
-import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,ROOM_SLOTS,SHAFT,floorAtY} from '../office/observatory/dollhouseProjection.js';
+import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,elevatorCabinPose,ROOM_SLOTS,SHAFT,floorAtY} from '../office/observatory/dollhouseProjection.js';
 import {loadPixelAssets} from './pixelAssets.js';
 import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/nebulaOverlay.js';
 import {ROOMS,ROLE_SEATS,type NebulaRoom,type NebulaCamera,type NebulaBounds} from '../office/layout/nebulaLayouts.js';
@@ -97,7 +97,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       return accepted;
     };
     const handle:SceneHandle={fit:()=>{if(cutaway){Object.assign(camera,fitCamera(camera.width,camera.height));camera.fitted=true;}else camera.fit();followRef.current=null;},focus:room=>{if(cutaway){Object.assign(camera,roomCameraTarget(room,camera.width,camera.height));camera.fitted=false;}else{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);}followRef.current=null;},focusFloor:floor=>{if(cutaway){Object.assign(camera,floorCameraTarget(floor,camera.width,camera.height));camera.fitted=false;}else{const f=HQ_FLOORS.find(f=>f.id===floor);if(f)camera.fit(camera.width<680?{col:26,row:f.bounds.row,cols:12,rows:f.bounds.rows}:f.bounds);}followRef.current=null;},travel:(id,room)=>beginJourney(id,room),ride:(id,floor)=>beginJourney(id,undefined,floor),follow:id=>{followRef.current=id;},inspect:()=>({instanceId,presentation:cutaway?'cutaway':'campus',rooms:cutaway?ROOM_SLOTS.map(r=>({key:r.key,x:r.x,y:r.y,w:r.w,h:r.h})):undefined,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
-      actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,floor:floorForRow(ch.tileRow),riding:elevatorRef.current.isRiding(ch.id),path:ch.path.length,state:ch.state})),elevator:elevatorRef.current.getTrips(),lounge:[...loungeRef.current.travelers.entries()].map(([id,t])=>({id,...t})),visuals:Object.fromEntries([...furnitureProjection(latest.current.telemetry,latest.current.reducedMotion?0:artFrame%4),...elevatorRef.current.getVisuals()]),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
+      actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,projected:cutaway?projectActor((ch.x-8)/16,(ch.y-8)/16):null,floor:floorForRow(ch.tileRow),riding:elevatorRef.current.isRiding(ch.id),path:ch.path.length,state:ch.state})),elevator:elevatorRef.current.getTrips(),lounge:[...loungeRef.current.travelers.entries()].map(([id,t])=>({id,...t})),visuals:Object.fromEntries([...furnitureProjection(latest.current.telemetry,latest.current.reducedMotion?0:artFrame%4),...elevatorRef.current.getVisuals()]),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
     handleRef.current=handle;latest.current.onReady?.(handle);
     let firstSize=true;
     const resize=()=>{const r=wrap.getBoundingClientRect(),dpr=devicePixelRatio||1;camera.width=r.width;camera.height=r.height;
@@ -142,10 +142,10 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('wheel',wheel,{passive:false});canvas.addEventListener('keydown',key);
     const stop=startGameLoop(canvas,{update:dt=>{
       const p=latest.current;
-      if(p.telemetry?.mode==='demo'&&p.telemetry?.hqMode!=='cooldown'&&!loungeRef.current.travelers.size&&!p.reducedMotion)walksRef.current.update(office,dt,new Map(p.agents.filter(a=>!elevatorRef.current.has(stableNumericId(a.id))).map(a=>[a.role??'',stableNumericId(a.id)])));
+      if(p.telemetry?.mode==='demo'&&p.telemetry?.hqMode!=='cooldown'&&!loungeRef.current.travelers.size&&!p.reducedMotion)walksRef.current.update(office,dt,new Map(p.agents.filter(a=>!elevatorRef.current.has(stableNumericId(a.id))).map(a=>[a.role??'',stableNumericId(a.id)])),elevatorRef.current);
       if(!p.reducedMotion){
         const eligible=new Set(p.telemetry?.loungeIds??[]);
-        loungeRef.current.update(office,new Map(p.agents.filter(a=>eligible.has(a.id)&&!elevatorRef.current.has(stableNumericId(a.id))).map(a=>[stableNumericId(a.id),a.role??''])));
+        loungeRef.current.update(office,new Map(p.agents.filter(a=>eligible.has(a.id)&&!elevatorRef.current.has(stableNumericId(a.id))).map(a=>[stableNumericId(a.id),a.role??''])),elevatorRef.current);
       }
       for(const ch of office.characters.values()){ch.wanderTimer=999;ch.seatTimer=999;}
       if(!p.reducedMotion){office.update(dt);elevatorRef.current.update(office,dt);}
@@ -157,7 +157,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     },render:ctx=>{
       const now=performance.now();frames.push(now-lastFrame);lastFrame=now;if(frames.length>600)frames.shift();
       const p=latest.current,dpr=devicePixelRatio||1,layout=office.getLayout();
-      if(followRef.current){const ch=office.characters.get(stableNumericId(followRef.current));if(ch){if(cutaway){const target=projectActor((ch.x-8)/16,(ch.y-8)/16);camera.x=target.x;camera.y=target.y;}else{camera.x=ch.x;camera.y=ch.y;}camera.fitted=false;}}
+      if(followRef.current){const ch=office.characters.get(stableNumericId(followRef.current));if(ch){if(cutaway){const cabin=elevatorRef.current.getCabin();const target=cabin.phase==='ride'&&cabin.passengerId===ch.id?elevatorCabinPose(cabin):projectActor((ch.x-8)/16,(ch.y-8)/16);camera.x=target.x;camera.y=target.y;}else{camera.x=ch.x;camera.y=ch.y;}camera.fitted=false;}}
       if(cutaway){drawDollhouse(ctx,canvas.width,canvas.height,office,[...office.characters.values()],{x:camera.x,y:camera.y,zoom:camera.zoom},dpr,elevatorRef.current,new Map(p.agents.map(a=>[stableNumericId(a.id),a.name])));return;}
       const zoom=camera.zoom*dpr;
       const {offsetX,offsetY}=renderFrame(ctx,canvas.width,canvas.height,office.tileMap,office.furniture,[...office.characters.values()].filter(ch=>!elevatorRef.current.isRiding(ch.id)),zoom,

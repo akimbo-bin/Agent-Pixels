@@ -4,7 +4,7 @@ import {CharacterState, TILE_SIZE} from '../types.js';
 import {getCachedSprite} from '../sprites/spriteCache.js';
 import {getCharacterSprites} from '../sprites/spriteData.js';
 import {getCharacterSprite} from '../engine/characters.js';
-import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
+import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,elevatorCabinPose,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
 import {drawRoomDepth,drawRoomForeground,drawObservatoryCanopy} from './dollhouseDetail.js';
 import {drawExteriorBack,drawExteriorFront,drawPassageBackdrops} from './dollhouseAtmosphere.js';
 import type {ElevatorTransit} from './elevator.js';
@@ -306,7 +306,7 @@ function drawCorridorActors(c:CanvasRenderingContext2D,actors:Character[],ids:Ma
   const name=ids.get(ch.id);if(name&&name.length<17){c.textAlign='center';c.font='10px "Segoe UI",sans-serif';c.fillStyle='#f1e6db';c.fillText(name,pos.x,pos.y+10);}
  }
 }
-function drawShaft(c:CanvasRenderingContext2D,elevator:ElevatorTransit){
+function drawShaft(c:CanvasRenderingContext2D,elevator:ElevatorTransit,characters:Character[],names:Map<number,string>){
  rect(c,SHAFT,'#080d26');rect(c,{x:SHAFT.x+6,y:SHAFT.y,w:SHAFT.w-12,h:SHAFT.h},'#232748');
  for(const x of [SHAFT.x+9,SHAFT.x+SHAFT.w-13]){
   rect(c,{x,y:SHAFT.y,w:4,h:SHAFT.h},'#a78a9c');line(c,x+1,SHAFT.y,x+1,SHAFT.y+SHAFT.h,'#f0cb9d',1);
@@ -319,18 +319,25 @@ function drawShaft(c:CanvasRenderingContext2D,elevator:ElevatorTransit){
   text(c,'L'+(3-k),SHAFT.x+24,y+19,'#ffe2a1',14);
   rect(c,{x:SHAFT.x+8,y:y+156,w:SHAFT.w-16,h:5},'#f7d6a3');
  }
- const active=elevator.getTrips().filter(t=>t.phase==='ride');
- let y=145+156;
- if(active.length){
-  const trip=active[0],from=trip.from==='upper'?0:trip.from==='middle'?1:2;
-  const to=trip.to==='upper'?0:trip.to==='middle'?1:2;
-  const fraction=Math.min(1,trip.rideSeconds/1.2);
-  y=145+(from+(to-from)*fraction)*234+149;
- }
+ const cabin=elevator.getCabin();
+ const pose=elevatorCabinPose(cabin);
+ const y=pose.y;
  rect(c,{x:SHAFT.x+12,y:y-26,w:SHAFT.w-24,h:35},'#799ec0');
  rect(c,{x:SHAFT.x+16,y:y-23,w:SHAFT.w-32,h:28},'#1a3665');
  rect(c,{x:SHAFT.x+19,y:y-20,w:SHAFT.w-38,h:3},'#8eeff6');
  glow(c,SHAFT.x+SHAFT.w/2,y-9,37,'#9dfaff');
+ // Display the ACTUAL travelling character in the cabin rather than hiding
+ // the source sprite until a sudden destination-floor appearance.
+ if(cabin.passengerId!==null&&cabin.phase==='ride'){
+  const ch=characters.find(ch=>ch.id===cabin.passengerId);
+  if(ch){
+   const sprite=getCachedSprite(getCharacterSprite(ch,getCharacterSprites(ch.palette,ch.hueShift)),1.22);
+   c.drawImage(sprite,Math.round(SHAFT.x+SHAFT.w/2-sprite.width/2),Math.round(y+7-sprite.height));
+   const name=names.get(ch.id);
+   if(name){c.textAlign='center';c.font='9px "Segoe UI",sans-serif';c.fillStyle='#e7faff';
+    c.fillText(name.slice(0,12),SHAFT.x+SHAFT.w/2,y+18);}
+  }
+ }
 }
 const backgroundCache=new WeakMap<OfficeState,HTMLCanvasElement>();
 function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
@@ -417,7 +424,7 @@ export function drawDollhouse(
   c.restore();
   drawLabels(c,room);
  }
- drawShaft(c,elevator);
+ drawShaft(c,elevator,characters,agentNames);
  drawCorridorActors(c,characters,agentNames,elevator);
  c.drawImage(staticExteriorForeground(),0,0);
  c.restore();

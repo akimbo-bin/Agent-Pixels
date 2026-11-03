@@ -1,4 +1,5 @@
-import {ROOM_SLOTS,SHAFT,floorY} from './dollhouseProjection.js';
+import {ROOM_SLOTS,SHAFT,floorY,projectCorridorX} from './dollhouseProjection.js';
+import {ROOMS} from '../layout/nebulaLayouts.js';
 import type {HQFloor} from './elevator.js';
 
 /**
@@ -8,17 +9,17 @@ import type {HQFloor} from './elevator.js';
  */
 export type Passage={id:string;floor:HQFloor;kind:'room'|'lift';x:number;y:number};
 export const PASSAGES:readonly Passage[]=(['upper','middle','lower'] as const).flatMap(floor=>{
- const level=ROOM_SLOTS.filter(r=>r.floor===floor).sort((a,b)=>a.x-b.x);
- const west=level.filter(r=>r.x+r.w<=SHAFT.x);
- const east=level.filter(r=>r.x>=SHAFT.x+SHAFT.w);
- if(west.length!==2||east.length!==2)throw Error('Cutaway passage topology changed for '+floor);
+ const level=ROOM_SLOTS.filter(r=>r.floor===floor);
  const y=floorY(floor)+190;
- return [
-  {id:floor+'-west-bay',floor,kind:'room',x:(west[0].x+west[0].w+west[1].x)/2,y},
-  {id:floor+'-west-lift',floor,kind:'lift',x:SHAFT.x,y},
-  {id:floor+'-east-lift',floor,kind:'lift',x:SHAFT.x+SHAFT.w,y},
-  {id:floor+'-east-bay',floor,kind:'room',x:(east[0].x+east[0].w+east[1].x)/2,y},
- ] satisfies Passage[];
+ const doors:Passage[]=level.map(r=>{
+  const source=ROOMS.find(s=>s.key===r.key)!;
+  return {id:floor+'-'+r.key+'-door',floor,kind:'room',
+   x:projectCorridorX(floor,source.doors[0][0].col),y};
+ });
+ return [...doors,
+  {id:floor+'-west-lift',floor,kind:'lift',x:SHAFT.x+7,y},
+  {id:floor+'-east-lift',floor,kind:'lift',x:SHAFT.x+SHAFT.w-7,y},
+ ];
 });
 export type Planter={x:number;y:number;scale:number;seed:number};
 export const EXTERIOR_PLANTERS:readonly Planter[]=[
