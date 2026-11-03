@@ -4,7 +4,7 @@ import {OfficeState} from '../office/engine/officeState.js';
 import {startGameLoop} from '../office/engine/gameLoop.js';
 import {renderFrame} from '../office/engine/renderer.js';
 import {drawDollhouse} from '../office/observatory/dollhouseRenderer.js';
-import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,ROOM_SLOTS} from '../office/observatory/dollhouseProjection.js';
+import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,ROOM_SLOTS,SHAFT,floorAtY} from '../office/observatory/dollhouseProjection.js';
 import {loadPixelAssets} from './pixelAssets.js';
 import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/nebulaOverlay.js';
 import {ROOMS,ROLE_SEATS,type NebulaRoom,type NebulaCamera,type NebulaBounds} from '../office/layout/nebulaLayouts.js';
@@ -122,6 +122,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
         const actor=[...office.characters.values()].find(ch=>{const pos=projectActor((ch.x-8)/16,(ch.y-8)/16);return Math.hypot(pos.x-w.x,pos.y-19-w.y)<24;});
         const meta=actor?latest.current.agents.find(a=>stableNumericId(a.id)===actor.id):undefined;
         if(meta){latest.current.onSelect?.({kind:'agent',id:meta.id,name:meta.name,room:meta.room});return;}
+        if(w.x>=SHAFT.x&&w.x<=SHAFT.x+SHAFT.w){const floor=floorAtY(w.y);if(floor)handle.focusFloor(floor);return;}
         const bay=roomAt(w.x,w.y);if(bay){handle.focus(bay.key);latest.current.onSelect?.({kind:'room',id:ROOMS.find(r=>r.key===bay.key)?.id??bay.key,name:bay.name,room:bay.key});}return;
       }
       const actor=[...office.characters.values()].find(ch=>Math.hypot(ch.x-w.x,ch.y-w.y)<13);
@@ -157,7 +158,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       const now=performance.now();frames.push(now-lastFrame);lastFrame=now;if(frames.length>600)frames.shift();
       const p=latest.current,dpr=devicePixelRatio||1,layout=office.getLayout();
       if(followRef.current){const ch=office.characters.get(stableNumericId(followRef.current));if(ch){if(cutaway){const target=projectActor((ch.x-8)/16,(ch.y-8)/16);camera.x=target.x;camera.y=target.y;}else{camera.x=ch.x;camera.y=ch.y;}camera.fitted=false;}}
-      if(cutaway){drawDollhouse(ctx,canvas.width,canvas.height,office,[...office.characters.values()],{x:camera.x,y:camera.y,zoom:camera.zoom},dpr,elevatorRef.current,new Map(p.agents.map(a=>[stableNumericId(a.id),a.name])),now);return;}
+      if(cutaway){drawDollhouse(ctx,canvas.width,canvas.height,office,[...office.characters.values()],{x:camera.x,y:camera.y,zoom:camera.zoom},dpr,elevatorRef.current,new Map(p.agents.map(a=>[stableNumericId(a.id),a.name])));return;}
       const zoom=camera.zoom*dpr;
       const {offsetX,offsetY}=renderFrame(ctx,canvas.width,canvas.height,office.tileMap,office.furniture,[...office.characters.values()].filter(ch=>!elevatorRef.current.isRiding(ch.id)),zoom,
         (layout.cols*8-camera.x)*zoom,(layout.rows*8-camera.y)*zoom,{selectedAgentId:null,hoveredAgentId:null,hoveredTile:null,seats:office.seats,characters:office.characters},undefined,layout.tileColors,layout.cols,layout.rows);

@@ -243,7 +243,7 @@ function office(c:C,r:RoomSlot){
   }
 }
 function glowSmall(c:C,x:number,y:number){light(c,x,y,34,'#c795f7',.2);}
-export function drawObservatoryCanopy(c:C,r:RoomSlot,time:number):void{
+export function drawObservatoryCanopy(c:C,r:RoomSlot):void{
   // A raised skylight above the top storey, like an architectural section.
   // It has no physics or hit-testing footprint and cannot block any agent.
   const left=r.x+9,right=r.x+r.w-9,width=right-left;

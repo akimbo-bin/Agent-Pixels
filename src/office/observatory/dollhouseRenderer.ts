@@ -4,13 +4,13 @@ import {CharacterState, TILE_SIZE} from '../types.js';
 import {getCachedSprite} from '../sprites/spriteCache.js';
 import {getCharacterSprites} from '../sprites/spriteData.js';
 import {getCharacterSprite} from '../engine/characters.js';
-import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,projectAgentToRoom,roomSlot,floorY,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
+import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
 import {drawRoomDepth,drawRoomForeground,drawObservatoryCanopy} from './dollhouseDetail.js';
+import {drawExteriorBack,drawExteriorFront,drawPassageBackdrops} from './dollhouseAtmosphere.js';
 import type {ElevatorTransit} from './elevator.js';
 
 type Box={x:number;y:number;w:number;h:number};
 type DrawItem={y:number;draw:()=>void};
-const C={gold:'#e1bd83',night:'#060c27',navy:'#111a3c',pink:'#e6addf',sky:'#8fe9fb'};
 const hexAlpha=(hex:string,alpha:number)=>hex.slice(0,7)+Math.max(0,Math.min(255,Math.round(alpha*255))).toString(16).padStart(2,'0');
 function rect(c:CanvasRenderingContext2D,b:Box,color:string){c.fillStyle=color;c.fillRect(Math.round(b.x),Math.round(b.y),Math.ceil(b.w),Math.ceil(b.h));}
 function line(c:CanvasRenderingContext2D,x1:number,y1:number,x2:number,y2:number,color:string,w=1){c.strokeStyle=color;c.lineWidth=w;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
@@ -34,7 +34,7 @@ function litWindow(c:CanvasRenderingContext2D,x:number,y:number,w:number,h:numbe
   rect(c,{x:sx,y:sy,w:j%3===0?3:2,h:2},j%2===0?'#c7dfff':'#d4a6ff');
  }
 }
-function drawOuter(c:CanvasRenderingContext2D,time:number){
+function drawOuter(c:CanvasRenderingContext2D){
  rect(c,{x:0,y:0,w:HOUSE_W,h:HOUSE_H},'#070d29');
  const nebula=c.createRadialGradient(1180,162,50,1160,200,850);
  nebula.addColorStop(0,'#7044ac');nebula.addColorStop(.33,'#2f276b');nebula.addColorStop(.75,'#14213d');nebula.addColorStop(1,'#080d26');
@@ -332,26 +332,6 @@ function drawShaft(c:CanvasRenderingContext2D,elevator:ElevatorTransit){
  rect(c,{x:SHAFT.x+19,y:y-20,w:SHAFT.w-38,h:3},'#8eeff6');
  glow(c,SHAFT.x+SHAFT.w/2,y-9,37,'#9dfaff');
 }
-function drawArchitectureTop(c:CanvasRenderingContext2D){
- for(const y of [145,379,613]){
-  // Continuous exterior balcony spans across the entire building.
-  rect(c,{x:18,y:y+215,w:1559,h:15},'#6a4e5d');
-  rect(c,{x:18,y:y+214,w:1559,h:3},'#f0bd88');
-  for(let x=35;x<1570;x+=57){
-   rect(c,{x,y:y+219,w:4,h:21},'#d5aa81');
-   rect(c,{x:x-2,y:y+217,w:8,h:4},'#f0d0ab');
-  }
-  rect(c,{x:18,y:y+237,w:1559,h:5},'#322844');
- }
- for(let i=0;i<4;i++){
-  const x=35+i*514;
-  glow(c,x,126,64,'#e1b789');
- }
- // Building-level title and lighting, with a distinct outline rather than a map.
- // The actual React HUD provides navigation. Leave the glass canopy above
- // the third storey visible instead of painting a second UI-shaped header.
- line(c,20,96,1580,96,'#b28eaf',3);
-}
 const backgroundCache=new WeakMap<OfficeState,HTMLCanvasElement>();
 function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
  const previous=backgroundCache.get(office);
@@ -361,9 +341,10 @@ function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
  const c=canvas.getContext('2d');
  if(!c)throw Error('Cutaway background canvas could not initialize');
  c.imageSmoothingEnabled=false;
- drawOuter(c,0);
+ drawOuter(c);
+ drawExteriorBack(c);
  const dome=ROOM_SLOTS.find(r=>r.key==='observatory');
- if(dome)drawObservatoryCanopy(c,dome,0);
+ if(dome)drawObservatoryCanopy(c,dome);
  for(const room of ROOM_SLOTS){
   c.save();
   c.beginPath();c.rect(room.x,room.y,room.w,room.h);c.clip();
@@ -373,8 +354,16 @@ function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
   drawForeshortenedRugs(c,room,office);
   c.restore();
  }
+ drawPassageBackdrops(c);
  backgroundCache.set(office,canvas);
  return canvas;
+}
+let exteriorForegroundCache:HTMLCanvasElement|null=null;
+function staticExteriorForeground():HTMLCanvasElement{
+ if(exteriorForegroundCache)return exteriorForegroundCache;
+ const canvas=document.createElement('canvas');canvas.width=HOUSE_W;canvas.height=HOUSE_H;
+ const c=canvas.getContext('2d');if(!c)throw Error('Exterior foreground context unavailable');
+ drawExteriorFront(c);exteriorForegroundCache=canvas;return canvas;
 }
 type FurnitureLayerCache={canvas:HTMLCanvasElement;sprites:unknown[];poses:number[]};
 const furnitureLayerCache=new WeakMap<OfficeState,FurnitureLayerCache>();
@@ -411,7 +400,7 @@ function compositedFurniture(office:OfficeState):HTMLCanvasElement{
 export function drawDollhouse(
  c:CanvasRenderingContext2D,canvasW:number,canvasH:number,
  office:OfficeState,characters:Character[],camera:FocusCamera,dpr:number,
- elevator:ElevatorTransit,agentNames:Map<number,string>,time:number,
+ elevator:ElevatorTransit,agentNames:Map<number,string>,
 ):void{
  c.save();c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,canvasW,canvasH);
  c.setTransform(camera.zoom*dpr,0,0,camera.zoom*dpr,
@@ -430,6 +419,6 @@ export function drawDollhouse(
  }
  drawShaft(c,elevator);
  drawCorridorActors(c,characters,agentNames,elevator);
- drawArchitectureTop(c);
+ c.drawImage(staticExteriorForeground(),0,0);
  c.restore();
 }
