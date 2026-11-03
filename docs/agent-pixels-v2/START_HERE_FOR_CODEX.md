@@ -1,4 +1,6 @@
 # Agent Pixels V2: Dollhouse Renderer, World Editor, Prompt-to-Asset Studio
+
+**CURRENT OWNER PRIORITY OVERRIDE (2026-11-02):** Read [ACTIVE_SHALLOW_25D_PILOT.md](ACTIVE_SHALLOW_25D_PILOT.md) FIRST. It supersedes this document's three-floor/elevator first deliverable. Build restrained shallow 2.5D perspective in the EXISTING connected HQ, then a local ComfyUI batch asset factory and visual editor. Sol 6.1 Medium leads; Luna workers assist; no Astra. All Paperclip agents remain paused until explicit eligible dispatch.
 ## Implementation-ready product specification and Astra reconciliation
 
 Prepared 2026-11-02, America/Edmonton. Based on direct GitHub and AKIMB0-PC readback, owner-supplied current screenshot, and owner-approved generated visual target. This is a NEW product direction, not a claim that V2 has been built or that any new task has been dispatched.
