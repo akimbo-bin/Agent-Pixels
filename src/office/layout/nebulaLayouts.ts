@@ -73,6 +73,11 @@ export function buildNebulaWorld(stage = 0): {layout:OfficeLayout;cameraBounds:N
     prop(`desk-${s.role}`,type,s.col-(s.role==='Lead'?3:1),s.row-(s.role==='Lead'?3:2));
     prop(s.seatId,'N_CHAIR',s.col,s.row);
   }
+  // Three navigable lift landings inside the existing connected central shaft.
+  // Ground-layer 48x64 sprite footprints do not block any walkable tiles.
+  prop('elevator-upper','N_ELEVATOR_3',30,6);
+  prop('elevator-middle','N_ELEVATOR_2',30,22);
+  prop('elevator-lower','N_ELEVATOR_1',30,39);
   prop('telescope-foundation',`N_TELESCOPE_${Math.max(0,Math.min(6,Math.floor(stage)))}`,35,2);
   prop('rocket-gantry','N_ROCKET',20,19);
   prop('data-board','N_MATH',43,18);

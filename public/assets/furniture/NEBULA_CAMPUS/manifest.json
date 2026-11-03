@@ -3773,6 +3773,162 @@
         "approach": "south",
         "ambient": false
       }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_1",
+      "name": "Elevator L1",
+      "file": "N_ELEVATOR_1.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_1_ACTIVE",
+      "name": "Elevator L1 active",
+      "file": "N_ELEVATOR_1_ACTIVE.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "active",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_2",
+      "name": "Elevator L2",
+      "file": "N_ELEVATOR_2.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_2_ACTIVE",
+      "name": "Elevator L2 active",
+      "file": "N_ELEVATOR_2_ACTIVE.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "active",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_3",
+      "name": "Elevator L3",
+      "file": "N_ELEVATOR_3.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "idle",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
+    },
+    {
+      "type": "asset",
+      "id": "N_ELEVATOR_3_ACTIVE",
+      "name": "Elevator L3 active",
+      "file": "N_ELEVATOR_3_ACTIVE.png",
+      "width": 48,
+      "height": 64,
+      "footprintW": 3,
+      "footprintH": 4,
+      "category": "decor",
+      "backgroundTiles": 4,
+      "orientation": null,
+      "renderLayer": "ground",
+      "nebula": {
+        "kind": "elevator",
+        "state": "active",
+        "frame": 0,
+        "anchor": [
+          0,
+          64
+        ],
+        "layer": "ground",
+        "approach": "south",
+        "ambient": false
+      }
     }
   ]
 }
