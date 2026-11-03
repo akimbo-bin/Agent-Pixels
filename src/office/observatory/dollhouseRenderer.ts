@@ -6,6 +6,8 @@ import {getCharacterSprites} from '../sprites/spriteData.js';
 import {getCharacterSprite} from '../engine/characters.js';
 import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,elevatorCabinPose,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
 import {drawRoomDepth,drawRoomForeground,drawObservatoryCanopy} from './dollhouseDetail.js';
+import {drawRoomMaterials,drawRoomLight} from './dollhouseMaterials.js';
+import {drawRoomSetpieces} from './dollhouseSetpieces.js';
 import {drawExteriorBack,drawExteriorFront,drawPassageBackdrops} from './dollhouseAtmosphere.js';
 import type {ElevatorTransit} from './elevator.js';
 
@@ -356,8 +358,15 @@ function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
   c.save();
   c.beginPath();c.rect(room.x,room.y,room.w,room.h);c.clip();
   drawWall(c,room);
+  drawRoomMaterials(c,room);
+  // Existing Agent Pixels department murals take visual precedence over
+  // extra wall props. The observatory uses the opposite order so its large
+  // star-glass backdrop remains visible underneath small instruments.
+  if(room.key!=='observatory')drawRoomSetpieces(c,room);
   drawRoomBackdrops(c,room);
+  if(room.key==='observatory')drawRoomSetpieces(c,room);
   drawRoomDepth(c,room,0);
+  drawRoomLight(c,room);
   drawForeshortenedRugs(c,room,office);
   c.restore();
  }
