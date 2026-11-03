@@ -67,10 +67,11 @@ export function projectCorridorX(floor:HQFloor,col:number):number {
 export function projectAgentToRoom(key:NebulaRoom,col:number,row:number):{x:number;y:number;scale:number}{
  const r=roomSlot(key);
  const ny=Math.max(0,Math.min(1,(row-r.bounds.row+.5)/r.bounds.rows));
- // Feet never traverse the vertical back wall. All movement is on a shallow
- // 31px-deep visible floor plane; sprites retain their original pixel frames.
+ // The entire physical room is a very shallow stage: a 21px visual Z plane.
+ // The last row meets the balcony at y+204 without a visible floor jump.
+ // Wall height and collidable furniture silhouettes do not change with depth.
  const x=Math.max(r.x+19,Math.min(r.x+r.w-19,projectCorridorX(r.floor,col)));
- return {x,y:r.y+174+ny*30,scale:.94+ny*.14};
+ return {x,y:r.y+182+ny*21,scale:.985+ny*.035};
 }
 export function projectActor(col:number,row:number):{x:number;y:number;scale:number;room:NebulaRoom|null;floor:HQFloor}{
  const slot=slotForTile(col,row);

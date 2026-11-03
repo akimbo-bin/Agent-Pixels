@@ -4,15 +4,50 @@ import {CharacterState, TILE_SIZE} from '../types.js';
 import {getCachedSprite} from '../sprites/spriteCache.js';
 import {getCharacterSprites} from '../sprites/spriteData.js';
 import {getCharacterSprite} from '../engine/characters.js';
+import {getCatalogEntry} from '../layout/furnitureCatalog.js';
+import {classifyCutawayFurniture,projectFurnitureFoot} from './dollhouseLayers.js';
 import {HOUSE_H,HOUSE_W,SHAFT,ROOM_SLOTS,projectActor,elevatorCabinPose,type FocusCamera,type RoomSlot} from './dollhouseProjection.js';
-import {drawRoomDepth,drawRoomForeground,drawObservatoryCanopy} from './dollhouseDetail.js';
+import {drawRoomDepth,drawRoomArchitecture,drawRoomForeground,drawObservatoryCanopy} from './dollhouseDetail.js';
 import {drawRoomMaterials,drawRoomLight} from './dollhouseMaterials.js';
 import {drawRoomSetpieces} from './dollhouseSetpieces.js';
+import {drawGeneratedRoomWall} from './dollhouseRoomArt.js';
 import {drawExteriorBack,drawExteriorFront,drawPassageBackdrops} from './dollhouseAtmosphere.js';
 import type {ElevatorTransit} from './elevator.js';
 
 type Box={x:number;y:number;w:number;h:number};
-type DrawItem={y:number;draw:()=>void};
+type DrawItem={y:number;order:number;draw:(c:CanvasRenderingContext2D)=>void};
+
+type IndexedProp={
+ index:number;source:ReturnType<OfficeState['getLayout']>['furniture'][number];
+ entry:NonNullable<ReturnType<typeof getCatalogEntry>>;
+};
+type RoomPropIndex={background:IndexedProp[];blocking:IndexedProp[]};
+const roomPropIndex=new WeakMap<OfficeState,Map<string,RoomPropIndex>>();
+function propsForRoom(office:OfficeState,r:RoomSlot):RoomPropIndex{
+ let rooms=roomPropIndex.get(office);
+ if(!rooms){
+  rooms=new Map<string,RoomPropIndex>();
+  for(const room of ROOM_SLOTS)rooms.set(room.key,{background:[],blocking:[]});
+  const layout=office.getLayout();
+  for(let i=0;i<layout.furniture.length;i++){
+   const source=layout.furniture[i];
+   if(source.uid==='telescope-foundation')continue;
+   const slot=ROOM_SLOTS.find(s=>
+    source.col>=s.bounds.col&&source.col<s.bounds.col+s.bounds.cols&&
+    source.row>=s.bounds.row&&source.row<s.bounds.row+s.bounds.rows);
+   if(!slot)continue;
+   const entry=getCatalogEntry(source.type);
+   if(!entry)continue;
+   const layer=classifyCutawayFurniture(source.type,entry);
+   if(layer==='background'||layer==='blocking'){
+    rooms.get(slot.key)![layer].push({index:i,source,entry});
+   }
+  }
+  roomPropIndex.set(office,rooms);
+ }
+ return rooms.get(r.key)!;
+}
+
 const hexAlpha=(hex:string,alpha:number)=>hex.slice(0,7)+Math.max(0,Math.min(255,Math.round(alpha*255))).toString(16).padStart(2,'0');
 function rect(c:CanvasRenderingContext2D,b:Box,color:string){c.fillStyle=color;c.fillRect(Math.round(b.x),Math.round(b.y),Math.ceil(b.w),Math.ceil(b.h));}
 function line(c:CanvasRenderingContext2D,x1:number,y1:number,x2:number,y2:number,color:string,w=1){c.strokeStyle=color;c.lineWidth=w;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
@@ -244,59 +279,69 @@ function drawForeshortenedRugs(c:CanvasRenderingContext2D,r:RoomSlot,office:Offi
  c.drawImage(sprite,Math.round(x),Math.round(y),Math.round(width),Math.round(height));
  c.restore();
 }
+/**
+ * Static WALL ART only. Never project background assets onto the actor plane:
+ * a bookshelf painted into the wall is not a physical obstacle.
+ */
 function drawNativeFurniture(c:CanvasRenderingContext2D,r:RoomSlot,office:OfficeState){
- const layout=office.getLayout(),drawables:DrawItem[]=[];
  const furniture=office.furniture;
- for(let i=0;i<furniture.length;i++){
-  const source=layout.furniture[i],f=furniture[i];if(!source)continue;
-  // Omit the earlier giant observatory sprite from cutaway only; preserve in original map.
-  if(source.uid==='telescope-foundation')continue;
-  // Top-down floor decals are not furniture in a wall-section view: never let
-  // a room-sized rug cover the back wall or hide the actual animated actors.
-  if(/^N_(RUG|GLOW|DOOR|ARCH|WINDOW)/.test(source.type))continue;
-  const centerCol=source.col+(f.sprite?.[0]?.length??16)/(2*TILE_SIZE);
-  const centerRow=source.row+Math.min(2,Math.max(1,(f.sprite?.length??16)/TILE_SIZE));
-  if(centerCol<r.bounds.col||centerCol>=r.bounds.col+r.bounds.cols||
-     centerRow<r.bounds.row||centerRow>=r.bounds.row+r.bounds.rows)continue;
-  const srcW=f.sprite?.[0]?.length??16,srcH=f.sprite?.length??16;
-  const srcX=(centerCol-r.bounds.col)/r.bounds.cols,srcY=(centerRow-r.bounds.row)/r.bounds.rows;
-  const screenX=r.x+22+srcX*(r.w-44);
-  const screenY=r.y+139+srcY*61;
-  const scale=Math.min(1.45,(r.w*.56)/srcW,(r.h*.51)/srcH) * (.85+.15*srcY);
+ for(const {index,source,entry}of propsForRoom(office,r).background){
+  const f=furniture[index];
+  if(!f?.sprite)continue;
+  // A top-down window/pipe/lamp is not a perspective-correct dollhouse
+  // background. Those are already represented by the authored room skin.
+  // Only genuinely flush shelving/tool panels survive in cutaway mode.
+  if(!['N_BOOKWALL','N_TOOLS'].includes(source.type))continue;
+  if(source.col<r.bounds.col||source.col>=r.bounds.col+r.bounds.cols||
+     source.row<r.bounds.row||source.row>=r.bounds.row+r.bounds.rows)continue;
+  // Large wall decals are scaled to the authored wall height, and the
+  // underlying picture stays entirely behind all physical room entities.
+  const p=projectFurnitureFoot(r,source,entry,'background');
+  const h=f.sprite.length,w=f.sprite[0]?.length??16;
+  const scale=Math.min(1.10,(r.w*.39)/w,90/h);
   if(scale<=0)continue;
-  const cached=getCachedSprite(f.sprite,scale);
-  const x=Math.round(screenX-cached.width/2),y=Math.round(screenY-cached.height);
-  drawables.push({y:screenY,draw:()=>{
-   c.save();
-   if(f.mirrored){c.translate(x+cached.width,y);c.scale(-1,1);c.drawImage(cached,0,0);}
-   else c.drawImage(cached,x,y);
-   c.restore();
-  }});
+  const sprite=getCachedSprite(f.sprite,scale);
+  const x=Math.round(p.x-sprite.width/2),y=Math.round(p.y-sprite.height);
+  c.save();
+  if(f.mirrored){c.translate(x+sprite.width,y);c.scale(-1,1);c.drawImage(sprite,0,0);}
+  else c.drawImage(sprite,x,y);
+  c.restore();
  }
- // Keep vintage Agent Pixels furniture as native pixels; depth-sort within a room.
- drawables.sort((a,b)=>a.y-b.y);
- for(const item of drawables)item.draw();
 }
-function drawCharacters(c:CanvasRenderingContext2D,room:RoomSlot,characters:Character[],ids:Map<number,string>,elevator:ElevatorTransit){
- const drawables:DrawItem[]=[];
+/**
+ * One physically ordered scene, instead of a furniture canvas followed by an
+ * agent canvas. Both blocking sprites and agents are sorted by the same
+ * source-tile feet projection. Actors appear BEHIND nearby blockers until
+ * they have walked closer to the camera than that blocker.
+ */
+function drawRoomEntities(
+ c:CanvasRenderingContext2D,r:RoomSlot,office:OfficeState,
+ characters:Character[],ids:Map<number,string>,elevator:ElevatorTransit,
+){
+ // This array reuses cached, already-rasterized physical furniture.
+ const props=furnitureLayerCache.get(office)?.physical.get(r.key)??[];
+ const drawables:DrawItem[]=[...props];
  for(const ch of characters){
   if(elevator.isRiding(ch.id))continue;
-  const position=projectActor((ch.x-8)/16,(ch.y-8)/16);
-  if(position.room!==room.key)continue;
-  const cached=getCachedSprite(getCharacterSprite(ch,getCharacterSprites(ch.palette,ch.hueShift)),Math.min(1.6,position.scale*1.2));
-  const x=Math.round(position.x-cached.width/2);
-  const y=Math.round(position.y-cached.height+(ch.state===CharacterState.TYPE?3:0));
-  drawables.push({y:position.y,draw:()=>{
-   rect(c,{x:position.x-10,y:position.y-3,w:20,h:4},'#00000064');
-   c.drawImage(cached,x,y);
+  const pos=projectActor((ch.x-8)/16,(ch.y-8)/16);
+  if(pos.room!==r.key)continue;
+  const sprite=getCachedSprite(getCharacterSprite(ch,getCharacterSprites(ch.palette,ch.hueShift)),Math.min(1.6,pos.scale*1.2));
+  const x=Math.round(pos.x-sprite.width/2);
+  const y=Math.round(pos.y-sprite.height+(ch.state===CharacterState.TYPE?3:0));
+  drawables.push({y:pos.y,order:0,draw:(ctx)=>{
+   rect(ctx,{x:pos.x-10,y:pos.y-3,w:20,h:4},'#00000064');
+   ctx.drawImage(sprite,x,y);
    const label=ids.get(ch.id);
-   if(label&&room.w>220){c.font='11px "Segoe UI",sans-serif';c.textAlign='center';
-    const tw=c.measureText(label).width;rect(c,{x:position.x-tw/2-5,y:position.y+2,w:tw+10,h:16},'#0a1638dd');
-    c.fillStyle='#ffebd5';c.fillText(label,position.x,position.y+5);
+   if(label&&r.w>220){
+    ctx.font='11px "Segoe UI",sans-serif';ctx.textAlign='center';
+    const tw=ctx.measureText(label).width;
+    rect(ctx,{x:pos.x-tw/2-5,y:pos.y+2,w:tw+10,h:16},'#0a1638dd');
+    ctx.fillStyle='#ffebd5';ctx.fillText(label,pos.x,pos.y+5);
    }
   }});
  }
- drawables.sort((a,b)=>a.y-b.y);for(const d of drawables)d.draw();
+ drawables.sort((a,b)=>a.y-b.y||a.order-b.order);
+ for(const item of drawables)item.draw(c);
 }
 function drawCorridorActors(c:CanvasRenderingContext2D,actors:Character[],ids:Map<number,string>,elevator:ElevatorTransit){
  for(const ch of actors){
@@ -359,13 +404,16 @@ function staticCutawayBackground(office:OfficeState):HTMLCanvasElement{
   c.beginPath();c.rect(room.x,room.y,room.w,room.h);c.clip();
   drawWall(c,room);
   drawRoomMaterials(c,room);
-  // Existing Agent Pixels department murals take visual precedence over
-  // extra wall props. The observatory uses the opposite order so its large
-  // star-glass backdrop remains visible underneath small instruments.
-  if(room.key!=='observatory')drawRoomSetpieces(c,room);
-  drawRoomBackdrops(c,room);
-  if(room.key==='observatory')drawRoomSetpieces(c,room);
-  drawRoomDepth(c,room,0);
+  // Generated art (when explicitly imported and approved) replaces ONLY
+  // authored back-wall artwork; it never becomes furniture or world physics.
+  if(drawGeneratedRoomWall(c,room)){
+   drawRoomArchitecture(c,room);
+  }else{
+   if(room.key!=='observatory')drawRoomSetpieces(c,room);
+   drawRoomBackdrops(c,room);
+   if(room.key==='observatory')drawRoomSetpieces(c,room);
+   drawRoomDepth(c,room,0);
+  }
   drawRoomLight(c,room);
   drawForeshortenedRugs(c,room,office);
   c.restore();
@@ -381,7 +429,10 @@ function staticExteriorForeground():HTMLCanvasElement{
  const c=canvas.getContext('2d');if(!c)throw Error('Exterior foreground context unavailable');
  drawExteriorFront(c);exteriorForegroundCache=canvas;return canvas;
 }
-type FurnitureLayerCache={canvas:HTMLCanvasElement;sprites:unknown[];poses:number[]};
+type FurnitureLayerCache={
+ canvas:HTMLCanvasElement;sprites:unknown[];poses:number[];
+ physical:Map<string,DrawItem[]>;
+};
 const furnitureLayerCache=new WeakMap<OfficeState,FurnitureLayerCache>();
 function compositedFurniture(office:OfficeState):HTMLCanvasElement{
  const items=office.furniture;
@@ -402,15 +453,36 @@ function compositedFurniture(office:OfficeState):HTMLCanvasElement{
  const c=canvas.getContext('2d');
  if(!c)throw Error('Cutaway furniture canvas could not initialize');
  c.clearRect(0,0,HOUSE_W,HOUSE_H);c.imageSmoothingEnabled=false;
+ const physical=new Map<string,DrawItem[]>();
  for(const room of ROOM_SLOTS){
   c.save();c.beginPath();c.rect(room.x,room.y,room.w,room.h);c.clip();
   drawNativeFurniture(c,room,office);
   c.restore();
+  const props:DrawItem[]=[];
+  for(const {index,source,entry}of propsForRoom(office,room).blocking){
+   const f=items[index];if(!f?.sprite)continue;
+   const foot=projectFurnitureFoot(room,source,entry,'blocking');
+   const w=f.sprite[0]?.length??16,h=f.sprite.length;
+   const scale=Math.min(1.32,room.w*.36/w,90/h)*foot.scale;
+   if(scale<=0)continue;
+   const sprite=getCachedSprite(f.sprite,scale);
+   const x=Math.round(foot.x-sprite.width/2),y=Math.round(foot.y-sprite.height);
+   const mirrored=Boolean(f.mirrored);
+   const shadow={x:foot.x-Math.min(16,sprite.width*.3),y:foot.y-3,
+    w:Math.min(32,sprite.width*.6),h:4};
+   props.push({y:foot.y,order:1,draw:(ctx)=>{
+    ctx.save();rect(ctx,shadow,'#0309186c');
+    if(mirrored){ctx.translate(x+sprite.width,y);ctx.scale(-1,1);ctx.drawImage(sprite,0,0);}
+    else ctx.drawImage(sprite,x,y);
+    ctx.restore();
+   }});
+  }
+  physical.set(room.key,props);
  }
  const sprites=items.map(f=>f.sprite);
  const poses:number[]=[];
  for(const f of items)poses.push(f.x,f.y,Number(Boolean(f.mirrored)));
- furnitureLayerCache.set(office,{canvas,sprites,poses});
+ furnitureLayerCache.set(office,{canvas,sprites,poses,physical});
  return canvas;
 }
 export function drawDollhouse(
@@ -428,7 +500,7 @@ export function drawDollhouse(
  c.drawImage(compositedFurniture(office),0,0);
  for(const room of ROOM_SLOTS){
   c.save();c.beginPath();c.rect(room.x,room.y,room.w,room.h);c.clip();
-  drawCharacters(c,room,characters,agentNames,elevator);
+  drawRoomEntities(c,room,office,characters,agentNames,elevator);
   drawRoomForeground(c,room);
   c.restore();
   drawLabels(c,room);

@@ -123,6 +123,29 @@ function arch(c:C,p:Passage){
 export function drawPassageBackdrops(c:C){
  for(const p of PASSAGES)arch(c,p);
 }
+/**
+ * Foreground doorway jambs are projected from the ACTUAL source door cells.
+ * The interior is transparent so a passing actor remains visible; the posts
+ * and top lintel overlap the actor's sprite like a real architectural opening.
+ */
+export function drawPassageForeground(c:C){
+ for(const p of PASSAGES){
+  const {x,y}=p,half=p.kind==='lift'?15:13;
+  const top=y-35,bottom=y+19;
+  box(c,x-half-4,top+12,5,bottom-top-11,'#211b34');
+  box(c,x+half-1,top+12,5,bottom-top-11,'#211b34');
+  box(c,x-half-3,top+12,2,bottom-top-11,'#d8b48b');
+  box(c,x+half+1,top+12,2,bottom-top-11,'#9a7f8d');
+  c.beginPath();c.moveTo(x-half-2,top+13);
+  c.quadraticCurveTo(x,top-12,x+half+2,top+13);
+  c.strokeStyle='#38243f';c.lineWidth=8;c.stroke();
+  c.beginPath();c.moveTo(x-half-2,top+13);
+  c.quadraticCurveTo(x,top-12,x+half+2,top+13);
+  c.strokeStyle=p.kind==='lift'?'#9bd4ed':'#e9bd8d';c.lineWidth=3;c.stroke();
+  box(c,x-half+2,bottom-1,2*half-4,3,'#b39b94');
+  box(c,x-half+4,bottom+2,2*half-8,2,'#564458');
+ }
+}
 function balustrade(c:C,y:number){
  // Thick 2.5D bevel with engraved alternating tiles and open pickets.
  const x=20,w=1558;
@@ -143,6 +166,17 @@ function balustrade(c:C,y:number){
   box(c,xx-2,y-23,4,11,'#d2a479');
   box(c,xx-4,y-24,8,7,'#ffe2ae');
   glow(c,xx,y-20,23,'#ffca86',.37);
+ }
+ // Actual source door openings cut the balustrade; agents can visually
+ // pass through, rather than walking across an unbroken facade railing.
+ for(const passage of PASSAGES){
+  if(passage.kind!=='room'||Math.abs((passage.y+19)-y)>3)continue;
+  const x=passage.x;
+  c.clearRect(x-14,y-12,28,37);
+  box(c,x-17,y-9,3,33,'#a17f84');
+  box(c,x+14,y-9,3,33,'#a17f84');
+  box(c,x-14,y+17,28,5,'#574357');
+  line(c,x-12,y+18,x+12,y+18,'#e2b88c',2);
  }
 }
 function roofGables(c:C){
@@ -177,5 +211,6 @@ export function drawExteriorBack(c:C){
 export function drawExteriorFront(c:C){
  for(const y of [354,588,822])balustrade(c,y);
  for(const p of EXTERIOR_PLANTERS)balconyPlanter(c,p);
+ drawPassageForeground(c);
  foundation(c);
 }

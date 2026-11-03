@@ -34,72 +34,91 @@ export function getWalkableTiles(
   return tiles;
 }
 
-/** BFS pathfinding on 4-connected grid (no diagonals). Returns path excluding start, including end. */
+/**
+ * Eight-connected shortest-path A* with octile distance and strict corner
+ * clearance. Physical diagonals are possible only when BOTH adjacent side
+ * tiles are walkable, so characters cannot cut across furniture or walls.
+ *
+ * Source interface and return contract remain unchanged: the path excludes
+ * the starting tile and contains the destination tile.
+ */
 export function findPath(
-  startCol: number,
-  startRow: number,
-  endCol: number,
-  endRow: number,
-  tileMap: TileType[][],
-  blockedTiles: Set<string>,
-): Array<{ col: number; row: number }> {
-  if (startCol === endCol && startRow === endRow) return [];
-
-  const key = (c: number, r: number) => `${c},${r}`;
-  const startKey = key(startCol, startRow);
-  const endKey = key(endCol, endRow);
-
-  // End must be walkable (or be a chair tile which may be adjacent to desk)
-  // We allow the end tile even if it's not strictly walkable for chair positions
-  const endWalkable = isWalkable(endCol, endRow, tileMap, blockedTiles);
-  if (!endWalkable) {
-    // If the end is a desk tile, we still can't path there
-    return [];
+ startCol:number,startRow:number,endCol:number,endRow:number,
+ tileMap:TileType[][],blockedTiles:Set<string>,
+):Array<{col:number;row:number}>{
+ if(startCol===endCol&&startRow===endRow)return [];
+ const rows=tileMap.length,cols=rows?tileMap[0].length:0;
+ if(!cols||startCol<0||startCol>=cols||startRow<0||startRow>=rows||
+    !isWalkable(endCol,endRow,tileMap,blockedTiles))return [];
+ const toId=(c:number,r:number)=>r*cols+c;
+ const fromId=(id:number)=>({col:id%cols,row:Math.floor(id/cols)});
+ const start=toId(startCol,startRow),end=toId(endCol,endRow);
+ const size=rows*cols;
+ const best=new Float64Array(size);best.fill(Infinity);best[start]=0;
+ const parent=new Int32Array(size);parent.fill(-1);
+ const closed=new Uint8Array(size);
+ type Node={id:number;f:number;g:number};
+ const heap:Node[]=[];
+ const push=(n:Node)=>{
+  let i=heap.length;heap.push(n);
+  while(i>0){
+   const parentIndex=(i-1)>>1;
+   if(heap[parentIndex].f<=n.f)break;
+   heap[i]=heap[parentIndex];i=parentIndex;
   }
-
-  const visited = new Set<string>();
-  visited.add(startKey);
-
-  const parent = new Map<string, string>();
-  const queue: Array<{ col: number; row: number }> = [{ col: startCol, row: startRow }];
-
-  const dirs = [
-    { dc: 0, dr: -1 }, // up
-    { dc: 0, dr: 1 }, // down
-    { dc: -1, dr: 0 }, // left
-    { dc: 1, dr: 0 }, // right
-  ];
-
-  while (queue.length > 0) {
-    const curr = queue.shift()!;
-    const currKey = key(curr.col, curr.row);
-
-    if (currKey === endKey) {
-      // Reconstruct path
-      const path: Array<{ col: number; row: number }> = [];
-      let k = endKey;
-      while (k !== startKey) {
-        const [c, r] = k.split(',').map(Number);
-        path.unshift({ col: c, row: r });
-        k = parent.get(k)!;
-      }
-      return path;
-    }
-
-    for (const d of dirs) {
-      const nc = curr.col + d.dc;
-      const nr = curr.row + d.dr;
-      const nk = key(nc, nr);
-
-      if (visited.has(nk)) continue;
-      if (!isWalkable(nc, nr, tileMap, blockedTiles)) continue;
-
-      visited.add(nk);
-      parent.set(nk, currKey);
-      queue.push({ col: nc, row: nr });
-    }
+  heap[i]=n;
+ };
+ const pop=():Node=>{
+  const first=heap[0],tail=heap.pop()!;
+  if(heap.length){
+   let i=0;
+   while(true){
+    const left=i*2+1;
+    if(left>=heap.length)break;
+    const right=left+1;
+    const child=right<heap.length&&heap[right].f<heap[left].f?right:left;
+    if(tail.f<=heap[child].f)break;
+    heap[i]=heap[child];i=child;
+   }
+   heap[i]=tail;
   }
-
-  // No path found
-  return [];
+  return first;
+ };
+ const heuristic=(col:number,row:number)=>{
+  const dx=Math.abs(endCol-col),dy=Math.abs(endRow-row);
+  return Math.max(dx,dy)+(Math.SQRT2-1)*Math.min(dx,dy);
+ };
+ const neighbors=[
+  [0,-1],[0,1],[-1,0],[1,0],
+  [-1,-1],[1,-1],[-1,1],[1,1],
+ ] as const;
+ push({id:start,f:heuristic(startCol,startRow),g:0});
+ while(heap.length){
+  const current=pop(),id=current.id;
+  if(closed[id]||current.g>best[id]+1e-8)continue;
+  if(id===end){
+   const path:Array<{col:number;row:number}>=[];
+   let cursor=end;
+   while(cursor!==start&&cursor>=0){
+    path.push(fromId(cursor));cursor=parent[cursor];
+   }
+   return cursor===start?path.reverse():[];
+  }
+  closed[id]=1;
+  const col=id%cols,row=Math.floor(id/cols);
+  for(const [dc,dr]of neighbors){
+   const nc=col+dc,nr=row+dr;
+   if(!isWalkable(nc,nr,tileMap,blockedTiles))continue;
+   // No slipping through the inaccessible diagonal corner between two desks.
+   if(dc&&dr&&(!isWalkable(col+dc,row,tileMap,blockedTiles)||
+              !isWalkable(col,row+dr,tileMap,blockedTiles)))continue;
+   const next=toId(nc,nr);
+   if(closed[next])continue;
+   const ng=best[id]+(dc&&dr?Math.SQRT2:1);
+   if(ng+1e-8>=best[next])continue;
+   best[next]=ng;parent[next]=id;
+   push({id:next,g:ng,f:ng+heuristic(nc,nr)});
+  }
+ }
+ return [];
 }

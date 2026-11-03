@@ -231,7 +231,10 @@ export function updateCharacter(
       const nextTile = ch.path[0];
       ch.dir = directionBetween(ch.tileCol, ch.tileRow, nextTile.col, nextTile.row);
 
-      ch.moveProgress += (WALK_SPEED_PX_PER_SEC / TILE_SIZE) * dt;
+      // Diagonal tiles are sqrt(2) times longer; keep real world travel speed
+      // constant instead of accelerating diagonally through room furniture.
+      const diagonal=ch.tileCol!==nextTile.col&&ch.tileRow!==nextTile.row;
+      ch.moveProgress += (WALK_SPEED_PX_PER_SEC / (TILE_SIZE*(diagonal?Math.SQRT2:1))) * dt;
 
       const fromCenter = tileCenter(ch.tileCol, ch.tileRow);
       const toCenter = tileCenter(nextTile.col, nextTile.row);

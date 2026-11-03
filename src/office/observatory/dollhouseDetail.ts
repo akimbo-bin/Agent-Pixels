@@ -279,8 +279,9 @@ export function drawObservatoryCanopy(c:C,r:RoomSlot):void{
   seg(c,left-2,base,right+2,base,'#e3b889',5);
   light(c,left+width*.45,r.y-45,60,'#af8dee',.14);
 }
+export function drawRoomArchitecture(c:C,r:RoomSlot):void{drawArchitecture(c,r);}
 export function drawRoomDepth(c:C,r:RoomSlot,time:number):void{
-  drawArchitecture(c,r);
+  drawRoomArchitecture(c,r);
   switch(r.key){
     case 'observatory':observatory(c,r,time);break;
     case 'engineering':rocketWorkshop(c,r);break;

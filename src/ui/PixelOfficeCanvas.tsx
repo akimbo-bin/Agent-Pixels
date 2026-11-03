@@ -4,6 +4,7 @@ import {OfficeState} from '../office/engine/officeState.js';
 import {startGameLoop} from '../office/engine/gameLoop.js';
 import {renderFrame} from '../office/engine/renderer.js';
 import {drawDollhouse} from '../office/observatory/dollhouseRenderer.js';
+import {loadRoomWallArt,activeRoomArtCount} from '../office/observatory/dollhouseRoomArt.js';
 import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,elevatorCabinPose,ROOM_SLOTS,SHAFT,floorAtY} from '../office/observatory/dollhouseProjection.js';
 import {loadPixelAssets} from './pixelAssets.js';
 import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/nebulaOverlay.js';
@@ -34,7 +35,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
   const cutaway=nebulaMode&&props.presentation==='cutaway';
   useEffect(()=>{
     let cancelled=false;
-    void loadPixelAssets().then(({layouts,cameraBounds,nebulaCameraBounds})=>{
+    void Promise.all([loadPixelAssets(),loadRoomWallArt()]).then(([{layouts,cameraBounds,nebulaCameraBounds}])=>{
       if(cancelled)return;
       boundsRef.current={...cameraBounds,...nebulaCameraBounds};
       officeRef.current=new OfficeState(nebulaMode?layouts.nebula:layouts.combined);setReady(true);
@@ -96,7 +97,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       if(accepted)followRef.current=id;
       return accepted;
     };
-    const handle:SceneHandle={fit:()=>{if(cutaway){Object.assign(camera,fitCamera(camera.width,camera.height));camera.fitted=true;}else camera.fit();followRef.current=null;},focus:room=>{if(cutaway){Object.assign(camera,roomCameraTarget(room,camera.width,camera.height));camera.fitted=false;}else{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);}followRef.current=null;},focusFloor:floor=>{if(cutaway){Object.assign(camera,floorCameraTarget(floor,camera.width,camera.height));camera.fitted=false;}else{const f=HQ_FLOORS.find(f=>f.id===floor);if(f)camera.fit(camera.width<680?{col:26,row:f.bounds.row,cols:12,rows:f.bounds.rows}:f.bounds);}followRef.current=null;},travel:(id,room)=>beginJourney(id,room),ride:(id,floor)=>beginJourney(id,undefined,floor),follow:id=>{followRef.current=id;},inspect:()=>({instanceId,presentation:cutaway?'cutaway':'campus',rooms:cutaway?ROOM_SLOTS.map(r=>({key:r.key,x:r.x,y:r.y,w:r.w,h:r.h})):undefined,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
+    const handle:SceneHandle={fit:()=>{if(cutaway){Object.assign(camera,fitCamera(camera.width,camera.height));camera.fitted=true;}else camera.fit();followRef.current=null;},focus:room=>{if(cutaway){Object.assign(camera,roomCameraTarget(room,camera.width,camera.height));camera.fitted=false;}else{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);}followRef.current=null;},focusFloor:floor=>{if(cutaway){Object.assign(camera,floorCameraTarget(floor,camera.width,camera.height));camera.fitted=false;}else{const f=HQ_FLOORS.find(f=>f.id===floor);if(f)camera.fit(camera.width<680?{col:26,row:f.bounds.row,cols:12,rows:f.bounds.rows}:f.bounds);}followRef.current=null;},travel:(id,room)=>beginJourney(id,room),ride:(id,floor)=>beginJourney(id,undefined,floor),follow:id=>{followRef.current=id;},inspect:()=>({instanceId,presentation:cutaway?'cutaway':'campus',generatedWallCount:activeRoomArtCount(),rooms:cutaway?ROOM_SLOTS.map(r=>({key:r.key,x:r.x,y:r.y,w:r.w,h:r.h})):undefined,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
       actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,projected:cutaway?projectActor((ch.x-8)/16,(ch.y-8)/16):null,floor:floorForRow(ch.tileRow),riding:elevatorRef.current.isRiding(ch.id),path:ch.path.length,state:ch.state})),elevator:elevatorRef.current.getTrips(),lounge:[...loungeRef.current.travelers.entries()].map(([id,t])=>({id,...t})),visuals:Object.fromEntries([...furnitureProjection(latest.current.telemetry,latest.current.reducedMotion?0:artFrame%4),...elevatorRef.current.getVisuals()]),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
     handleRef.current=handle;latest.current.onReady?.(handle);
     let firstSize=true;
