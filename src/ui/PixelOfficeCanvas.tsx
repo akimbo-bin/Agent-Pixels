@@ -3,6 +3,8 @@ import {CharacterState,TILE_SIZE} from '../office/types.js';
 import {OfficeState} from '../office/engine/officeState.js';
 import {startGameLoop} from '../office/engine/gameLoop.js';
 import {renderFrame} from '../office/engine/renderer.js';
+import {drawDollhouse} from '../office/observatory/dollhouseRenderer.js';
+import {fitCamera,roomCameraTarget,floorCameraTarget,roomAt,projectActor,ROOM_SLOTS} from '../office/observatory/dollhouseProjection.js';
 import {loadPixelAssets} from './pixelAssets.js';
 import {renderNebulaTelemetry,type NebulaTelemetry} from '../office/observatory/nebulaOverlay.js';
 import {ROOMS,ROLE_SEATS,type NebulaRoom,type NebulaCamera,type NebulaBounds} from '../office/layout/nebulaLayouts.js';
@@ -18,7 +20,7 @@ export type {NebulaRoom,NebulaCamera};
 export type CameraAgent={id:string;name:string;role?:string;seatId?:string;status?:string|null;activityKind?:'coding'|'research'|'writing'|'meeting'|'idle';characterIndex?:number;room?:NebulaRoom};
 export type WorldSelection={kind:'room'|'agent'|'furniture'|'model';id:string;name:string;room?:NebulaRoom};
 export type SceneHandle={fit:()=>void;focus:(room:NebulaRoom)=>void;focusFloor:(floor:HQFloor)=>void;travel:(id:string,room:NebulaRoom)=>boolean;ride:(id:string,floor:HQFloor)=>boolean;follow:(id:string|null)=>void;inspect:()=>unknown};
-export type PixelOfficeCanvasProps={agents:CameraAgent[];camera:'office'|'boardroomKitchen'|'overflowOffice'|NebulaCamera;seedSeated?:boolean;telemetry?:NebulaTelemetry;onSelect?:(selection:WorldSelection)=>void;onReady?:(handle:SceneHandle)=>void;reducedMotion?:boolean};
+export type PixelOfficeCanvasProps={agents:CameraAgent[];camera:'office'|'boardroomKitchen'|'overflowOffice'|NebulaCamera;seedSeated?:boolean;telemetry?:NebulaTelemetry;onSelect?:(selection:WorldSelection)=>void;onReady?:(handle:SceneHandle)=>void;reducedMotion?:boolean;presentation?:'campus'|'cutaway'};
 export function stableNumericId(id:string){let hash=0;for(let i=0;i<id.length;i++)hash=(hash*31+id.charCodeAt(i))|0;return Math.abs(hash)||1;}
 export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
   const canvasRef=useRef<HTMLCanvasElement>(null),wrapRef=useRef<HTMLDivElement>(null);
@@ -29,6 +31,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
   const [ready,setReady]=useState(false),[error,setError]=useState<string|null>(null);
   latest.current=props;
   const nebulaMode=!['office','boardroomKitchen','overflowOffice'].includes(props.camera);
+  const cutaway=nebulaMode&&props.presentation==='cutaway';
   useEffect(()=>{
     let cancelled=false;
     void loadPixelAssets().then(({layouts,cameraBounds,nebulaCameraBounds})=>{
@@ -76,8 +79,8 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
   },[props.agents,props.telemetry?.mode,props.seedSeated,ready,nebulaMode]);
   useEffect(()=>{
     if(!ready)return;
-    view.current.fit(boundsRef.current[props.camera]);followRef.current=null;
-  },[props.camera,ready]);
+    if(!cutaway)view.current.fit(boundsRef.current[props.camera]);followRef.current=null;
+  },[props.camera,ready,cutaway]);
   useEffect(()=>{
     const canvas=canvasRef.current,wrap=wrapRef.current,office=officeRef.current;
     if(!ready||!canvas||!wrap||!office)return;
@@ -93,12 +96,12 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       if(accepted)followRef.current=id;
       return accepted;
     };
-    const handle:SceneHandle={fit:()=>{camera.fit();followRef.current=null;},focus:room=>{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);followRef.current=null;},focusFloor:floor=>{const f=HQ_FLOORS.find(f=>f.id===floor);if(f)camera.fit(camera.width<680?{col:26,row:f.bounds.row,cols:12,rows:f.bounds.rows}:f.bounds);followRef.current=null;},travel:(id,room)=>beginJourney(id,room),ride:(id,floor)=>beginJourney(id,undefined,floor),follow:id=>{followRef.current=id;},inspect:()=>({instanceId,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
+    const handle:SceneHandle={fit:()=>{if(cutaway){Object.assign(camera,fitCamera(camera.width,camera.height));camera.fitted=true;}else camera.fit();followRef.current=null;},focus:room=>{if(cutaway){Object.assign(camera,roomCameraTarget(room,camera.width,camera.height));camera.fitted=false;}else{const r=ROOMS.find(r=>r.key===room);if(r)camera.fit(r.bounds);}followRef.current=null;},focusFloor:floor=>{if(cutaway){Object.assign(camera,floorCameraTarget(floor,camera.width,camera.height));camera.fitted=false;}else{const f=HQ_FLOORS.find(f=>f.id===floor);if(f)camera.fit(camera.width<680?{col:26,row:f.bounds.row,cols:12,rows:f.bounds.rows}:f.bounds);}followRef.current=null;},travel:(id,room)=>beginJourney(id,room),ride:(id,floor)=>beginJourney(id,undefined,floor),follow:id=>{followRef.current=id;},inspect:()=>({instanceId,presentation:cutaway?'cutaway':'campus',rooms:cutaway?ROOM_SLOTS.map(r=>({key:r.key,x:r.x,y:r.y,w:r.w,h:r.h})):undefined,camera:{x:camera.x,y:camera.y,zoom:camera.zoom,width:camera.width,height:camera.height},
       actors:[...office.characters.values()].map(ch=>({id:ch.id,seat:ch.seatId,col:ch.tileCol,row:ch.tileRow,x:ch.x,y:ch.y,floor:floorForRow(ch.tileRow),riding:elevatorRef.current.isRiding(ch.id),path:ch.path.length,state:ch.state})),elevator:elevatorRef.current.getTrips(),lounge:[...loungeRef.current.travelers.entries()].map(([id,t])=>({id,...t})),visuals:Object.fromEntries([...furnitureProjection(latest.current.telemetry,latest.current.reducedMotion?0:artFrame%4),...elevatorRef.current.getVisuals()]),frameMs:frames.slice(-600),demoTime:walksRef.current.time})};
     handleRef.current=handle;latest.current.onReady?.(handle);
     let firstSize=true;
     const resize=()=>{const r=wrap.getBoundingClientRect(),dpr=devicePixelRatio||1;camera.width=r.width;camera.height=r.height;
-      canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);if(firstSize||camera.fitted)camera.fit(boundsRef.current[latest.current.camera]);firstSize=false;};
+      canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);if(firstSize||camera.fitted){if(cutaway){Object.assign(camera,fitCamera(camera.width,camera.height));camera.fitted=true;if(camera.width<650&&firstSize){Object.assign(camera,roomCameraTarget('lead',camera.width,camera.height));camera.y+=140;camera.fitted=false;}}else camera.fit(boundsRef.current[latest.current.camera]);}firstSize=false;};
     resize();const observer=new ResizeObserver(resize);observer.observe(wrap);
     const pointers=new Map<number,{x:number;y:number}>();let moved=0;
     const local=(e:PointerEvent)=>{const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -115,6 +118,12 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       const single=pointers.size===1;pointers.delete(e.pointerId);
       if(moved>5||!single||e.type==='pointercancel')return;
       const p=local(e),w=camera.point(p.x,p.y),col=Math.floor(w.x/16),row=Math.floor(w.y/16);
+      if(cutaway){
+        const actor=[...office.characters.values()].find(ch=>{const pos=projectActor((ch.x-8)/16,(ch.y-8)/16);return Math.hypot(pos.x-w.x,pos.y-19-w.y)<24;});
+        const meta=actor?latest.current.agents.find(a=>stableNumericId(a.id)===actor.id):undefined;
+        if(meta){latest.current.onSelect?.({kind:'agent',id:meta.id,name:meta.name,room:meta.room});return;}
+        const bay=roomAt(w.x,w.y);if(bay){handle.focus(bay.key);latest.current.onSelect?.({kind:'room',id:ROOMS.find(r=>r.key===bay.key)?.id??bay.key,name:bay.name,room:bay.key});}return;
+      }
       const actor=[...office.characters.values()].find(ch=>Math.hypot(ch.x-w.x,ch.y-w.y)<13);
       const meta=actor?latest.current.agents.find(a=>stableNumericId(a.id)===actor.id):undefined;
       if(meta){latest.current.onSelect?.({kind:'agent',id:meta.id,name:meta.name,room:meta.room});return;}
@@ -147,7 +156,8 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
     },render:ctx=>{
       const now=performance.now();frames.push(now-lastFrame);lastFrame=now;if(frames.length>600)frames.shift();
       const p=latest.current,dpr=devicePixelRatio||1,layout=office.getLayout();
-      if(followRef.current){const ch=office.characters.get(stableNumericId(followRef.current));if(ch){camera.x=ch.x;camera.y=ch.y;camera.fitted=false;}}
+      if(followRef.current){const ch=office.characters.get(stableNumericId(followRef.current));if(ch){if(cutaway){const target=projectActor((ch.x-8)/16,(ch.y-8)/16);camera.x=target.x;camera.y=target.y;}else{camera.x=ch.x;camera.y=ch.y;}camera.fitted=false;}}
+      if(cutaway){drawDollhouse(ctx,canvas.width,canvas.height,office,[...office.characters.values()],{x:camera.x,y:camera.y,zoom:camera.zoom},dpr,elevatorRef.current,new Map(p.agents.map(a=>[stableNumericId(a.id),a.name])),now);return;}
       const zoom=camera.zoom*dpr;
       const {offsetX,offsetY}=renderFrame(ctx,canvas.width,canvas.height,office.tileMap,office.furniture,[...office.characters.values()].filter(ch=>!elevatorRef.current.isRiding(ch.id)),zoom,
         (layout.cols*8-camera.x)*zoom,(layout.rows*8-camera.y)*zoom,{selectedAgentId:null,hoveredAgentId:null,hoveredTile:null,seats:office.seats,characters:office.characters},undefined,layout.tileColors,layout.cols,layout.rows);
@@ -163,7 +173,7 @@ export function PixelOfficeCanvas(props:PixelOfficeCanvasProps){
       }ctx.restore();
     }});
     return()=>{observer.disconnect();stop();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('pointercancel',up);canvas.removeEventListener('wheel',wheel);canvas.removeEventListener('keydown',key);};
-  },[ready,nebulaMode]);
+  },[ready,nebulaMode,cutaway]);
   return <div ref={wrapRef} style={{position:'relative',width:'100%',height:nebulaMode?'100%':'min(725px, calc(100vh - 185px))',minHeight:nebulaMode?200:520}}>
     {!ready&&<div role='status'>{error?`Camera failed: ${error}`:'Loading camera...'}</div>}
     <canvas ref={canvasRef} tabIndex={0} aria-label='Connected research headquarters. Drag to pan, wheel to zoom, F to fit, arrows to move.' style={{display:'block',width:'100%',height:'100%',imageRendering:'pixelated',touchAction:'none'}}/>
