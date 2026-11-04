@@ -18,7 +18,8 @@ const MIN_FREE_VRAM = 3.2e9;
 // COMFY_CPU=1 targets a CPU-only ComfyUI (started with --cpu): no VRAM check,
 // and a longer per-job timeout since a CPU step takes seconds, not milliseconds.
 const cpu = process.env.COMFY_CPU === '1';
-const JOB_TIMEOUT_MS = (cpu ? 20 : 5) * 60 * 1000;
+// Whole-room plates at 1536 px take 30-60 min on a CPU.
+const JOB_TIMEOUT_MS = (cpu ? 120 : 5) * 60 * 1000;
 
 const get = async p => {
   const r = await fetch(origin + p, { signal: AbortSignal.timeout(15000) });

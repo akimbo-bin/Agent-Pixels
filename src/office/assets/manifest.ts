@@ -10,7 +10,9 @@ export type AssetClass =
   /** A whole painted back wall for ONE room size (dense set dressing, no collision). */
   | 'room-backdrop'
   /** A whole floor for ONE room size, authored foreshortened (front row at the bottom). */
-  | 'room-floor';
+  | 'room-floor'
+  /** The WHOLE room (walls, floor, furniture as placed) for one room size and camera. */
+  | 'room-plate';
 
 export type ReviewStatus = 'candidate' | 'rejected' | 'approved' | 'deployed';
 
@@ -34,7 +36,7 @@ export interface AssetRecord {
   /** Foot anchor in sprite pixels (bottom-left of the footprint's front edge). */
   anchor?: { x: number; y: number };
   /** room-backdrop / room-floor: the room size (tiles) the art was painted for. */
-  room?: { width: number; wallHeight: number; depth: number };
+  room?: { width: number; wallHeight: number; depth: number; rise?: number };
   source: 'local-comfyui' | 'procedural' | 'agent-pixels-original' | 'hand-drawn';
   licenseStatus: 'review-required' | 'cleared' | 'restricted';
   reviewStatus: ReviewStatus;
@@ -51,7 +53,7 @@ export interface AssetPack {
   assets: AssetRecord[];
 }
 
-const CLASSES: AssetClass[] = ['wall-texture', 'floor-texture', 'trim-texture', 'sky-layer', 'decor-sprite', 'furniture-sprite', 'outfit-overlay', 'room-backdrop', 'room-floor'];
+const CLASSES: AssetClass[] = ['wall-texture', 'floor-texture', 'trim-texture', 'sky-layer', 'decor-sprite', 'furniture-sprite', 'outfit-overlay', 'room-backdrop', 'room-floor', 'room-plate'];
 const SAFE_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.png$/;
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/;
 
@@ -82,7 +84,8 @@ export function validateAssetPack(pack: unknown): string[] {
       if (a.alphaMode !== 'cutout') out.push(`${who}: furniture sprites need a cut-out alpha`);
     }
     if (a.class === 'decor-sprite' && a.collision !== 'none') out.push(`${who}: decor must not collide; reclassify as furniture`);
-    if (a.class === 'room-backdrop' || a.class === 'room-floor') {
+    if (a.class === 'room-plate' && !(typeof a.room?.rise === 'number' && a.room.rise > 0)) out.push(`${who}: a plate is painted for one camera; give room.rise`);
+    if (a.class === 'room-backdrop' || a.class === 'room-floor' || a.class === 'room-plate') {
       const r = a.room;
       if (!r || ![r.width, r.wallHeight, r.depth].every(n => Number.isInteger(n) && n > 0)) out.push(`${who}: room art needs the room size it was painted for`);
       if (a.collision !== 'none') out.push(`${who}: room art never collides; place furniture for that`);

@@ -62,7 +62,10 @@ class Scene {
   build(fresh: boolean) {
     const c = this.compiled;
     // ?rise= overrides the camera tilt (floor rows per tile of depth); default 0.5.
-    this.proj = createProjection(c, { ...DEFAULT_VIEW, rise: Number(new URLSearchParams(location.search).get('rise') ?? DEFAULT_VIEW.rise) });
+    // Camera tilt: ?rise= override, else the world's own view, else the default.
+    const rise = Number(new URLSearchParams(location.search).get('rise') ?? c.world.view?.rise ?? DEFAULT_VIEW.rise);
+    registerFurnitureDefinitions(rise);
+    this.proj = createProjection(c, { ...DEFAULT_VIEW, rise });
     if (this.renderer) this.renderer.setWorld(c, this.proj);
     else this.renderer = new WorldRenderer(c, this.proj, stylePackFor(c.world.stylePackId));
     this.renderer.setStyle(stylePackFor(c.world.stylePackId));
@@ -531,6 +534,20 @@ window.__engine = {
   stats: () => scene.stats(),
   /** Exact pixel size to paint a room's backdrop and floor art at (kit authoring). */
   roomArtSize: (roomId: string) => scene.renderer.roomArtSize(roomId),
+  /**
+   * The room exactly as the engine lays it out, agents hidden, at native
+   * resolution: the img2img guide for that room's plate (and the geometry its
+   * furniture is later cut back out along).
+   */
+  roomGuide: (roomId: string) => {
+    const cell = scene.compiled.cells.find(x => x.id === roomId)!;
+    const r = scene.renderer.plateRect(cell);
+    scene.renderer.render(scene.office, scene.travel, { debug: false, selectedId: null, hoverTile: null, time: 0, hideAgents: true });
+    const c = document.createElement('canvas');
+    c.width = r.w; c.height = r.h;
+    c.getContext('2d')!.drawImage(scene.renderer.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    return { rect: r, rise: scene.proj.params.rise, png: c.toDataURL('image/png') };
+  },
   resetStats: () => { scene.frameTimes = []; },
   screenOf: (col: number, row: number) => {
     const f = scene.compiled.floorOfRow(row)!;

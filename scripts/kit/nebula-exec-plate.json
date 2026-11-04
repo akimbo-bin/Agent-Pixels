@@ -1,0 +1,21 @@
+{
+  "packId": "nebula-exec-room-v2",
+  "name": "Nebula night: Lead (Main) room plate",
+  "stylePackId": "nebula-night",
+  "promptVersion": "plate-v1",
+  "checkpoint": "sd_xl_base_1.0.safetensors",
+  "loras": [
+    { "name": "pixel-art-xl.safetensors", "model": 0.75, "clip": 0.75 },
+    { "name": "lcm-lora-sdxl.safetensors", "model": 1.0, "clip": 1.0 }
+  ],
+  "sampler": { "steps": 8, "cfg": 1.5, "sampler_name": "lcm", "scheduler": "sgm_uniform" },
+  "grid": 8,
+  "paletteColors": 64,
+  "paletteAnchors": ["#0a0820", "#241d3c", "#3a2266", "#4a2a86", "#b9a4ff", "#d9a95b", "#ffc46b", "#fff1c4", "#5a3424", "#45261a", "#74452e", "#6e4026", "#1f4a58", "#a8323a", "#2e5aa0", "#3a8a5a"],
+  "stylePrompt": "pixel art, detailed 16-bit game art, dollhouse cutaway view, cozy warm amber lamplight, deep violet night palette, mahogany and gold, densely furnished",
+  "negative": "people, person, character, face, text, letters, watermark, blurry, photo, 3d render, smooth gradient, empty room",
+  "assets": [
+    { "assetId": "exec-room-plate", "class": "room-plate", "room": [12, 6, 6], "rise": 1, "denoise": 0.5, "seed": 9101,
+      "prompt": "grand executive office at night, pixel art game interior, tall bookshelves full of books, arched window with purple galaxy and violet curtains, glass display cabinet, carved mahogany desk with a computer, red velvet sofa and coffee table, red velvet armchairs, brass globe on a stand, potted fiddle leaf plant, two brass floor lamps, ornate violet galaxy rug, polished parquet floor, intricate detail" }
+  ]
+}

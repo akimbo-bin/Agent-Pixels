@@ -72,16 +72,6 @@ export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
     }),
   },
   {
-    id: 'exec-desk', label: 'Executive desk (side-on)', category: 'desks', isDesk: true,
-    // Top face 16 px = 2 rows of depth at rise 0.5, the same foreshortening as the floor.
-    footprint: { w: 4, h: 2, backgroundRows: 1 }, size: { w: 64, h: 32 }, surfaceY: 9,
-    fallback: paint((set, rect, w, h) => {
-      rect(0, 0, w, 16, '#80492c'); rect(0, 0, w, 1, '#a8643c'); rect(0, 15, w, 1, '#d9a95b');
-      rect(0, 16, w, h - 16, '#56301c'); rect(4, 17, w - 8, 1, '#8c602c');
-      for (const x of [3, w - 21]) rect(x, 19, 18, 12, '#683a22');
-    }),
-  },
-  {
     id: 'exec-bookshelf', label: 'Tall bookshelf', category: 'storage',
     footprint: { w: 2, h: 1, backgroundRows: 0 }, size: { w: 32, h: 48 },
     fallback: paint((set, rect, w, h) => {
@@ -119,8 +109,100 @@ export const TOPDOWN_LEGACY = new Set([
   'TABLE_FRONT', 'BOARDROOM_TABLE', 'COFFEE_TABLE', 'POOL_TABLE', 'SMALL_TABLE_FRONT', 'SMALL_TABLE_SIDE', 'DESK_SIDE',
 ]);
 
+/**
+ * CAMERA-AWARE definitions: the sprite is a front face `frontH` px tall (the
+ * piece's physical height) under a top face exactly as deep as the floor it
+ * covers: footprint.h rows * 16 px * rise. At rise 0.5 a 2-deep desk shows a
+ * 16 px top; at rise 1 it shows 32 px, matching the floor rows around it.
+ */
+export interface BoxDefinition extends Omit<FurnitureDefinition, 'size' | 'fallback' | 'surfaceY'> {
+  frontH: number;
+  /** Paint into a w x h sprite whose top `top` px are the top face. */
+  paint: (set: (x: number, y: number, c: string) => void, rect: (x: number, y: number, w: number, h: number, c: string) => void, w: number, h: number, top: number) => void;
+}
+
+const topPx = (d: { footprint: { h: number } }, rise: number) => Math.round(d.footprint.h * 16 * rise);
+
+/** Upholstered seat (sofa / armchair) seen from the front: backrest band behind the cushions. */
+const seat = (cloth: string, dark: string, light: string) => (set: (x: number, y: number, c: string) => void, rect: (x: number, y: number, w: number, h: number, c: string) => void, w: number, h: number, top: number) => {
+  const back = Math.round(top * 0.55) + 6;
+  rect(0, 0, w, back, dark); rect(1, 1, w - 2, back - 2, cloth);
+  rect(0, back, w, h - back, cloth); rect(2, back, w - 4, 2, light);
+  rect(0, back - 2, 4, h - back + 2, dark); rect(w - 4, back - 2, 4, h - back + 2, dark);
+  rect(0, h - 3, w, 3, '#2a1210');
+};
+
+export const BOX_DEFINITIONS: BoxDefinition[] = [
+  {
+    id: 'exec-desk', label: 'Executive desk', category: 'desks', isDesk: true, frontH: 16,
+    footprint: { w: 4, h: 2, backgroundRows: 1 },
+    paint: (set, rect, w, h, top) => {
+      rect(0, 0, w, top, '#80492c'); rect(0, 0, w, 1, '#a8643c'); rect(0, top - 1, w, 1, '#d9a95b');
+      rect(0, top, w, h - top, '#56301c'); rect(4, top + 1, w - 8, 1, '#8c602c');
+      for (const x of [3, w - 21]) { rect(x, top + 3, 18, h - top - 5, '#683a22'); rect(x + 7, top + 6, 4, 1, '#d9a95b'); rect(x + 7, top + 10, 4, 1, '#d9a95b'); }
+      rect(Math.round(top * 0.4), Math.round(top * 0.3), 16, Math.max(3, Math.round(top * 0.35)), '#3c5a46');
+    },
+  },
+  {
+    id: 'velvet-sofa', label: 'Velvet sofa', category: 'misc', frontH: 14,
+    footprint: { w: 3, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#6a1a24', '#c44a54'),
+  },
+  {
+    id: 'velvet-armchair', label: 'Velvet armchair', category: 'misc', frontH: 14,
+    footprint: { w: 1, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#6a1a24', '#c44a54'),
+  },
+  {
+    id: 'coffee-table', label: 'Coffee table', category: 'desks', isDesk: true, frontH: 7,
+    footprint: { w: 2, h: 1, backgroundRows: 0 },
+    paint: (set, rect, w, h, top) => {
+      rect(0, 0, w, top, '#7a4428'); rect(0, top - 1, w, 1, '#d9a95b');
+      rect(1, top, w - 2, 3, '#56301c'); for (const x of [1, w - 4]) rect(x, top + 3, 3, h - top - 3, '#46261a');
+      rect(6, Math.round(top * 0.3), 7, Math.max(2, Math.round(top * 0.3)), '#ece2c8');
+    },
+  },
+  {
+    id: 'brass-globe', label: 'Globe on a stand', category: 'misc', frontH: 26,
+    footprint: { w: 1, h: 1, backgroundRows: 0 },
+    paint: (set, rect, w, h) => {
+      const cy = 9;
+      for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+        const d = Math.hypot(x - 7.5, y - cy); if (d < 6.5) set(x, y, d < 5.5 ? ((x + y) % 5 < 2 ? '#3a8a5a' : '#4682b4') : '#d9a95b');
+      }
+      rect(7, cy + 7, 2, h - cy - 10, '#d9a95b'); rect(3, h - 3, 10, 3, '#8c602c');
+    },
+  },
+];
+
+let currentRise = 0.5;
+
+function boxToDefinition(b: BoxDefinition, rise: number): FurnitureDefinition {
+  const top = topPx(b, rise);
+  const size = { w: b.footprint.w * 16, h: b.frontH + top };
+  return {
+    ...b, size, surfaceY: b.isDesk ? Math.round(top / 2) : undefined,
+    fallback: paint((set, rect, w, h) => b.paint(set, rect, w, h, top)),
+  };
+}
+
+/** Camera-aware decor (floor rugs): w x (rows * 16 * rise) px. */
+export const RUG_DEFINITIONS = [
+  { id: 'galaxy-rug', label: 'Galaxy rug', w: 6, rows: 3 },
+];
+
+function rugSprite(w: number, h: number): SpriteData {
+  return paint((set, rect) => {
+    rect(0, 0, w, h, '#3a1e66'); rect(2, 2, w - 4, h - 4, '#d9a95b'); rect(3, 3, w - 6, h - 6, '#4a2a86');
+    const cx = w / 2, cy = h / 2;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const dx = (x - cx) / (w * 0.22), dy = (y - cy) / (h * 0.3), r = Math.hypot(dx, dy);
+      if (r < 1) set(x, y, Math.sin(r * 9 + Math.atan2(dy, dx) * 2) > 0.6 ? '#d9a95b' : '#6a46b0');
+    }
+  })(w, h);
+}
+
 export function definitionById(id: string) {
-  return FURNITURE_DEFINITIONS.find(d => d.id === id);
+  const box = BOX_DEFINITIONS.find(d => d.id === id);
+  return box ? boxToDefinition(box, currentRise) : FURNITURE_DEFINITIONS.find(d => d.id === id);
 }
 
 export function definitionEntry(d: FurnitureDefinition, sprite?: SpriteData): CatalogEntryWithCategory {
@@ -131,7 +213,23 @@ export function definitionEntry(d: FurnitureDefinition, sprite?: SpriteData): Ca
   };
 }
 
-/** Register every definition with its procedural fallback art. Call after the base catalog is built. */
-export function registerFurnitureDefinitions() {
-  registerPackEntries(FURNITURE_DEFINITIONS.map(d => definitionEntry(d)));
+/**
+ * Register every definition with its procedural fallback art for a camera
+ * tilt. Call after the base catalog is built, and again when the world's
+ * camera changes (camera-aware shapes are re-cut for the new rise).
+ */
+let fixedRegistered = false;
+export function registerFurnitureDefinitions(rise = 0.5) {
+  if (fixedRegistered && rise === currentRise) return;
+  currentRise = rise;
+  registerPackEntries([
+    // Fixed-size definitions once only: later calls must not clobber pack art loaded over them.
+    ...(fixedRegistered ? [] : FURNITURE_DEFINITIONS.map(d => definitionEntry(d))),
+    ...BOX_DEFINITIONS.map(b => definitionEntry(boxToDefinition(b, rise))),
+    ...RUG_DEFINITIONS.map(r => ({
+      type: r.id, label: r.label, footprintW: r.w, footprintH: r.rows, isDesk: false, category: 'decor' as const,
+      sprite: rugSprite(r.w * 16, Math.round(r.rows * 16 * rise)),
+    })),
+  ]);
+  fixedRegistered = true;
 }

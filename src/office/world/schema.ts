@@ -53,7 +53,12 @@ export interface RoomDef {
   width: number;
   /** Interior depth in rows; defaults to the floor depth. */
   depth?: number;
-  surfaces?: { backWall?: MaterialRef; floor?: MaterialRef };
+  /**
+   * plate: ONE painted image of the whole room (walls, floor and furniture as
+   * placed), used instead of the shell; furniture occludes agents by being cut
+   * back out of it along its footprint.
+   */
+  surfaces?: { backWall?: MaterialRef; floor?: MaterialRef; plate?: MaterialRef };
 }
 
 /**
@@ -156,6 +161,8 @@ export interface OfficeWorld {
   agents: AgentDef[];
   background: BackgroundDef;
   structure?: StructureDef;
+  /** Camera: floor rows per tile of depth (0.5 shallow strip, 1 deep dollhouse floor). */
+  view?: { rise?: number };
   /** Asset packs this world's texture/sprite ids refer to. */
   assetPacks?: string[];
   /** Optional external metadata keyed by entity id. Never read by the compiler. */

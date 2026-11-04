@@ -8,6 +8,8 @@ import type { DecorDef, FurnitureDef, OfficeWorld } from './schema.js';
 export interface RoomKitDressing {
   packId: string;
   wallTextureId?: string;
+  /** Whole-room painted plate (wins over wall/floor art when it is loaded). */
+  plateId?: string;
   floorTextureId?: string;
   skyLayerId?: string;
   slabTextureId?: string;
@@ -29,6 +31,7 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
     backWall: { ...(room.surfaces?.backWall ?? { material: 'plaster' }), ...(kit.wallTextureId ? { textureId: kit.wallTextureId } : {}) },
     floor: { ...(room.surfaces?.floor ?? { material: 'wood' }), ...(kit.floorTextureId ? { textureId: kit.floorTextureId } : {}) },
   };
+  if (kit.plateId) room.surfaces.plate = { material: 'plate', textureId: kit.plateId };
   const dropF = new Set(kit.replaceFurniture ?? []), dropD = new Set(kit.replaceDecor ?? []);
   w.furniture = w.furniture.filter(f => !(f.roomId === roomId && dropF.has(f.id)));
   w.decor = w.decor.filter(d => !(d.roomId === roomId && dropD.has(d.id)));
@@ -45,27 +48,30 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
 }
 
 /**
- * Nebula-night executive office for the campus sample's Lead (Main) room,
- * room-first: the back wall (built-in bookcases, arched window, curtains,
- * cabinet) and the floor (inlay, rug) are each ONE painted image for this
- * room size, so only pieces agents use are furniture.
+ * Nebula-night executive office for the campus sample's Lead (Main) room.
+ * Room-first: the furniture below is placed for real (collision, seats), the
+ * back wall is a painted backdrop, and the whole room is then painted as ONE
+ * plate over the engine's own render of exactly this layout.
  */
 export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
   packId: 'nebula-exec-room-v2',
   wallTextureId: 'exec-room-wall',
-  floorTextureId: 'exec-room-floor',
+  plateId: 'exec-room-plate',
   replaceFurniture: ['lead-desk', 'lead-pc', 'lead-library', 'lead-plant'],
   replaceDecor: ['lead-art'],
   furniture: [
     { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
-    // Beside the Lead's seat (col 5) so the monitor doesn't hide their face.
     { id: 'exec-pc', assetId: 'PC_BACK', col: 6, row: 2 },
-    // The last column sits behind the right partition's front face; keep tall pieces clear of it.
-    { id: 'exec-lamp', assetId: 'exec-lamp', col: 8, row: 1 },
-    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 10, row: 3 },
-    { id: 'exec-plant-2', assetId: 'LARGE_PLANT', col: 0, row: 3 },
+    { id: 'exec-sofa', assetId: 'velvet-sofa', col: 0, row: 2 },
+    { id: 'exec-coffee', assetId: 'coffee-table', col: 0, row: 4 },
+    { id: 'exec-arm-l', assetId: 'velvet-armchair', col: 3, row: 5 },
+    { id: 'exec-arm-r', assetId: 'velvet-armchair', col: 8, row: 5 },
+    { id: 'exec-globe', assetId: 'brass-globe', col: 9, row: 2 },
+    { id: 'exec-lamp-l', assetId: 'exec-lamp', col: 3, row: 1 },
+    { id: 'exec-lamp-r', assetId: 'exec-lamp', col: 8, row: 1 },
+    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 10, row: 0 },
   ],
-  decor: [],
+  decor: [{ id: 'exec-rug', assetId: 'galaxy-rug', attachment: 'floor', col: 3, y: 2 }],
 };
 
 /** Every dressing we can offer, keyed by the room it was authored for. */

@@ -21,6 +21,8 @@ export interface RenderOptions {
   selectedId: number | null;
   hoverTile: GridPoint | null;
   time: number;
+  /** Render the building without agents (used to author room-plate guides). */
+  hideAgents?: boolean;
 }
 
 /** Screen-filling sky/ground description (drawn by the viewport, buffer pixel scale). */
@@ -79,6 +81,8 @@ export class WorldRenderer {
   private walls: Array<Omit<Item, 'draw'> & { draw: (ctx: Ctx) => void }> = [];
   private assets: RenderAssets | null = null;
   private sky: Backdrop | null = null;
+  /** Furniture re-cut from its room plate, masked to its own silhouette. */
+  private slices = new Map<string, HTMLCanvasElement>();
 
   constructor(public compiled: CompiledWorld, public proj: Projection, public pack: StylePack = FALLBACK_STYLE) {
     this.canvas = document.createElement('canvas');
@@ -92,6 +96,7 @@ export class WorldRenderer {
     this.canvas.height = proj.height;
     this.bg = this.fg = null;
     this.sky = null;
+    this.slices.clear();
     this.walls = this.buildWallSegments();
   }
 
@@ -107,6 +112,7 @@ export class WorldRenderer {
   setAssets(assets: RenderAssets | null) {
     this.assets = assets;
     this.bg = this.fg = this.sky = null;
+    this.slices.clear();
   }
 
   private texture(id: string | undefined, cls: AssetRecord['class']): HTMLCanvasElement | null {
@@ -127,6 +133,40 @@ export class WorldRenderer {
     return this.assets.images.get(id) ?? null;
   }
 
+  /** Screen rectangle a room plate covers: wall top to floor front, full front width. */
+  plateRect(cell: CompiledCell) {
+    const H = this.floor(cell.floorId).def.wallHeight, id = cell.floorId;
+    const fl = this.proj.project(id, cell.x, 0), fr = this.proj.project(id, cell.x + cell.width, 0);
+    const top = this.proj.project(id, cell.x, cell.depth, H);
+    const x = Math.round(fl.x), y = Math.round(top.y);
+    return { x, y, w: Math.round(fr.x) - x, h: Math.round(fl.y) - y };
+  }
+
+  /** The room's plate, if one is loaded for exactly this room size AND camera. */
+  private plate(cell: CompiledCell): HTMLCanvasElement | null {
+    const id = cell.room?.surfaces?.plate?.textureId;
+    if (!id || !this.assets) return null;
+    const rec = this.assets.records.get(id), r = rec?.room, H = this.floor(cell.floorId).def.wallHeight;
+    if (!rec || rec.class !== 'room-plate' || !r || r.width !== cell.width || r.wallHeight !== H || r.depth !== cell.depth || r.rise !== this.proj.params.rise) return null;
+    return this.assets.images.get(id) ?? null;
+  }
+
+  /** Plate pixels under a sprite's silhouette, so painted furniture can sort in front of agents. */
+  private plateSlice(cell: CompiledCell, plate: HTMLCanvasElement, sprite: HTMLCanvasElement, x: number, y: number, key: string) {
+    let c = this.slices.get(key);
+    if (!c) {
+      const r = this.plateRect(cell);
+      c = document.createElement('canvas'); c.width = sprite.width; c.height = sprite.height;
+      const g = c.getContext('2d')!;
+      g.imageSmoothingEnabled = false;
+      g.drawImage(sprite, 0, 0);
+      g.globalCompositeOperation = 'source-in';
+      g.drawImage(plate, r.x - x, r.y - y);
+      this.slices.set(key, c);
+    }
+    return c;
+  }
+
   /** Pixel size a room's backdrop / floor art must be painted at (asset authoring). */
   roomArtSize(roomId: string) {
     const cell = this.compiled.cells.find(c => c.id === roomId);
@@ -138,6 +178,7 @@ export class WorldRenderer {
       room: { width: cell.width, wallHeight: H, depth: cell.depth },
       backdrop: { w: Math.round(q[1].x) - Math.round(q[0].x), h: Math.round(q[0].y) - Math.round(q[3].y) },
       floor: { w: Math.round(f[1].x) - Math.round(f[0].x), h: Math.round(f[0].y) - Math.round(f[3].y) },
+      plate: { ...this.plateRect(cell), rise: this.proj.params.rise },
     };
   }
 
@@ -170,7 +211,7 @@ export class WorldRenderer {
       const it = this.furnitureItem(ctx, f.uid, f.type, f.col, f.row, floorIndex, surfaces.get(`${f.col},${f.row}`), lights);
       if (it) items.push(it);
     }
-    for (const ch of office.characters.values()) {
+    for (const ch of opts.hideAgents ? [] : office.characters.values()) {
       const slot = travel.riderSlot(ch.id);
       if (slot && slot.boarding >= 1) continue; // drawn inside the cabin
       const it = this.agentItem(ctx, ch, opts, floorIndex, slot ? this.boardingPose(ch, slot) : null);
@@ -306,7 +347,11 @@ export class WorldRenderer {
       line(ctx, this.proj.project(d.floorId, d.col + 1, z0), this.proj.project(d.floorId, d.col + 1, z1), '#3a2f27');
     }
     for (const e of this.compiled.elevators) this.drawShaft(ctx, e);
-    for (const d of this.compiled.world.decor) this.drawDecor(ctx, d.roomId, d.assetId, d.attachment, d.col, d.y);
+    for (const d of this.compiled.world.decor) {
+      const cell = this.compiled.cells.find(c => c.id === d.roomId);
+      if (cell && this.plate(cell)) continue; // painted into the plate
+      this.drawDecor(ctx, d.roomId, d.assetId, d.attachment, d.col, d.y);
+    }
   }
 
   private lowest() { return [...this.compiled.floors].sort((a, b) => a.def.level - b.def.level)[0]; }
@@ -318,6 +363,13 @@ export class WorldRenderer {
   }
 
   private drawRoomShell(ctx: Ctx, cell: CompiledCell) {
+    const plate = this.plate(cell);
+    if (plate) {
+      // The painted room replaces shell, surfaces, fixtures and lighting alike.
+      const r = this.plateRect(cell);
+      ctx.drawImage(plate, r.x, r.y);
+      return;
+    }
     const f = this.floor(cell.floorId);
     const H = f.def.wallHeight, D = cell.depth, x0 = cell.x, x1 = cell.x + cell.width, id = cell.floorId;
     // Explicit room surfaces win; otherwise the style pack's default for this room kind.
@@ -636,10 +688,18 @@ export class WorldRenderer {
     const p = this.proj.project(fid, col, zFront);
     // On a desk the lowest VISIBLE pixel rests on the surface, not the padded sprite edge.
     const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) : Math.round(p.y - sprite.height);
-    if (def?.light) lights.push({ x: x + sprite.width / 2, y: y + def.light.y, color: def.light.color, radius: def.light.radius });
+    const cell = this.compiled.cellAt(col, row);
+    const plate = cell?.kind === 'room' ? this.plate(cell) : null;
+    if (def?.light && !plate) lights.push({ x: x + sprite.width / 2, y: y + def.light.y, color: def.light.color, radius: def.light.radius });
     return {
       floor: floorIndex.get(fid)!, key, order: 1,
       draw: () => {
+        if (plate && cell) {
+          // Painted into the plate: re-draw just its silhouette at its depth.
+          ctx.drawImage(this.plateSlice(cell, plate, sprite, x, y, `${uid}@${x},${y}`), x, y);
+          this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height });
+          return;
+        }
         if (!onDesk) {
           // Contact shadow on the solid (non-overhang) rows of the footprint.
           const solidBack = this.compiled.zOfRow(row + (entry.backgroundTiles ?? 0));

@@ -86,3 +86,32 @@ describe('room kit dressing', () => {
     assert.ok(base.furniture.some(f => f.id === 'music-sofa'));
   });
 });
+
+describe('camera-aware furniture and room plates', () => {
+  test('a top face is exactly as deep as the floor rows it covers', async () => {
+    const { definitionById, registerFurnitureDefinitions } = await import('../../src/office/assets/definitions.js');
+    const { getCatalogEntry } = await import('../../src/office/layout/furnitureCatalog.js');
+    for (const rise of [0.5, 1]) {
+      registerFurnitureDefinitions(rise);
+      const d = definitionById('exec-desk')!;
+      const sprite = getCatalogEntry('exec-desk')!.sprite;
+      // 2 rows deep * 16 px * rise above a 16 px front face.
+      assert.equal(sprite.length, 16 + 2 * 16 * rise);
+      assert.equal(d.surfaceY, (2 * 16 * rise) / 2);
+    }
+    registerFurnitureDefinitions(0.5);
+  });
+  test('re-registering for a new camera keeps pack art for fixed definitions', async () => {
+    const { registerFurnitureDefinitions } = await import('../../src/office/assets/definitions.js');
+    const { getCatalogEntry } = await import('../../src/office/layout/furnitureCatalog.js');
+    const before = getCatalogEntry('studio-console')!.sprite;
+    registerFurnitureDefinitions(1);
+    assert.equal(getCatalogEntry('studio-console')!.sprite, before);
+    registerFurnitureDefinitions(0.5);
+  });
+  test('a plate must name the camera it was painted for', () => {
+    const room = { width: 12, wallHeight: 6, depth: 6 };
+    assert.ok(validateAssetPack(pack([rec({ class: 'room-plate', tileable: false, room })])).some(m => m.includes('room.rise')));
+    assert.deepEqual(validateAssetPack(pack([rec({ class: 'room-plate', tileable: false, room: { ...room, rise: 1 } })])), []);
+  });
+});
