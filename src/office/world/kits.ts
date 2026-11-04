@@ -82,9 +82,19 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
  * (except those with their own room kit) shown as a painted SHELL from `packId`
  * named `<roomId>-shell`, and every furniture type skinned by the same pack.
  */
-export interface BuildingKit { building: string; packId: string; skipRooms: string[] }
+export interface BuildingKit {
+  building: string; packId: string; skipRooms: string[];
+  /** Live objects: furniture bound to a real status source (world.bindings[id].live). */
+  live?: Array<{ id: string; roomId: string; assetId: string; source: string; metricsFrom?: string }>;
+}
 export const BUILDING_KITS: BuildingKit[] = [
-  { building: 'nebula-campus', packId: 'nebula-campus-v1', skipRooms: ['lead'] },
+  {
+    building: 'nebula-campus', packId: 'nebula-campus-v1', skipRooms: ['lead'],
+    live: [
+      { id: 'live-training', roomId: 'training', assetId: 'training-rig', source: 'nebula.training', metricsFrom: 'host.gpu' },
+      { id: 'live-render', roomId: 'rendering', assetId: 'render-rack', source: 'nebula.render' },
+    ],
+  },
 ];
 
 /** Every dressing we can offer, keyed by the room it was authored for. */

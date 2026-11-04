@@ -12,6 +12,26 @@ import type { TravelSystem } from '../navigation/elevator.js';
 import { FALLBACK_STYLE, type StylePack, floorStyle, wallStyle } from './stylePack.js';
 import type { AssetRecord } from '../assets/manifest.js';
 import { definitionById, wallFixtureById } from '../assets/definitions.js';
+import { drawPixelText, textWidth } from './pixelFont.js';
+
+/**
+ * Live tasks (dev server /live, scripts/live/registry.mjs): background work in a
+ * normalized shape. Real sources only; unknown stays unknown.
+ */
+export type LiveState = 'running' | 'paused' | 'waiting' | 'done' | 'failed' | 'idle' | 'unknown';
+export interface LiveTask {
+  id: string; title: string; state: LiveState; detail: string;
+  progress: { done: number; total: number } | null;
+  metrics: Array<{ label: string; value: number; max: number; unit?: string }>;
+  updatedAt: number | null; why?: string;
+}
+export interface LiveData { observedAt: number; tasks: Record<string, LiveTask> }
+/** A furniture binding: the task its screen shows, plus optionally another task's metrics. */
+export interface LiveBinding { live: string; metricsFrom?: string }
+const STATE_COLOR: Record<LiveState, string> = {
+  running: '#5aff8c', paused: '#ffb84a', waiting: '#ffb84a', done: '#7aa6ff', failed: '#ff5a5a', idle: '#8a8aa0', unknown: '#8a8aa0',
+};
+interface LiveStatus { text: string; color: string; detail: string; progress: number | null; count: string; state: LiveState }
 
 /** Decoded asset-pack images the renderer may use for surfaces (visual only). */
 export interface RenderAssets { images: Map<string, HTMLCanvasElement>; records: Map<string, AssetRecord> }
@@ -266,7 +286,12 @@ export class WorldRenderer {
     return this.compiled.cells.filter(c => c.kind === 'room').map(c => {
       const f = this.floor(c.floorId);
       const p = this.proj.project(c.floorId, c.x + c.width / 2, c.depth, f.def.wallHeight - 0.15);
-      const subtitle = c.room!.subtitle ?? this.pack.roomKinds?.[c.room!.kind]?.subtitle;
+      let subtitle = c.room!.subtitle ?? this.pack.roomKinds?.[c.room!.kind]?.subtitle;
+      const bound = this.compiled.world.furniture.find(f => f.roomId === c.id && this.binding(f.id));
+      if (bound) {
+        const st = this.liveStatus(this.binding(bound.id)!.live);
+        subtitle = `${subtitle ? subtitle + ' · ' : ''}${st.text}${st.count ? ' ' + st.count : ''}`;
+      }
       return { text: c.room!.name, subtitle, x: p.x, y: p.y, cellId: c.id };
     });
   }
@@ -274,6 +299,7 @@ export class WorldRenderer {
   render(office: OfficeState, travel: TravelSystem, opts: RenderOptions) {
     const ctx = this.canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
+    this.frameTime = opts.time;
     // The buffer is transparent outside the building (the backdrop shows through).
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     if (!this.bg) { this.decorHits = []; this.bg = this.layer(c => this.drawBackground(c)); }
@@ -831,6 +857,7 @@ export class WorldRenderer {
         if (plate && cell) {
           // Painted into the plate: re-draw just its silhouette at its depth.
           ctx.drawImage(this.plateSlice(cell, plate, sprite, x, y, `${uid}@${x},${y}`), x, y);
+          this.drawLiveScreen(ctx, uid, type, x, y, sprite);
           this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height, sprite });
           return;
         }
@@ -841,6 +868,7 @@ export class WorldRenderer {
         }
         if (mirrored) { ctx.save(); ctx.translate(x + sprite.width, y); ctx.scale(-1, 1); ctx.drawImage(sprite, 0, 0); ctx.restore(); }
         else ctx.drawImage(sprite, x, y);
+        this.drawLiveScreen(ctx, uid, type, x, y, sprite);
         this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height, sprite });
       },
     };
@@ -876,6 +904,58 @@ export class WorldRenderer {
       out.push({ x: p.x, y: p.y - 3 * this.k, color: this.pack.lamp, radius: this.T * 1.1 });
     }
     return out;
+  }
+
+  /** Latest live reading; null until the first poll answers. */
+  live: LiveData | null = null;
+  private frameTime = 0;
+
+  /** What a live task says right now, in words and colour. Never invents: unknown is shown as unknown. */
+  liveStatus(taskId: string): LiveStatus {
+    const none: LiveStatus = { text: 'NO DATA', color: STATE_COLOR.unknown, detail: '', progress: null, count: '', state: 'unknown' };
+    const d = this.live;
+    if (!d) return none;
+    if (Date.now() - d.observedAt > 30000) return { ...none, text: 'STALE' };
+    const t = d.tasks[taskId];
+    if (!t) return { ...none, detail: 'NOT CONFIGURED' };
+    const p = t.progress;
+    return {
+      state: t.state, color: STATE_COLOR[t.state], text: t.state === 'unknown' ? 'NO SOURCE' : t.state.toUpperCase(),
+      detail: (t.state === 'unknown' ? (t.why ?? '') : t.detail).toUpperCase(),
+      progress: p ? p.done / p.total : null, count: p ? `${p.done}/${p.total}` : '',
+    };
+  }
+
+  private binding(uid: string): LiveBinding | null {
+    const b = this.compiled.world.bindings?.[uid] as LiveBinding | undefined;
+    return b?.live ? b : null;
+  }
+
+  /** A bound piece's screen, animated by task state: LED, status, detail, progress, metric bars, scan line while running. */
+  private drawLiveScreen(ctx: Ctx, uid: string, type: string, x: number, y: number, sprite: HTMLCanvasElement) {
+    const b = this.binding(uid), scr = definitionById(type)?.screen;
+    if (!b || !scr) return;
+    const k = this.k, sx = x + scr.x * k, sw = scr.w * k, sh = scr.h * k, sy = y + sprite.height - (scr.bottom + scr.h) * k;
+    const st = this.liveStatus(b.live), t = this.frameTime;
+    ctx.fillStyle = '#060912'; ctx.fillRect(sx, sy, sw, sh);
+    if (st.state === 'running') { // scan line sweeping the screen
+      ctx.fillStyle = 'rgba(90,255,140,0.10)'; ctx.fillRect(sx, sy + Math.floor((t * 18) % sh), sw, 2);
+    }
+    const blink = st.state === 'running' ? Math.floor(t * 2) % 2 === 0 : st.state === 'waiting' || st.state === 'paused' ? Math.floor(t) % 2 === 0 : true;
+    ctx.fillStyle = blink ? st.color : '#2a2a3a'; ctx.fillRect(sx + 2, sy + 2, 3, 3);
+    drawPixelText(ctx, st.text.slice(0, Math.floor((sw - 9) / 4)), sx + 7, sy + 2, st.color);
+    drawPixelText(ctx, st.detail.slice(0, Math.floor((sw - 4) / 4)), sx + 2, sy + 10, '#b9c4ff');
+    const bw = sw - 4;
+    ctx.fillStyle = '#1c2236'; ctx.fillRect(sx + 2, sy + 18, bw, 4);
+    if (st.progress != null) { ctx.fillStyle = st.color; ctx.fillRect(sx + 2, sy + 18, Math.round(bw * Math.min(1, st.progress)), 4); }
+    if (st.count) drawPixelText(ctx, st.count, sx + sw - 2 - textWidth(st.count), sy + 24, '#e8ecff');
+    const m = b.metricsFrom ? this.live?.tasks[b.metricsFrom]?.metrics[0] : this.live?.tasks[b.live]?.metrics[0];
+    if (m && sh >= 40) {
+      const frac = Math.max(0, Math.min(1, m.value / (m.max || 1)));
+      drawPixelText(ctx, m.label.slice(0, 4), sx + 2, sy + 32, '#8a8aa0');
+      ctx.fillStyle = '#1c2236'; ctx.fillRect(sx + 20, sy + 33, sw - 22, 3);
+      ctx.fillStyle = frac > 0.8 ? '#ff7a5a' : '#5aff8c'; ctx.fillRect(sx + 20, sy + 33, Math.round((sw - 22) * frac), 3);
+    }
   }
 
   /** Authoring a room-shell guide: only baked wall fixtures are drawn (no movable decor). */

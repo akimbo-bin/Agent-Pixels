@@ -1,0 +1,9 @@
+{
+  "sources": [
+    { "id": "nebula.training", "title": "Nebula training queue", "kind": "module", "module": "../../scripts/live/adapters/nebula-training.mjs",
+      "options": { "base": "C:/NebulaResearch/train", "queue": "neb318" } },
+    { "id": "host.gpu", "title": "GPU", "kind": "module", "module": "../../scripts/live/adapters/host-gpu.mjs" },
+    { "id": "nebula.render", "title": "Nebula data renders (VM116)", "kind": "unconfigured",
+      "why": "VM116 render progress reports through Proxmox (watchdog / Machine Portal); no local source wired yet" }
+  ]
+}

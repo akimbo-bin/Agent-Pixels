@@ -22,6 +22,11 @@ export interface FurnitureDefinition {
   surfaceY?: number;
   /** May stand on a desk's tiles (a monitor, a lamp on the desk). */
   onSurfaces?: boolean;
+  /**
+   * A live screen on the piece's front (definition px, 16 px/tile): x from the
+   * left, `bottom` = px from the sprite's bottom edge to the screen's bottom.
+   */
+  screen?: { x: number; bottom: number; w: number; h: number };
   /** Light emitted by the piece (lamps): drawn as an additive pool each frame. */
   light?: { color: string; radius: number; y: number };
   /** Sprite size in pixels (16 px per tile). */
@@ -175,7 +180,29 @@ const seat = (cloth: string, dark: string, light: string) => (set: Pen, rect: Bo
   for (const x of [1, w - 3, ...(w >= 40 ? [Math.round(w / 2) - 1] : [])]) rect(x, base, 2, 2, '#2a1210');
 };
 
+/** Server rack with a status screen: a background job made visible (training, rendering). */
+const rack = (body: string, trim: string) => (set: Pen, rect: Box, w: number, h: number, top: number) => {
+  rect(0, 0, w, top, '#2a2838'); rect(1, 0, w - 2, 1, '#3c3a52');
+  rect(0, top, w, h - top, body); rect(1, top + 1, w - 2, 1, trim);
+  rect(3, h - 42, w - 6, 24, '#0c0e18');
+  for (let y = top + 3; y < h - 44; y += 3) for (let x = 3; x < w - 3; x += 4) set(x, y, (x + y) % 3 ? '#3aff8c' : '#2a6a4a');
+  for (let y = h - 15; y < h - 3; y += 3) rect(3, y, w - 6, 2, '#24223a');
+  rect(1, h - 2, w - 2, 2, '#14121e');
+};
+
 export const BOX_DEFINITIONS: BoxDefinition[] = [
+  {
+    id: 'training-rig', label: 'Training rig', category: 'electronics', frontH: 46,
+    footprint: { w: 2, h: 1, backgroundRows: 0 }, screen: { x: 3, bottom: 18, w: 26, h: 24 },
+    light: { color: '#5affb0', radius: 26, y: 20 },
+    paint: rack('#3a3450', '#5affb0'),
+  },
+  {
+    id: 'render-rack', label: 'Render rack', category: 'electronics', frontH: 46,
+    footprint: { w: 2, h: 1, backgroundRows: 0 }, screen: { x: 3, bottom: 18, w: 26, h: 24 },
+    light: { color: '#b98aff', radius: 26, y: 20 },
+    paint: rack('#3a2c4c', '#b98aff'),
+  },
   {
     // One row deep (a two-row top reads as a 2 m deep slab); front ~40% of a standing agent (32 px).
     id: 'exec-desk', label: 'Executive desk', category: 'desks', isDesk: true, frontH: 14,

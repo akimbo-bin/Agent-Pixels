@@ -25,6 +25,21 @@ const valid = (w: OfficeWorld, fp: FootprintSource) => {
   return r.ok && checkConnectivity(r.compiled, fp).length === 0;
 };
 
+/** Place one piece at the first valid spot in a room (back wall first, ends inward); false if none. */
+export function placeFurniture(w: OfficeWorld, roomId: string, assetId: string, id: string, fp: FootprintSource = catalogFootprints): boolean {
+  const room = w.rooms.find(r => r.id === roomId), f = fp(assetId);
+  if (!room || !f) return false;
+  const depth = room.depth ?? w.floors.find(x => x.id === room.floorId)!.depth;
+  const cols: number[] = [];
+  for (let a = 0, b = room.width - f.w; a <= b; a++, b--) { cols.push(a); if (b !== a) cols.push(b); }
+  for (let row = 0; row + f.h <= depth - 1; row++) for (const col of cols) {
+    w.furniture.push({ id, roomId, assetId, col, row });
+    if (valid(w, fp)) return true;
+    w.furniture.pop();
+  }
+  return false;
+}
+
 /**
  * Dress every room (except \`skip\`) for its kind: arched windows along the back
  * wall (one per ~7 tiles, centred) and the kind's floor furniture, each placed

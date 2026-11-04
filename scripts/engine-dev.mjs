@@ -6,6 +6,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildAssetIndex } from './asset-index.mjs';
+import { liveTasks } from './live/registry.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const devDir = path.join(root, 'dev', 'engine');
@@ -34,6 +35,12 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', 'http://localhost');
   let name = decodeURIComponent(url.pathname);
   let file = null;
+  if (name === '/live') {
+    // Live tasks from dev/engine/live.config.json (read-only, real sources only; LIVE_OBJECTS.md).
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+    res.end(JSON.stringify(await liveTasks(path.join(devDir, 'live.config.json'))));
+    return;
+  }
   if (name === '/' || name === '/index.html') file = path.join(devDir, 'index.html');
   else if (name === '/style.css') file = path.join(devDir, 'style.css');
   else if (name === '/evidence' || name === '/evidence.html') file = path.join(devDir, 'evidence.html');

@@ -20,7 +20,7 @@ import { CharacterState } from '../../src/office/types.js';
 import { loadAssetPack, type LoadedAssetPack } from '../../src/office/assets/loader.js';
 import { registerFurnitureDefinitions, wallFixtureById } from '../../src/office/assets/definitions.js';
 import { applyRoomKit, BUILDING_KITS, ROOM_KITS } from '../../src/office/world/kits.js';
-import { dressBuilding } from '../../src/office/world/dress.js';
+import { dressBuilding, placeFurniture } from '../../src/office/world/dress.js';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('view');
@@ -292,6 +292,9 @@ function makeWorld(name: string): OfficeWorld {
   const bk = BUILDING_KITS.find(b => b.building === name);
   if (bk) {
     w = dressBuilding(w, bk.skipRooms);
+    for (const l of bk.live ?? []) {
+      if (placeFurniture(w, l.roomId, l.assetId, l.id)) w.bindings = { ...w.bindings, [l.id]: { live: l.source, ...(l.metricsFrom ? { metricsFrom: l.metricsFrom } : {}) } };
+    }
     for (const room of w.rooms) {
       if (bk.skipRooms.includes(room.id)) continue;
       room.surfaces = { ...room.surfaces, plate: { material: 'plate', textureId: `${room.id}-shell` } };
@@ -564,6 +567,15 @@ function writeStatus() {
 declare global { interface Window { __engine: unknown } }
 
 await loadPixelAssets();
+
+/** Live tasks, polled from the dev server's read-only /live (dev/engine/live.config.json). */
+async function pollLive() {
+  try {
+    const r = await fetch('/live', { cache: 'no-store' });
+    if (r.ok && scene?.renderer) scene.renderer.live = await r.json();
+  } catch { /* the screens show STALE / NO DATA */ }
+}
+setInterval(pollLive, 5000);
 registerFurnitureDefinitions();
 if (params.get('kit') === '1') {
   ui.kit.checked = true;
@@ -615,6 +627,8 @@ window.__engine = {
   fit: () => scene.fit(),
   kit: () => kitPacks.size ? { id: [...kitPacks.keys()].join(','), loaded: [...kitAssets.images.keys()], problems: [...kitPacks.values()].flatMap(p => p.problems) } : null,
   stats: () => scene.stats(),
+  live: (id?: string) => (id ? scene.renderer.liveStatus(id) : scene.renderer.live),
+  pollLive: () => pollLive(),
   /** Exact pixel size to paint a room's backdrop and floor art at (kit authoring). */
   roomArtSize: (roomId: string) => scene.renderer.roomArtSize(roomId),
   isBakedFixture: (id: string) => !!wallFixtureById(id)?.bake,
