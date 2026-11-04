@@ -534,6 +534,11 @@ window.__engine = {
   stats: () => scene.stats(),
   /** Exact pixel size to paint a room's backdrop and floor art at (kit authoring). */
   roomArtSize: (roomId: string) => scene.renderer.roomArtSize(roomId),
+  /** A furniture type's current sprite (camera-aware shapes at this world's rise) as PNG: a sprite guide. */
+  spritePng: (type: string) => {
+    const entry = getCatalogEntry(type);
+    return entry ? getCachedSprite(entry.sprite, 1).toDataURL('image/png') : null;
+  },
   /**
    * The room exactly as the engine lays it out, agents hidden, at native
    * resolution: the img2img guide for that room's plate (and the geometry its

@@ -72,7 +72,8 @@ for (const { a, k, n, seed } of jobs) {
   const loras = kit.loras ?? [{ name: kit.lora, model: kit.loraStrength[0], clip: kit.loraStrength[1] }];
   // One shared style suffix keeps every asset in a kit in the same visual language.
   const prompt = kit.stylePrompt ? `${a.prompt}, ${kit.stylePrompt}` : a.prompt;
-  const last = `lora${loras.length - 1}`;
+  // With no LoRAs (e.g. a merged checkpoint) the text encoders and model come from the checkpoint.
+  const last = loras.length ? `lora${loras.length - 1}` : 'ckpt';
   const wf = {
     ckpt: { class_type: 'CheckpointLoaderSimple', inputs: { ckpt_name: kit.checkpoint } },
     ...Object.fromEntries(loras.map((l, i) => [`lora${i}`, { class_type: 'LoraLoader', inputs: {
