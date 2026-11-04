@@ -55,6 +55,17 @@ for (const { a, k, n, seed } of jobs) {
   const up = await fetch(origin + '/upload/image', { method: 'POST', body: form });
   assert.ok(up.ok, 'guide upload failed');
   const { name } = await up.json();
+  // control.edges === 'file': a precomputed <id>.control.png (scripts/kit/edges.py)
+  // replaces in-graph Canny, so low-contrast boundaries are locked too.
+  let edgeName;
+  if (kit.control?.edges === 'file') {
+    const ef = new FormData();
+    ef.append('image', new Blob([await readFile(path.join(work, `${a.assetId}.control.png`))], { type: 'image/png' }), `ap-kit-${a.assetId}.control.png`);
+    ef.append('overwrite', 'true');
+    const eu = await fetch(origin + '/upload/image', { method: 'POST', body: ef });
+    assert.ok(eu.ok, 'edge map upload failed');
+    edgeName = (await eu.json()).name;
+  }
 
   // LoRA chain: "loras": [{ name, model, clip }] (SDXL kits stack a pixel-art
   // LoRA with a few-step sampler LoRA); older kits give one "lora".
@@ -81,7 +92,9 @@ for (const { a, k, n, seed } of jobs) {
     // along its guide silhouette matches the painting.
     ...(kit.control ? {
       cnet: { class_type: 'ControlNetLoader', inputs: { control_net_name: kit.control.model } },
-      edges: { class_type: 'Canny', inputs: { image: ['load', 0], low_threshold: kit.control.low ?? 0.3, high_threshold: kit.control.high ?? 0.6 } },
+      edges: edgeName
+        ? { class_type: 'LoadImage', inputs: { image: edgeName } }
+        : { class_type: 'Canny', inputs: { image: ['load', 0], low_threshold: kit.control.low ?? 0.3, high_threshold: kit.control.high ?? 0.6 } },
       ctl: { class_type: 'ControlNetApplyAdvanced', inputs: {
         positive: ['pos', 0], negative: ['neg', 0], control_net: ['cnet', 0], image: ['edges', 0],
         strength: kit.control.strength, start_percent: 0, end_percent: kit.control.end ?? 1, vae: ['ckpt', 2] } },
