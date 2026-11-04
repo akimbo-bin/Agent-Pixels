@@ -20,6 +20,8 @@ export interface FurnitureDefinition {
    * floor, so a monitor sits ON the desk rather than sinking into its front.
    */
   surfaceY?: number;
+  /** May stand on a desk's tiles (a monitor, a lamp on the desk). */
+  onSurfaces?: boolean;
   /** Light emitted by the piece (lamps): drawn as an additive pool each frame. */
   light?: { color: string; radius: number; y: number };
   /** Sprite size in pixels (16 px per tile). */
@@ -93,6 +95,14 @@ export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
     fallback: paint((set, rect, w, h) => {
       rect(3, 2, 10, 8, '#ffc46b'); rect(7, 10, 2, h - 13, '#8a6a3a'); rect(4, h - 3, 8, 3, '#5a4022');
     }),
+  },
+  {
+    id: 'desk-monitor', label: 'Desk monitor', category: 'electronics', onSurfaces: true,
+    footprint: { w: 1, h: 1, backgroundRows: 0 }, size: { w: 16, h: 16 },
+    fallback: paint((set, rect) => {
+      rect(1, 1, 14, 10, '#2a2a36'); rect(2, 2, 12, 8, '#5a7ad0'); rect(3, 3, 6, 1, '#b9d0ff'); rect(3, 5, 9, 1, '#8aa8f0');
+      rect(7, 11, 2, 3, '#3a3a46'); rect(4, 14, 8, 2, '#2a2a36');
+    }, '#14141c'),
   },
   {
     id: 'studio-speaker', label: 'Floor speaker', category: 'misc',
@@ -212,6 +222,20 @@ export const BOX_DEFINITIONS: BoxDefinition[] = [
     },
   },
   {
+    id: 'potted-fig', label: 'Potted fiddle-leaf fig', category: 'decor', frontH: 40,
+    footprint: { w: 2, h: 1, backgroundRows: 0 },
+    paint: (set, rect, w, h) => {
+      const potTop = h - 13;
+      rect(8, potTop, w - 16, 11, '#8a4a2a'); rect(7, potTop, w - 14, 2, '#d9a95b'); rect(9, potTop + 6, w - 18, 1, '#d9a95b');
+      rect(10, h - 2, w - 20, 2, '#5a3020');
+      rect(w / 2 - 1, potTop - 14, 2, 14, '#5a3a20');
+      const leaves: Array<[number, number, number]> = [[w / 2, potTop - 16, 9], [w / 2 - 8, potTop - 22, 7], [w / 2 + 8, potTop - 24, 7], [w / 2 - 4, potTop - 32, 7], [w / 2 + 5, potTop - 36, 6], [w / 2, h - 52, 6]];
+      for (const [cx, cy, r] of leaves) for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
+        if ((x * x) / (r * r) + (y * y) / (r * r * 0.6) <= 1) set(cx + x, cy + y, (x + y) % 5 === 0 ? '#5aa04a' : y < 0 ? '#3f8a3c' : '#2e6a30');
+      }
+    },
+  },
+  {
     id: 'brass-globe', label: 'Globe on a stand', category: 'misc', frontH: 26,
     footprint: { w: 1, h: 1, backgroundRows: 0 },
     paint: (set, rect, w, h) => {
@@ -264,6 +288,7 @@ export function definitionEntry(d: FurnitureDefinition, sprite?: SpriteData): Ca
     type: d.id, label: d.label, footprintW: d.footprint.w, footprintH: d.footprint.h,
     ...(d.footprint.backgroundRows ? { backgroundTiles: d.footprint.backgroundRows } : {}),
     sprite: sprite ?? d.fallback(d.size.w, d.size.h), isDesk: !!d.isDesk, category: d.category,
+    ...(d.onSurfaces ? { canPlaceOnSurfaces: true } : {}),
   };
 }
 

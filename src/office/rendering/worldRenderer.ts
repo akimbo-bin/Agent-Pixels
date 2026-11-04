@@ -530,22 +530,22 @@ export class WorldRenderer {
     ctx.globalCompositeOperation = 'lighter';
     for (const t of xs) {
       const p = at(t);
-      const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 26);
+      const R = 26 * this.k;
+      const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, R);
       g.addColorStop(0, hexA(this.pack.lamp, 0.34 * warm)); g.addColorStop(1, hexA(this.pack.lamp, 0));
-      ctx.fillStyle = g; ctx.fillRect(p.x - 26, p.y - 26, 52, 52);
+      ctx.fillStyle = g; ctx.fillRect(p.x - R, p.y - R, 2 * R, 2 * R);
     }
     ctx.restore();
     for (const t of xs) {
       const p = at(t);
-      const x = Math.round(p.x), y = Math.round(p.y);
-      ctx.fillStyle = '#6a4a22'; ctx.fillRect(x - 1, y + 1, 3, 3);
-      ctx.fillStyle = '#d9a95b'; ctx.fillRect(x - 2, y - 3, 5, 4);
-      ctx.fillStyle = '#fff1c4'; ctx.fillRect(x - 1, y - 2, 3, 2);
+      const x = Math.round(p.x), y = Math.round(p.y), k = this.k;
+      const r = (dx: number, dy: number, w: number, h: number, c: string) => { ctx.fillStyle = c; ctx.fillRect(x + dx * k, y + dy * k, w * k, h * k); };
+      r(-1, 1, 3, 3, '#6a4a22'); r(-2, -3, 5, 4, '#d9a95b'); r(-1, -2, 3, 2, '#fff1c4');
       const f = this.proj.project(id, cell.x + cell.width * t, D - 0.8);
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      const g = ctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, 22);
+      const g = ctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, 22 * k);
       g.addColorStop(0, hexA(this.pack.lamp, 0.16 * warm)); g.addColorStop(1, hexA(this.pack.lamp, 0));
-      ctx.fillStyle = g; ctx.fillRect(f.x - 22, f.y - 10, 44, 20); ctx.restore();
+      ctx.fillStyle = g; ctx.fillRect(f.x - 22 * k, f.y - 10 * k, 44 * k, 20 * k); ctx.restore();
     }
   }
 
@@ -890,21 +890,23 @@ export class WorldRenderer {
     const yTop = Math.round(left.y), yBase = Math.round(base.y);
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = st.cut;
-    for (let x = Math.round(left.x) + 2; x < right.x; x += 4) ctx.fillRect(x, yTop + 1, 1, yBase - yTop - 1);
+    const k = this.k;
+    for (let x = Math.round(left.x) + 2 * k; x < right.x; x += 4 * k) ctx.fillRect(x, yTop + k, k, yBase - yTop - k);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = trim; ctx.fillRect(Math.round(left.x), yTop, Math.round(right.x - left.x), 1);
-    ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(left.x), yTop + 1, Math.round(right.x - left.x), 1);
+    ctx.fillStyle = trim; ctx.fillRect(Math.round(left.x), yTop, Math.round(right.x - left.x), k);
+    ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(left.x), yTop + k, Math.round(right.x - left.x), k);
     for (const col of this.compiled.walls.get(floorId)?.keys() ?? []) {
       const p = this.proj.project(floorId, col + 0.5, 0, 0), top = this.proj.project(floorId, col + 0.5, 0, 1.25);
       const x = Math.round(p.x);
-      ctx.fillStyle = '#1c1630'; ctx.fillRect(x - 1, Math.round(top.y), 2, Math.round(p.y - top.y));
+      const ty = Math.round(top.y);
+      ctx.fillStyle = '#1c1630'; ctx.fillRect(x - k, ty, 2 * k, Math.round(p.y - top.y));
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      const g = ctx.createRadialGradient(x, top.y - 2, 1, x, top.y - 2, 16);
+      const g = ctx.createRadialGradient(x, ty - 2 * k, 1, x, ty - 2 * k, 16 * k);
       g.addColorStop(0, hexA(this.pack.lamp, 0.45)); g.addColorStop(1, hexA(this.pack.lamp, 0));
-      ctx.fillStyle = g; ctx.fillRect(x - 16, top.y - 18, 32, 32); ctx.restore();
-      ctx.fillStyle = trim; ctx.fillRect(x - 2, Math.round(top.y) - 5, 4, 1);
-      ctx.fillStyle = this.pack.lamp; ctx.fillRect(x - 1, Math.round(top.y) - 4, 3, 3);
-      ctx.fillStyle = '#fff6dc'; ctx.fillRect(x, Math.round(top.y) - 3, 1, 1);
+      ctx.fillStyle = g; ctx.fillRect(x - 16 * k, ty - 18 * k, 32 * k, 32 * k); ctx.restore();
+      ctx.fillStyle = trim; ctx.fillRect(x - 2 * k, ty - 5 * k, 4 * k, k);
+      ctx.fillStyle = this.pack.lamp; ctx.fillRect(x - k, ty - 4 * k, 3 * k, 3 * k);
+      ctx.fillStyle = '#fff6dc'; ctx.fillRect(x, ty - 3 * k, k, k);
     }
   }
 
@@ -913,14 +915,15 @@ export class WorldRenderer {
     const b = this.pack.features!.banners!;
     for (const col of [x0, x1 - 1]) {
       const top = this.proj.project(floorId, col + 0.5, 0, H - 0.4);
-      const x = Math.round(top.x) - 5, y = Math.round(top.y);
-      ctx.fillStyle = b.trim; ctx.fillRect(x - 1, y - 1, 12, 2);
-      ctx.fillStyle = b.cloth; ctx.fillRect(x, y + 1, 10, 22);
-      for (let i = 0; i < 5; i++) { ctx.fillRect(x + i, y + 23 + Math.floor(i / 2), 1, 1); ctx.fillRect(x + 9 - i, y + 23 + Math.floor(i / 2), 1, 1); }
-      ctx.fillStyle = b.trim; ctx.fillRect(x, y + 1, 1, 22); ctx.fillRect(x + 9, y + 1, 1, 22);
+      const k = this.k, x = Math.round(top.x) - 5 * k, y = Math.round(top.y);
+      const r = (dx: number, dy: number, w: number, h: number) => ctx.fillRect(x + dx * k, y + dy * k, w * k, h * k);
+      ctx.fillStyle = b.trim; r(-1, -1, 12, 2);
+      ctx.fillStyle = b.cloth; r(0, 1, 10, 22);
+      for (let i = 0; i < 5; i++) { r(i, 23 + Math.floor(i / 2), 1, 1); r(9 - i, 23 + Math.floor(i / 2), 1, 1); }
+      ctx.fillStyle = b.trim; r(0, 1, 1, 22); r(9, 1, 1, 22);
       ctx.fillStyle = b.emblem;
-      for (const [dx, dy] of [[4, 8], [5, 8], [6, 9], [6, 10], [5, 11], [4, 11], [3, 10], [3, 9], [2, 8], [3, 7], [5, 6], [7, 7], [8, 9]]) ctx.fillRect(x + dx, y + dy + 2, 1, 1);
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 11, 2, 1);
+      for (const [dx, dy] of [[4, 8], [5, 8], [6, 9], [6, 10], [5, 11], [4, 11], [3, 10], [3, 9], [2, 8], [3, 7], [5, 6], [7, 7], [8, 9]]) r(dx, dy + 2, 1, 1);
+      ctx.fillStyle = '#ffffff'; r(4, 11, 2, 1);
     }
   }
 

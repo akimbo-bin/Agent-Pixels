@@ -100,7 +100,10 @@ def main():
         assert (fw, fh) == (fw16 * d, fh16 * d)
         print(f"{f['assetId']}: {fw}x{fh} native, {opaque.mean():.0%} opaque, silhouette match {((opaque == silhouette).mean()):.0%}")
 
-    pool = [shell_native.reshape(-1, 3)] + [n[o] for _, n, o, *_ in pieces]
+    # Equal say per asset: the shell has ~50x the pixels of a small piece, and a
+    # pixel-weighted palette would leave the fig's greens no colours of their own.
+    rs = np.random.default_rng(7)
+    pool = [p[rs.integers(0, len(p), 12000)] for p in [shell_native.reshape(-1, 3)] + [n[o] for _, n, o, *_ in pieces]]
     palette = palette_from(np.concatenate(pool).astype(np.uint8), spec.get('paletteAnchors', []), spec['paletteColors'])
 
     records = []

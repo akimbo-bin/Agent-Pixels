@@ -115,3 +115,11 @@ describe('camera-aware furniture and room plates', () => {
     assert.deepEqual(validateAssetPack(pack([rec({ class: 'room-plate', tileable: false, room: { ...room, rise: 1 } })])), []);
   });
 });
+
+describe('pack art keeps the definition physics', () => {
+  test('a painted desk monitor can still stand on a desk', () => {
+    const e = toCatalogEntry(rec({ assetId: 'desk-monitor', class: 'furniture-sprite', alphaMode: 'cutout', tileable: false, collision: 'solid',
+      width: 32, height: 32, tilePx: 32, footprint: { w: 1, h: 1, backgroundRows: 0 }, category: 'electronics' }), [['']]);
+    assert.equal(e.canPlaceOnSurfaces, true);
+  });
+});

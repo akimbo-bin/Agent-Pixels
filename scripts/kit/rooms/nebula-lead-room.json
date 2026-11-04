@@ -1,0 +1,131 @@
+{
+  "packId": "nebula-lead-room",
+  "name": "Nebula night: Lead (Main) executive office (FLUX.2-klein)",
+  "stylePackId": "nebula-night",
+  "tilePx": 32,
+  "building": "nebula-campus",
+  "roomId": "lead",
+  "reference": "dev/engine/packs-work/bakeoff/reference-lead.png",
+  "seed": 2000,
+  "render": {
+    "candidates": 3,
+    "shellScale": 3,
+    "spriteScale": 12
+  },
+  "paletteColors": 128,
+  "paletteAnchors": [
+    "#0a0820",
+    "#241d3c",
+    "#3a2266",
+    "#4a2a86",
+    "#b9a4ff",
+    "#d9a95b",
+    "#ffc46b",
+    "#fff1c4"
+  ],
+  "shell": {
+    "assetId": "exec-room-shell",
+    "room": [
+      12,
+      6,
+      6
+    ],
+    "rise": 1,
+    "keep": "the built-in bookcases on the left, the curtained arched window with a purple spiral galaxy in the middle, the glass display cabinet on the right, the parquet floor and the galaxy rug in the same places"
+  },
+  "furniture": [
+    {
+      "assetId": "exec-desk",
+      "describe": "carved mahogany executive desk",
+      "footprint": [
+        4,
+        2
+      ],
+      "backgroundRows": 1,
+      "category": "desks",
+      "isDesk": true
+    },
+    {
+      "assetId": "velvet-sofa",
+      "describe": "tufted red velvet chesterfield sofa",
+      "footprint": [
+        3,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "velvet-armchair",
+      "describe": "red velvet armchair",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "coffee-table",
+      "describe": "small mahogany coffee table with a book and a teacup",
+      "footprint": [
+        2,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "desks",
+      "isDesk": true
+    },
+    {
+      "assetId": "brass-globe",
+      "describe": "brass globe on a stand",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "exec-lamp",
+      "describe": "brass floor lamp with a glowing warm amber shade",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "potted-fig",
+      "describe": "potted fiddle-leaf fig in a brass-banded pot",
+      "footprint": [
+        2,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "decor"
+    },
+    {
+      "assetId": "desk-monitor",
+      "describe": "desk computer monitor with a glowing screen",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "electronics"
+    }
+  ],
+  "pick": {
+    "shell": 3,
+    "exec-desk": 2,
+    "velvet-sofa": 1,
+    "velvet-armchair": 1,
+    "coffee-table": 1,
+    "brass-globe": 0,
+    "exec-lamp": 1,
+    "potted-fig": 0,
+    "desk-monitor": 2
+  }
+}

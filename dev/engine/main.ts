@@ -282,7 +282,8 @@ function makeWorld(name: string): OfficeWorld {
   if (!ui.kit.checked) return base;
   let w = base;
   for (const { roomId, dressing } of ROOM_KITS) {
-    if (kitPacks.has(dressing.packId) && w.rooms.some(r => r.id === roomId)) w = applyRoomKit(w, roomId, dressing);
+    // Layout applies even before the pack's art exists; missing art falls back to engine drawings.
+    if (w.rooms.some(r => r.id === roomId)) w = applyRoomKit(w, roomId, dressing);
   }
   return w;
 }

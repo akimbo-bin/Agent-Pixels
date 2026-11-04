@@ -83,5 +83,7 @@ export function toCatalogEntry(a: AssetRecord, sprite: SpriteData): CatalogEntry
     isDesk: !!a.isDesk,
     category: (furniture ? (a.category ?? 'misc') : 'wall') as FurnitureCategory,
     ...(furniture ? {} : { canPlaceOnWalls: true }),
+    // Art skins a definition; its physical role (desk, surface item) stays the definition's.
+    ...(furniture && definitionById(a.assetId)?.onSurfaces ? { canPlaceOnSurfaces: true } : {}),
   };
 }

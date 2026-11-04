@@ -54,7 +54,7 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
  * plate over the engine's own render of exactly this layout.
  */
 export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
-  packId: 'nebula-exec-room-v3',
+  packId: 'nebula-lead-room',
   // FLUX.2-klein shell (walls, built-ins, window, floor, rug) painted from the engine's own
   // furniture-free render in the style of the Nebula reference; furniture are separate sprites.
   plateId: 'exec-room-shell',
@@ -62,7 +62,7 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
   replaceDecor: ['lead-art'],
   furniture: [
     { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
-    { id: 'exec-pc', assetId: 'PC_BACK', col: 6, row: 2 },
+    { id: 'exec-pc', assetId: 'desk-monitor', col: 6, row: 2 },
     { id: 'exec-sofa', assetId: 'velvet-sofa', col: 0, row: 2 },
     { id: 'exec-coffee', assetId: 'coffee-table', col: 0, row: 4 },
     { id: 'exec-arm-l', assetId: 'velvet-armchair', col: 3, row: 5 },
@@ -70,7 +70,7 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
     { id: 'exec-globe', assetId: 'brass-globe', col: 9, row: 2 },
     { id: 'exec-lamp-l', assetId: 'exec-lamp', col: 3, row: 1 },
     { id: 'exec-lamp-r', assetId: 'exec-lamp', col: 8, row: 1 },
-    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 10, row: 0 },
+    { id: 'exec-plant', assetId: 'potted-fig', col: 10, row: 1 },
   ],
   // The rug is painted into the shell (its guide was rendered with this decor in place).
   decor: [{ id: 'exec-rug', assetId: 'galaxy-rug', attachment: 'floor', col: 3, y: 2 }],
