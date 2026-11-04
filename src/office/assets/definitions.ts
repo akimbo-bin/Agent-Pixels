@@ -1,4 +1,4 @@
-import { registerPackEntries, type CatalogEntryWithCategory, type FurnitureCategory } from '../layout/furnitureCatalog.js';
+import { getCatalogEntry, registerPackEntries, type CatalogEntryWithCategory, type FurnitureCategory } from '../layout/furnitureCatalog.js';
 import type { SpriteData } from '../types.js';
 
 /**
@@ -273,13 +273,17 @@ export function definitionEntry(d: FurnitureDefinition, sprite?: SpriteData): Ca
  * camera changes (camera-aware shapes are re-cut for the new rise).
  */
 let fixedRegistered = false;
+/** Sprites this module generated; any other sprite under a definition id came from an asset pack. */
+const fallbackSprites = new WeakSet<object>();
+const ours = (id: string) => { const e = getCatalogEntry(id); return !e || fallbackSprites.has(e.sprite); };
 export function registerFurnitureDefinitions(rise = 0.5) {
   if (fixedRegistered && rise === currentRise) return;
   currentRise = rise;
   registerPackEntries([
     // Fixed-size definitions once only: later calls must not clobber pack art loaded over them.
     ...(fixedRegistered ? [] : FURNITURE_DEFINITIONS.map(d => definitionEntry(d))),
-    ...BOX_DEFINITIONS.map(b => definitionEntry(boxToDefinition(b, rise))),
+    // Re-cut camera-aware shapes for the new rise, but never over art an asset pack supplied.
+    ...BOX_DEFINITIONS.filter(b => ours(b.id)).map(b => { const e = definitionEntry(boxToDefinition(b, rise)); fallbackSprites.add(e.sprite); return e; }),
     ...RUG_DEFINITIONS.map(r => ({
       type: r.id, label: r.label, footprintW: r.w, footprintH: r.rows, isDesk: false, category: 'decor' as const,
       sprite: rugSprite(r.w * 16, Math.round(r.rows * 16 * rise)),

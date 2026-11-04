@@ -36,7 +36,8 @@ export interface AssetRecord {
   /** Foot anchor in sprite pixels (bottom-left of the footprint's front edge). */
   anchor?: { x: number; y: number };
   /** room-backdrop / room-floor: the room size (tiles) the art was painted for. */
-  room?: { width: number; wallHeight: number; depth: number; rise?: number };
+  /** withFurniture false: a room SHELL plate; furniture is drawn over it as separate sprites. */
+  room?: { width: number; wallHeight: number; depth: number; rise?: number; withFurniture?: boolean };
   source: 'local-comfyui' | 'procedural' | 'agent-pixels-original' | 'hand-drawn';
   licenseStatus: 'review-required' | 'cleared' | 'restricted';
   reviewStatus: ReviewStatus;

@@ -23,6 +23,8 @@ export interface RenderOptions {
   time: number;
   /** Render the building without agents (used to author room-plate guides). */
   hideAgents?: boolean;
+  /** Without movable furniture: a room-SHELL guide (furniture is painted as separate sprites). */
+  hideFurniture?: boolean;
 }
 
 /** Screen-filling sky/ground description (drawn by the viewport, buffer pixel scale). */
@@ -215,7 +217,7 @@ export class WorldRenderer {
     for (const w of this.walls) items.push({ ...w, draw: () => w.draw(ctx) });
     const surfaces = this.deskSurfaces();
     const lights: Array<{ x: number; y: number; color: string; radius: number }> = [];
-    for (const f of this.compiled.layout.furniture) {
+    for (const f of opts.hideFurniture ? [] : this.compiled.layout.furniture) {
       const it = this.furnitureItem(ctx, f.uid, f.type, f.col, f.row, floorIndex, surfaces.get(`${f.col},${f.row}`), lights);
       if (it) items.push(it);
     }
@@ -697,7 +699,10 @@ export class WorldRenderer {
     // On a desk the lowest VISIBLE pixel rests on the surface, not the padded sprite edge.
     const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) : Math.round(p.y - sprite.height);
     const cell = this.compiled.cellAt(col, row);
-    const plate = cell?.kind === 'room' ? this.plate(cell) : null;
+    // Only a plate that has the furniture painted INTO it is sliced; a shell plate leaves pieces as sprites.
+    const roomPlate = cell?.kind === 'room' ? this.plate(cell) : null;
+    const painted = roomPlate && this.assets?.records.get(cell!.room!.surfaces!.plate!.textureId!)?.room?.withFurniture !== false;
+    const plate = painted ? roomPlate : null;
     if (def?.light && !plate) lights.push({ x: x + sprite.width / 2, y: y + def.light.y, color: def.light.color, radius: def.light.radius });
     return {
       floor: floorIndex.get(fid)!, key, order: 1,

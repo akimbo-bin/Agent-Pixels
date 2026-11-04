@@ -54,9 +54,10 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
  * plate over the engine's own render of exactly this layout.
  */
 export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
-  packId: 'nebula-exec-room-v2',
-  wallTextureId: 'exec-room-wall',
-  plateId: 'exec-room-plate',
+  packId: 'nebula-exec-room-v3',
+  // FLUX.2-klein shell (walls, built-ins, window, floor, rug) painted from the engine's own
+  // furniture-free render in the style of the Nebula reference; furniture are separate sprites.
+  plateId: 'exec-room-shell',
   replaceFurniture: ['lead-desk', 'lead-pc', 'lead-library', 'lead-plant'],
   replaceDecor: ['lead-art'],
   furniture: [
@@ -71,6 +72,7 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
     { id: 'exec-lamp-r', assetId: 'exec-lamp', col: 8, row: 1 },
     { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 10, row: 0 },
   ],
+  // The rug is painted into the shell (its guide was rendered with this decor in place).
   decor: [{ id: 'exec-rug', assetId: 'galaxy-rug', attachment: 'floor', col: 3, y: 2 }],
 };
 

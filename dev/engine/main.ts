@@ -544,7 +544,7 @@ window.__engine = {
    * resolution: the img2img guide for that room's plate (and the geometry its
    * furniture is later cut back out along).
    */
-  roomGuide: (roomId: string) => {
+  roomGuide: (roomId: string, shell = false) => {
     const cell = scene.compiled.cells.find(x => x.id === roomId)!;
     const r = scene.renderer.plateRect(cell);
     // Never guide from an existing plate: render the layout itself.
@@ -553,7 +553,7 @@ window.__engine = {
       const keep = [...live.records].filter(([, rec]) => rec.class !== 'room-plate');
       scene.renderer.setAssets({ records: new Map(keep), images: new Map(keep.map(([id]) => [id, live.images.get(id)!])) });
     }
-    scene.renderer.render(scene.office, scene.travel, { debug: false, selectedId: null, hoverTile: null, time: 0, hideAgents: true });
+    scene.renderer.render(scene.office, scene.travel, { debug: false, selectedId: null, hoverTile: null, time: 0, hideAgents: true, hideFurniture: shell });
     const c = document.createElement('canvas');
     c.width = r.w; c.height = r.h;
     c.getContext('2d')!.drawImage(scene.renderer.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);

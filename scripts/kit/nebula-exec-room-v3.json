@@ -1,0 +1,86 @@
+{
+  "packId": "nebula-exec-room-v3",
+  "name": "Nebula night: Lead (Main), FLUX.2-klein shell + furniture",
+  "stylePackId": "nebula-night",
+  "paletteColors": 128,
+  "paletteAnchors": [
+    "#0a0820",
+    "#241d3c",
+    "#3a2266",
+    "#4a2a86",
+    "#b9a4ff",
+    "#d9a95b",
+    "#ffc46b",
+    "#fff1c4"
+  ],
+  "shell": {
+    "assetId": "exec-room-shell",
+    "render": "shell-klein-edit-s23.png",
+    "guide": "shell.guide",
+    "room": [
+      12,
+      6,
+      6
+    ],
+    "rise": 1
+  },
+  "furniture": [
+    {
+      "assetId": "exec-desk",
+      "render": "exec-desk-klein-edit.png",
+      "guide": "sprite-exec-desk.guide",
+      "footprint": [
+        4,
+        2
+      ],
+      "backgroundRows": 1,
+      "category": "desks",
+      "isDesk": true
+    },
+    {
+      "assetId": "velvet-sofa",
+      "render": "velvet-sofa-klein-edit.png",
+      "guide": "sprite-velvet-sofa.guide",
+      "footprint": [
+        3,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "velvet-armchair",
+      "render": "velvet-armchair-klein-edit.png",
+      "guide": "sprite-velvet-armchair.guide",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    },
+    {
+      "assetId": "coffee-table",
+      "render": "coffee-table-klein-edit.png",
+      "guide": "sprite-coffee-table.guide",
+      "footprint": [
+        2,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "desks",
+      "isDesk": true
+    },
+    {
+      "assetId": "brass-globe",
+      "render": "brass-globe-klein-edit.png",
+      "guide": "sprite-brass-globe.guide",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "misc"
+    }
+  ]
+}

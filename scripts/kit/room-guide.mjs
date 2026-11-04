@@ -4,18 +4,19 @@
 // pixel-art cell of the painting. Also writes <out>.json with the plate rect
 // and camera so the painted plate can be checked against the same geometry.
 //
-// usage: node scripts/kit/room-guide.mjs <building> <roomId> <out.png> [scale=8]
+// usage: node scripts/kit/room-guide.mjs <building> <roomId> <out.png> [scale=8] [shell]
+//   shell: render without movable furniture (a room-shell guide).
 import { chromium } from 'playwright';
 import { writeFile } from 'node:fs/promises';
 
-const [building, roomId, out, scale = '8'] = process.argv.slice(2);
+const [building, roomId, out, scale = '8', mode = ''] = process.argv.slice(2);
 const base = process.env.ENGINE_URL || 'http://127.0.0.1:8790';
 const browser = await chromium.launch({ headless: true, channel: 'chrome' });
 const page = await browser.newPage();
 await page.goto(`${base}/?building=${building}&kit=1&ambient=0`);
 await page.waitForFunction(() => window.__engine?.ready === true, null, { timeout: 30000 });
-const g = await page.evaluate(([room, k]) => new Promise(res => {
-  const info = window.__engine.roomGuide(room);
+const g = await page.evaluate(([room, k, shell]) => new Promise(res => {
+  const info = window.__engine.roomGuide(room, shell);
   const img = new Image();
   img.onload = () => {
     const c = document.createElement('canvas');
@@ -26,7 +27,7 @@ const g = await page.evaluate(([room, k]) => new Promise(res => {
     res({ ...info, png: c.toDataURL('image/png'), scale: k, size: [c.width, c.height] });
   };
   img.src = info.png;
-}), [roomId, Number(scale)]);
+}), [roomId, Number(scale), mode === 'shell']);
 await browser.close();
 await writeFile(out, Buffer.from(g.png.split(',')[1], 'base64'));
 await writeFile(out.replace(/\.png$/, '.json'), JSON.stringify({ building, roomId, rect: g.rect, rise: g.rise, scale: g.scale, size: g.size }, null, 2));
