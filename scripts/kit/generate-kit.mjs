@@ -70,9 +70,15 @@ for (const { a, k, n, seed } of jobs) {
     pos: { class_type: 'CLIPTextEncode', inputs: { text: prompt, clip: [last, 1] } },
     neg: { class_type: 'CLIPTextEncode', inputs: { text: a.negative ?? kit.negative, clip: [last, 1] } },
     load: { class_type: 'LoadImage', inputs: { image: name } },
-    enc: { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
+    // "vaeTile": N encodes/decodes in N px tiles. A 1536 px plate decoded in one
+    // piece needs >20 GB of fp32 activations on a CPU; tiles keep it to a few.
+    enc: kit.vaeTile
+      ? { class_type: 'VAEEncodeTiled', inputs: { pixels: ['load', 0], vae: ['ckpt', 2], tile_size: kit.vaeTile, overlap: 64, temporal_size: 64, temporal_overlap: 8 } }
+      : { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
     ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: [last, 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
-    dec: { class_type: 'VAEDecode', inputs: { samples: ['ks', 0], vae: ['ckpt', 2] } },
+    dec: kit.vaeTile
+      ? { class_type: 'VAEDecodeTiled', inputs: { samples: ['ks', 0], vae: ['ckpt', 2], tile_size: kit.vaeTile, overlap: 64, temporal_size: 64, temporal_overlap: 8 } }
+      : { class_type: 'VAEDecode', inputs: { samples: ['ks', 0], vae: ['ckpt', 2] } },
     save: { class_type: 'SaveImage', inputs: { images: ['dec', 0], filename_prefix: `AgentPixelsKit_${a.assetId}` } },
   };
   const started = Date.now();
