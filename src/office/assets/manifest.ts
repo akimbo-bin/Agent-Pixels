@@ -33,6 +33,8 @@ export interface AssetRecord {
   footprint?: { w: number; h: number; backgroundRows: number };
   category?: string;
   isDesk?: boolean;
+  /** Pixels per tile the art was painted at (default 16). 32 = double-density art, drawn 1:1 in a 32 px/tile world. */
+  tilePx?: number;
   /** Foot anchor in sprite pixels (bottom-left of the footprint's front edge). */
   anchor?: { x: number; y: number };
   /** room-backdrop / room-floor: the room size (tiles) the art was painted for. */

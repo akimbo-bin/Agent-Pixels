@@ -65,7 +65,7 @@ class Scene {
     // Camera tilt: ?rise= override, else the world's own view, else the default.
     const rise = Number(new URLSearchParams(location.search).get('rise') ?? c.world.view?.rise ?? DEFAULT_VIEW.rise);
     registerFurnitureDefinitions(rise);
-    this.proj = createProjection(c, { ...DEFAULT_VIEW, rise });
+    this.proj = createProjection(c, { ...DEFAULT_VIEW, rise, tilePx: c.world.view?.tilePx ?? DEFAULT_VIEW.tilePx });
     if (this.renderer) this.renderer.setWorld(c, this.proj);
     else this.renderer = new WorldRenderer(c, this.proj, stylePackFor(c.world.stylePackId));
     this.renderer.setStyle(stylePackFor(c.world.stylePackId));

@@ -117,6 +117,16 @@ export class WorldRenderer {
     this.slices.clear();
   }
 
+  /** Buffer pixels per tile (16 classic, 32 double density). */
+  private get T() { return this.proj.params.tilePx; }
+  /** World pixels per "16-px tile" pixel: how much 16 px/tile art (legacy sprites, characters) is enlarged. */
+  private get k() { return Math.max(1, Math.round(this.T / 16)); }
+  /** Integer enlargement for a catalog sprite: art painted at T px/tile is drawn 1:1. */
+  private artScale(type: string) {
+    const art = this.assets?.records.get(type)?.tilePx ?? 16;
+    return Math.max(1, Math.round(this.T / art));
+  }
+
   private texture(id: string | undefined, cls: AssetRecord['class']): HTMLCanvasElement | null {
     if (!id || !this.assets) return null;
     const rec = this.assets.records.get(id);
@@ -321,7 +331,7 @@ export class WorldRenderer {
   }
 
   private groundY() {
-    return Math.round(this.proj.project(this.lowest().def.id, 0, 0).y + this.proj.params.slab * 16);
+    return Math.round(this.proj.project(this.lowest().def.id, 0, 0).y + this.proj.params.slab * this.T);
   }
 
   private drawBackground(ctx: Ctx) {
@@ -335,16 +345,16 @@ export class WorldRenderer {
       const [x0, x1] = this.extent(f.def.id);
       const a = this.proj.project(f.def.id, x0, 0), b = this.proj.project(f.def.id, x1, 0);
       const top = this.proj.storeyTop.get(f.def.id)!, base = this.proj.base.get(f.def.id)!;
-      const yTop = Math.round(a.y - (top - base) * 16);
+      const yTop = Math.round(a.y - (top - base) * this.T);
       ctx.fillStyle = st.facade; ctx.fillRect(Math.round(a.x), yTop, Math.round(b.x - a.x), Math.round(a.y - yTop));
     }
     // Roof cap over the top storey.
     const topFloor = [...this.compiled.floors].sort((a, b) => b.def.level - a.def.level)[0];
     const [rx0, rx1] = this.extent(topFloor.def.id);
     const ra = this.proj.project(topFloor.def.id, rx0 - 0.5, 0), rb = this.proj.project(topFloor.def.id, rx1 + 0.5, 0);
-    const roofY = Math.round(ra.y - (this.proj.storeyTop.get(topFloor.def.id)! - this.proj.base.get(topFloor.def.id)!) * 16);
-    ctx.fillStyle = st.roof; ctx.fillRect(Math.round(ra.x), roofY - 16, Math.round(rb.x - ra.x), 16);
-    ctx.fillStyle = st.slabTop; ctx.fillRect(Math.round(ra.x), roofY - 16, Math.round(rb.x - ra.x), 2);
+    const roofY = Math.round(ra.y - (this.proj.storeyTop.get(topFloor.def.id)! - this.proj.base.get(topFloor.def.id)!) * this.T);
+    ctx.fillStyle = st.roof; ctx.fillRect(Math.round(ra.x), roofY - this.T, Math.round(rb.x - ra.x), this.T);
+    ctx.fillStyle = st.slabTop; ctx.fillRect(Math.round(ra.x), roofY - this.T, Math.round(rb.x - ra.x), 2 * this.k);
 
     for (const cell of this.compiled.cells) {
       if (cell.kind === 'room') this.drawRoomShell(ctx, cell);
@@ -583,13 +593,13 @@ export class WorldRenderer {
     const cell = this.compiled.cells.find(c => c.id === roomId);
     const entry = getCatalogEntry(assetId);
     if (!cell || !entry) return;
-    const sprite = getCachedSprite(entry.sprite, 1);
+    const sprite = getCachedSprite(entry.sprite, this.artScale(assetId));
     if (attachment === 'back-wall') {
       const p = this.proj.project(cell.floorId, cell.x + col, cell.depth, y);
       ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
     } else {
-      // Floor decor is authored foreshortened: 16 px wide per tile, 16*rise px per row of depth.
-      const rows = sprite.height / (16 * this.proj.params.rise);
+      // Floor decor is authored foreshortened: one tile wide per tile, tile*rise px per row of depth.
+      const rows = sprite.height / (this.T * this.proj.params.rise);
       const z = cell.depth - y - rows;
       const p = this.proj.project(cell.floorId, cell.x + col, z);
       ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
@@ -669,7 +679,8 @@ export class WorldRenderer {
       if (def?.surfaceY === undefined || !entry || !floor) continue;
       const zFront = this.compiled.zOfRow(f.row + entry.footprintH);
       const p = this.proj.project(floor.def.id, f.col, zFront);
-      const y = Math.round(p.y) - getCachedSprite(entry.sprite, 1).height + def.surfaceY;
+      // surfaceY is in definition (16 px/tile) pixels.
+      const y = Math.round(p.y) - getCachedSprite(entry.sprite, this.artScale(f.type)).height + def.surfaceY * this.k;
       for (let dc = 0; dc < entry.footprintW; dc++) for (let dr = 0; dr < entry.footprintH; dr++) {
         out.set(`${f.col + dc},${f.row + dr}`, { floorId: floor.def.id, key: zFront, y });
       }
@@ -692,18 +703,19 @@ export class WorldRenderer {
     let key = zFront;
     if (entry.category === 'chairs' && entry.orientation !== 'back') key = zBack - 0.01;
     if (onDesk) key = onDesk.key - 0.001; // drawn just after its desk
-    const sprite = getCachedSprite(entry.sprite, 1);
+    const scale = this.artScale(type);
+    const sprite = getCachedSprite(entry.sprite, scale);
     const mirrored = !!entry.mirrorSide && entry.orientation === 'left';
     const fid = floor.def.id;
     const p = this.proj.project(fid, col, zFront);
     // On a desk the lowest VISIBLE pixel rests on the surface, not the padded sprite edge.
-    const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) : Math.round(p.y - sprite.height);
+    const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) * scale : Math.round(p.y - sprite.height);
     const cell = this.compiled.cellAt(col, row);
     // Only a plate that has the furniture painted INTO it is sliced; a shell plate leaves pieces as sprites.
     const roomPlate = cell?.kind === 'room' ? this.plate(cell) : null;
     const painted = roomPlate && this.assets?.records.get(cell!.room!.surfaces!.plate!.textureId!)?.room?.withFurniture !== false;
     const plate = painted ? roomPlate : null;
-    if (def?.light && !plate) lights.push({ x: x + sprite.width / 2, y: y + def.light.y, color: def.light.color, radius: def.light.radius });
+    if (def?.light && !plate) lights.push({ x: x + sprite.width / 2, y: y + def.light.y * this.k, color: def.light.color, radius: def.light.radius * this.k });
     return {
       floor: floorIndex.get(fid)!, key, order: 1,
       draw: () => {
@@ -767,16 +779,18 @@ export class WorldRenderer {
 
   private drawAgent(ctx: Ctx, ch: Character, feet: ProjectedPoint, selected: boolean) {
     const data = getCharacterSprite(ch, getCharacterSprites(ch.palette, ch.hueShift));
-    const sprite = getCachedSprite(data, 1);
-    const sit = ch.state === CharacterState.TYPE ? SIT_PX : 0;
+    // Characters are 16 px/tile art: enlarged with the world so they keep their size.
+    const k = this.k;
+    const sprite = getCachedSprite(data, k);
+    const sit = ch.state === CharacterState.TYPE ? SIT_PX * k : 0;
     const x = Math.round(feet.x - sprite.width / 2), y = Math.round(feet.y + sit - sprite.height);
     // Contact shadow: a soft 2-tone ellipse so agents sit IN the room.
     const fx = Math.round(feet.x), fy = Math.round(feet.y);
-    ctx.fillStyle = 'rgba(8,4,16,0.22)'; ctx.fillRect(fx - 7, fy - 1, 14, 3); ctx.fillRect(fx - 5, fy - 2, 10, 5);
-    ctx.fillStyle = 'rgba(8,4,16,0.25)'; ctx.fillRect(fx - 4, fy - 1, 8, 3);
+    ctx.fillStyle = 'rgba(8,4,16,0.22)'; ctx.fillRect(fx - 7 * k, fy - k, 14 * k, 3 * k); ctx.fillRect(fx - 5 * k, fy - 2 * k, 10 * k, 5 * k);
+    ctx.fillStyle = 'rgba(8,4,16,0.25)'; ctx.fillRect(fx - 4 * k, fy - k, 8 * k, 3 * k);
     if (selected) {
-      const outline = getCachedSprite(getOutlineSprite(data), 1);
-      ctx.globalAlpha = 0.9; ctx.drawImage(outline, x - 1, y - 1); ctx.globalAlpha = 1;
+      const outline = getCachedSprite(getOutlineSprite(data), k);
+      ctx.globalAlpha = 0.9; ctx.drawImage(outline, x - k, y - k); ctx.globalAlpha = 1;
     }
     ctx.drawImage(sprite, x, y);
     this.hits.push({ kind: 'agent', id: String(ch.id), x, y, w: sprite.width, h: sprite.height });
@@ -846,7 +860,7 @@ export class WorldRenderer {
     for (const f of this.compiled.floors) {
       const [x0, x1] = this.extent(f.def.id);
       const a = this.proj.project(f.def.id, x0, 0), b = this.proj.project(f.def.id, x1, 0);
-      const slabPx = this.proj.params.slab * 16;
+      const slabPx = this.proj.params.slab * this.T;
       const y = Math.round(a.y);
       const slabTex = this.texture(this.compiled.world.structure?.slabTextureId, 'trim-texture');
       if (slabTex) {

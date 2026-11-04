@@ -2,6 +2,7 @@
   "packId": "nebula-exec-room-v3",
   "name": "Nebula night: Lead (Main), FLUX.2-klein shell + furniture",
   "stylePackId": "nebula-night",
+  "tilePx": 32,
   "paletteColors": 128,
   "paletteAnchors": [
     "#0a0820",
@@ -16,7 +17,7 @@
   "shell": {
     "assetId": "exec-room-shell",
     "render": "shell-klein-edit-s23.png",
-    "guide": "shell.guide",
+    "guide": "shell32.guide",
     "room": [
       12,
       6,

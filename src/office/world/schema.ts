@@ -162,7 +162,7 @@ export interface OfficeWorld {
   background: BackgroundDef;
   structure?: StructureDef;
   /** Camera: floor rows per tile of depth (0.5 shallow strip, 1 deep dollhouse floor). */
-  view?: { rise?: number };
+  view?: { rise?: number; tilePx?: number };
   /** Asset packs this world's texture/sprite ids refer to. */
   assetPacks?: string[];
   /** Optional external metadata keyed by entity id. Never read by the compiler. */

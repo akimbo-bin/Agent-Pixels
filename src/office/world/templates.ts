@@ -138,7 +138,8 @@ export function nebulaCampusSample(): OfficeWorld {
   ]);
   w.stylePackId = 'nebula-night';
   // Deep dollhouse floor like the Nebula reference art.
-  w.view = { rise: 1 };
+  // ...at double pixel density, so painted rooms keep their detail.
+  w.view = { rise: 1, tilePx: 32 };
   w.rooms.push(
     room('lead', 'upper', 'Lead (Main)', 'office', 1, 12, 6, 'wood-panel', 'wood', 'Executive Office'),
     room('leadSol', 'upper', 'Lead (Second)', 'office', 14, 8, 6, 'wood-panel', 'wood', 'Director Office'),

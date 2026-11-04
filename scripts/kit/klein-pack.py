@@ -70,6 +70,9 @@ def main():
     work, pack_dir = Path(sys.argv[2]), Path(sys.argv[3])
     pack_dir.mkdir(parents=True, exist_ok=True)
 
+    # Art density: 16 = one cell per classic engine pixel; 32 = double density (cells half the size).
+    tile = spec.get('tilePx', 16)
+    d = tile // 16
     sh = spec['shell']
     g = json.loads((work / f"{sh['guide']}.json").read_text())
     k, (W, H) = g['scale'], (g['rect']['w'], g['rect']['h'])
@@ -80,6 +83,9 @@ def main():
     for f in spec['furniture']:
         gj = json.loads((work / f"{f['guide']}.json").read_text())
         fk, (fw, fh), (ox, oy) = gj['grid'], gj['native'], gj['offset']
+        assert fk % d == 0, 'sprite guide scale must divide by the density'
+        fw16, fh16 = fw, fh
+        fk, fw, fh = fk // d, fw * d, fh * d
         rgb = np.asarray(Image.open(work / f['render']).convert('RGB').resize(tuple(gj['canvas']), Image.LANCZOS)).astype(np.float32)
         crop = rgb[oy: oy + fh * fk, ox: ox + fw * fk]
         keyed = magenta_key(crop.astype(np.uint8))
@@ -91,6 +97,7 @@ def main():
         # Cells inside the silhouette that keyed as background are holes the painting left: keep them opaque only if
         # the engine shape says solid AND the painted cell is mostly not magenta (no magenta can leak into the art).
         pieces.append((f, native, opaque, fw, fh))
+        assert (fw, fh) == (fw16 * d, fh16 * d)
         print(f"{f['assetId']}: {fw}x{fh} native, {opaque.mean():.0%} opaque, silhouette match {((opaque == silhouette).mean()):.0%}")
 
     pool = [shell_native.reshape(-1, 3)] + [n[o] for _, n, o, *_ in pieces]
@@ -103,7 +110,7 @@ def main():
         Image.fromarray(rgba, 'RGBA').save(out)
         Image.fromarray(rgba, 'RGBA').resize((rgba.shape[1] * 4, rgba.shape[0] * 4), Image.NEAREST).save(work / f"{asset_id}.preview-4x.png")
         receipt = json.loads((work / render.replace('.png', '.receipt.json')).read_text())
-        records.append({**record, 'assetId': asset_id, 'file': out.name, 'width': int(rgba.shape[1]), 'height': int(rgba.shape[0]),
+        records.append({**record, 'tilePx': tile, 'assetId': asset_id, 'file': out.name, 'width': int(rgba.shape[1]), 'height': int(rgba.shape[0]),
                         'pixelScale': 1, 'stylePackId': spec['stylePackId'], 'tileable': False, 'source': 'local-comfyui',
                         'licenseStatus': 'review-required', 'reviewStatus': 'candidate', 'sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
                         'provenance': {**receipt, 'postProcess': {'script': 'scripts/kit/klein-pack.py', 'cells': 'median', 'paletteColors': spec['paletteColors']}}})
