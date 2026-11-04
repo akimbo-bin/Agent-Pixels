@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V3 Engine Evidence</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 16px; background: #0d0b18; color: #e9e2f5; font: 14px/1.5 system-ui, sans-serif; }
+    h1 { font-size: 18px; color: #e3b46a; margin: 0 0 4px; }
+    .meta { color: #a49bbd; margin: 0 0 16px; }
+    ul.checks { list-style: none; padding: 0; columns: 2 320px; }
+    .pass::before { content: '✓ '; color: #7dffa8; } .fail::before { content: '✗ '; color: #ff8a7a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 14px; }
+    figure { margin: 0; background: #17142a; border: 1px solid #2e2848; padding: 8px; }
+    figure img, figure video { width: 100%; image-rendering: pixelated; display: block; }
+    figcaption { color: #a49bbd; font-size: 12px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Agent Pixels V3 — browser evidence</h1>
+  <p class="meta" id="meta">Loading report.json…</p>
+  <ul class="checks" id="checks"></ul>
+  <div class="grid" id="media"></div>
+  <script type="module">
+    const r = await fetch('./review/report.json').then(x => x.json());
+    document.getElementById('meta').textContent = `${r.passed ? 'All checks passed' : 'Some checks failed'} · run ${r.finishedAt} · p95 ${r.performance?.p95} ms over ${r.performance?.frames} frames`;
+    const ul = document.getElementById('checks');
+    for (const c of r.checks) { const li = document.createElement('li'); li.className = c.ok ? 'pass' : 'fail'; li.textContent = c.name; ul.appendChild(li); }
+    const media = document.getElementById('media');
+    for (const v of r.videos) media.insertAdjacentHTML('beforeend', `<figure><video src="./review/${v}" controls muted loop></video><figcaption>${v}</figcaption></figure>`);
+    for (const s of r.screenshots) media.insertAdjacentHTML('beforeend', `<figure><a href="./review/${s}"><img src="./review/${s}" alt="${s}"></a><figcaption>${s}</figcaption></figure>`);
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Pixels Office Builder</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="bar">
+    <strong class="brand">Office Builder</strong>
+    <label>Building
+      <select id="template"></select>
+    </label>
+    <button id="fit" type="button">Fit</button>
+    <button id="tour" type="button">Run tour</button>
+    <label class="toggle"><input id="ambient" type="checkbox" checked> Ambient</label>
+    <label class="toggle"><input id="edit" type="checkbox"> Edit</label>
+    <label class="toggle"><input id="debug" type="checkbox"> Walk mesh</label>
+    <button id="undo" type="button" disabled>Undo</button>
+    <button id="redo" type="button" disabled>Redo</button>
+    <button id="export" type="button">Export JSON</button>
+    <button id="import" type="button">Import JSON</button>
+  </header>
+  <main class="stage">
+    <canvas id="view" aria-label="Office building cross-section"></canvas>
+    <aside class="panel">
+      <p id="hint" class="hint"></p>
+      <div id="status" class="status" aria-live="polite"></div>
+      <ul id="issues" class="issues"></ul>
+      <textarea id="json" spellcheck="false" hidden></textarea>
+    </aside>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

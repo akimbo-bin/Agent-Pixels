@@ -5,3 +5,7 @@ dist
 release
 
 __pycache__/
+
+# V3 engine dev harness build output and local browser evidence
+dev/engine/dist/
+dev/engine/review/
