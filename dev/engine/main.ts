@@ -17,13 +17,15 @@ import type { WorldIssue } from '../../src/office/world/validator.js';
 import { getCatalogEntry } from '../../src/office/layout/furnitureCatalog.js';
 import { getCachedSprite } from '../../src/office/sprites/spriteCache.js';
 import { CharacterState } from '../../src/office/types.js';
+import { loadAssetPack, type LoadedAssetPack } from '../../src/office/assets/loader.js';
+import { applyRoomKit, MUSIC_STUDIO_DRESSING } from '../../src/office/world/kits.js';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('view');
 const ctx = canvas.getContext('2d')!;
 const ui = {
   template: $<HTMLSelectElement>('template'), fit: $<HTMLButtonElement>('fit'), tour: $<HTMLButtonElement>('tour'),
-  ambient: $<HTMLInputElement>('ambient'), edit: $<HTMLInputElement>('edit'), debug: $<HTMLInputElement>('debug'),
+  ambient: $<HTMLInputElement>('ambient'), kit: $<HTMLInputElement>('kit'), edit: $<HTMLInputElement>('edit'), debug: $<HTMLInputElement>('debug'),
   undo: $<HTMLButtonElement>('undo'), redo: $<HTMLButtonElement>('redo'), exportBtn: $<HTMLButtonElement>('export'),
   importBtn: $<HTMLButtonElement>('import'), status: $('status'), issues: $('issues'), json: $<HTMLTextAreaElement>('json'), hint: $('hint'),
 };
@@ -61,6 +63,7 @@ class Scene {
     this.proj = createProjection(c);
     if (this.renderer) this.renderer.setWorld(c, this.proj);
     else this.renderer = new WorldRenderer(c, this.proj, FALLBACK_STYLE);
+    this.renderer.setAssets(kitPack && ui.kit.checked ? kitPack : null);
     this.travel = new TravelSystem(c);
     this.tours.clear();
     if (fresh || !this.office) {
@@ -240,7 +243,16 @@ const params = new URLSearchParams(location.search);
 let scene: Scene;
 const templateNames = [...Object.keys(TEMPLATES), 'generated'];
 
+let kitPack: LoadedAssetPack | null = null;
+const KIT_ROOM = 'music';
+
 function makeWorld(name: string): OfficeWorld {
+  const base = makeBaseWorld(name);
+  if (ui.kit.checked && kitPack && base.rooms.some(r => r.id === KIT_ROOM)) return applyRoomKit(base, KIT_ROOM, MUSIC_STUDIO_DRESSING);
+  return base;
+}
+
+function makeBaseWorld(name: string): OfficeWorld {
   if (name === 'generated') return generateBuilding({ seed: Number(params.get('seed') ?? 7), floors: Number(params.get('floors') ?? 3) });
   return (TEMPLATES[name] ?? TEMPLATES['two-floor-office'])();
 }
@@ -366,6 +378,15 @@ ui.tour.addEventListener('click', () => {
   if (id != null) scene.startTour(id);
 });
 ui.edit.addEventListener('change', refreshButtons);
+ui.kit.addEventListener('change', async () => {
+  if (ui.kit.checked && !kitPack) {
+    try { kitPack = await loadAssetPack('/packs/music-studio-kit-v1/'); }
+    catch (err) { ui.kit.checked = false; showIssues([{ code: 'pack', message: String(err) }]); return; }
+    if (kitPack.problems.length) showIssues(kitPack.problems.map(m => ({ code: 'pack', message: m })));
+  }
+  const u = new URL(location.href); u.searchParams.set('kit', ui.kit.checked ? '1' : '0'); history.replaceState(null, '', u);
+  load(ui.template.value);
+});
 ui.undo.addEventListener('click', () => { if (scene.editor.undo()) { scene.build(false); scene.say('↶ undo'); } refreshButtons(); });
 ui.redo.addEventListener('click', () => { if (scene.editor.redo()) { scene.build(false); scene.say('↷ redo'); } refreshButtons(); });
 ui.exportBtn.addEventListener('click', () => { ui.json.hidden = false; ui.json.value = scene.editor.serialize(); ui.json.select(); });
@@ -416,6 +437,10 @@ function writeStatus() {
 declare global { interface Window { __engine: unknown } }
 
 await loadPixelAssets();
+if (params.get('kit') === '1') {
+  ui.kit.checked = true;
+  kitPack = await loadAssetPack('/packs/music-studio-kit-v1/').catch(err => { ui.kit.checked = false; console.error(err); return null; });
+}
 load(templateNames.includes(params.get('building') ?? '') ? params.get('building')! : 'two-floor-office');
 ui.debug.checked = params.get('debug') === '1';
 if (params.get('ambient') === '0') ui.ambient.checked = false;
@@ -458,6 +483,7 @@ window.__engine = {
     scene.view.focus(a.x, b.y, b.x - a.x, a.y - b.y + 20, canvas.width, canvas.height);
   },
   fit: () => scene.fit(),
+  kit: () => kitPack ? { id: kitPack.pack.id, loaded: [...kitPack.images.keys()], problems: kitPack.problems } : null,
   stats: () => scene.stats(),
   resetStats: () => { scene.frameTimes = []; },
   screenOf: (col: number, row: number) => {

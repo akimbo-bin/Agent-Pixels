@@ -323,6 +323,18 @@ export function getCatalogEntry(type: string): CatalogEntryWithCategory | undefi
   return dynamicCatalog?.find((e) => e.type === type);
 }
 
+/**
+ * Add (or replace) entries from a typed asset pack after the base catalog is
+ * built, so pack furniture shares the same footprint/collision path as the
+ * original sprites. Must run after buildDynamicCatalog.
+ */
+export function registerPackEntries(entries: CatalogEntryWithCategory[]): void {
+  if (!internalCatalog || !dynamicCatalog) throw new Error('Base catalog not built yet');
+  const ids = new Set(entries.map((e) => e.type));
+  internalCatalog = [...internalCatalog.filter((e) => !ids.has(e.type)), ...entries];
+  dynamicCatalog = [...dynamicCatalog.filter((e) => !ids.has(e.type)), ...entries];
+}
+
 export function getCatalogByCategory(category: FurnitureCategory): CatalogEntryWithCategory[] {
   const catalog = dynamicCatalog ?? [];
   return catalog.filter((e) => e.category === category);

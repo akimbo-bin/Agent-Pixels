@@ -25,6 +25,8 @@ export interface MaterialRef {
   material: string;
   /** Optional tint (#rrggbb) applied by procedural fallbacks. */
   tint?: string;
+  /** Asset-pack texture to use instead of the procedural material (visual only). */
+  textureId?: string;
 }
 
 export interface FloorDef {
@@ -129,6 +131,13 @@ export interface AgentDef {
 export interface BackgroundDef {
   preset: 'night' | 'dusk' | 'day';
   seed?: number;
+  /** Asset-pack sky/skyline layer (visual only, never interactive). */
+  skyLayerId?: string;
+}
+
+/** Building-wide structural skin (visual only). */
+export interface StructureDef {
+  slabTextureId?: string;
 }
 
 export interface OfficeWorld {
@@ -144,6 +153,9 @@ export interface OfficeWorld {
   decor: DecorDef[];
   agents: AgentDef[];
   background: BackgroundDef;
+  structure?: StructureDef;
+  /** Asset packs this world's texture/sprite ids refer to. */
+  assetPacks?: string[];
   /** Optional external metadata keyed by entity id. Never read by the compiler. */
   bindings?: Record<string, unknown>;
 }

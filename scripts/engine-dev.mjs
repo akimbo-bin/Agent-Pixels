@@ -40,6 +40,7 @@ http.createServer(async (req, res) => {
   else if (name === '/app.js' || name === '/app.js.map') file = path.join(out, name.slice(1));
   else if (name === '/assets/agent-pixels-assets.json') file = path.join(out, 'agent-pixels-assets.json');
   else if (name.startsWith('/assets/')) file = inside(assets, name.slice('/assets/'.length));
+  else if (name.startsWith('/packs/')) file = inside(path.join(devDir, 'packs'), name.slice('/packs/'.length));
   else if (name.startsWith('/review/')) file = inside(path.join(devDir, 'review'), name.slice('/review/'.length));
   try {
     if (!file) throw Error('not found');

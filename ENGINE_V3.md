@@ -41,6 +41,34 @@ furniture, agents, partition-wall slices (doorway lintels), cabins clipped to we
 
 Current surfaces are the **procedural fallback style pack** (`rendering/stylePack.ts`), not generated art.
 
+## First generated room kit (candidate, awaiting owner approval)
+
+Typed asset packs (`src/office/assets/`): every image is a record with class, attachment, collision, tiling,
+footprint (furniture), review status, licence status, sha256 and full provenance. Rejected assets never render;
+furniture collides by its record footprint, never by its pixels; decor cannot collide.
+
+Pipeline (`scripts/kit/`, local ComfyUI on 127.0.0.1:8188 only, one job at a time, refuses if VRAM < 3.2 GB or
+the queue is busy):
+
+1. `guides.py` draws a front-on geometry guide per asset (and the sprite mask from the same shapes).
+2. `generate-kit.mjs` runs SD1.5 + pixel LoRA img2img on each guide (denoise ≈ 0.6) and writes receipts.
+3. `post.py` makes textures seamless, box-downscales to the 16 px/tile grid, maps the whole kit to ONE shared
+   48-colour palette (equal weight per asset), cuts sprites out with guide-mask ∧ magenta-key, adds outlines.
+
+```bash
+PY=C:/AI/AgentPixelsComfy/ComfyUI_windows_portable/python_embeded/python.exe
+$PY -I scripts/kit/guides.py scripts/kit/music-studio-kit.json dev/engine/packs-work/music-studio-kit-v1
+node scripts/kit/generate-kit.mjs scripts/kit/music-studio-kit.json dev/engine/packs-work/music-studio-kit-v1
+$PY -I scripts/kit/post.py scripts/kit/music-studio-kit.json dev/engine/packs-work/music-studio-kit-v1 dev/engine/packs/music-studio-kit-v1
+node scripts/kit-browser.mjs          # before/after in the live scene, 3 viewport sizes
+```
+
+Why it works where the first pilot failed: the pilot asked a text prompt for a whole room and got a top-down
+map. Here the model never chooses orientation, silhouette or layout — only material detail on a typed slot.
+
+Generated outputs live in git-ignored `dev/engine/packs*/` until the owner approves them **and** the LoRA
+licence is reviewed (`pixel-art-amr3303.safetensors` carries no embedded metadata; source/licence unknown).
+
 ## Run it
 
 ```bash
@@ -51,7 +79,8 @@ node scripts/engine-browser.mjs       # real-Chrome acceptance; evidence in dev/
 
 ## Not done yet (next slices)
 
-- Typed asset registry + style-pack images; first ComfyUI room kit (P5) — requires owner visual approval.
+- Owner approval of the Music Studio kit; then a second room kit with the same pipeline (no bulk batches).
+- Role outfit overlay (not attempted yet: needs frame-consistent generation against the source sprite sheets).
 - Editor: add/resize rooms and doors in the UI (today: move furniture, open/close doors, undo/redo, JSON import/export).
 - Stairs connector, multi-leg elevator routing (today a trip needing two elevators must be issued as two legs).
 - Paperclip adapter (org agents → `AgentDef`), role skins.

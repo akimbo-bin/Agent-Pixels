@@ -10,6 +10,10 @@ import { LIMITS } from '../world/validator.js';
 import { characterWorld, type ProjectedPoint, type Projection } from '../geometry/projection.js';
 import type { TravelSystem } from '../navigation/elevator.js';
 import { FALLBACK_STYLE, type StylePack, floorStyle, wallStyle } from './stylePack.js';
+import type { AssetRecord } from '../assets/manifest.js';
+
+/** Decoded asset-pack images the renderer may use for surfaces (visual only). */
+export interface RenderAssets { images: Map<string, HTMLCanvasElement>; records: Map<string, AssetRecord> }
 
 export interface RenderOptions {
   debug: boolean;
@@ -45,6 +49,7 @@ export class WorldRenderer {
   /** Entities in draw order from the last frame; later entries are on top. */
   hits: Hit[] = [];
   private walls: Array<Omit<Item, 'draw'> & { draw: (ctx: Ctx) => void }> = [];
+  private assets: RenderAssets | null = null;
 
   constructor(public compiled: CompiledWorld, public proj: Projection, public pack: StylePack = FALLBACK_STYLE) {
     this.canvas = document.createElement('canvas');
@@ -58,6 +63,18 @@ export class WorldRenderer {
     this.canvas.height = proj.height;
     this.bg = this.fg = null;
     this.walls = this.buildWallSegments();
+  }
+
+  /** Swap surface art without touching geometry; cached layers are rebuilt. */
+  setAssets(assets: RenderAssets | null) {
+    this.assets = assets;
+    this.bg = this.fg = null;
+  }
+
+  private texture(id: string | undefined, cls: AssetRecord['class']): HTMLCanvasElement | null {
+    if (!id || !this.assets) return null;
+    const rec = this.assets.records.get(id);
+    return rec && rec.class === cls ? this.assets.images.get(id) ?? null : null;
   }
 
   labels(): RoomLabel[] {
@@ -124,9 +141,22 @@ export class WorldRenderer {
       ctx.fillRect(Math.floor(rand() * W), Math.floor(rand() * H * 0.8), 1, 1);
     }
     ctx.globalAlpha = 1;
-    // Distant skyline silhouettes (parallax layer placeholder; no interaction).
     const groundY = Math.round(this.proj.project(this.lowest().def.id, 0, 0).y + this.proj.params.slab * 16);
-    for (let x = 0; x < W;) {
+    const skyTex = this.texture(world.background.skyLayerId, 'sky-layer');
+    if (skyTex) {
+      // Generated sky layer: tiled horizontally, sitting on the ground line.
+      const top = skyTex.getContext('2d')!.getImageData(0, 0, 1, 1).data;
+      ctx.fillStyle = `rgb(${top[0]},${top[1]},${top[2]})`; ctx.fillRect(0, 0, W, groundY - skyTex.height);
+      const r2 = seeded((world.background.seed ?? world.seed) + 1);
+      for (let i = 0; i < W * (groundY - skyTex.height) / 900; i++) {
+        ctx.fillStyle = r2() < 0.2 ? '#fff4d6' : '#c9b8ff'; ctx.globalAlpha = 0.3 + r2() * 0.6;
+        ctx.fillRect(Math.floor(r2() * W), Math.floor(r2() * (groundY - skyTex.height)), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+      for (let x = 0; x < W; x += skyTex.width) ctx.drawImage(skyTex, x, groundY - skyTex.height);
+    }
+    // Distant skyline silhouettes (procedural fallback; no interaction).
+    for (let x = 0; x < W && !skyTex;) {
       const w = 12 + Math.floor(rand() * 40), h = 20 + Math.floor(rand() * 90);
       ctx.fillStyle = sky.skyline; ctx.fillRect(x, groundY - h, w, h);
       ctx.fillStyle = sky.skylineLit;
@@ -182,11 +212,19 @@ export class WorldRenderer {
     const fs = floorStyle(this.pack, cell.room?.surfaces?.floor?.material);
     // Back wall (vertical plane at the room's depth).
     fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, H), ws.base);
+    const wallTex = this.texture(cell.room?.surfaces?.backWall?.textureId, 'wall-texture');
+    const floorTex = this.texture(cell.room?.surfaces?.floor?.textureId, 'floor-texture');
     const wallPt = (x: number, h: number) => this.proj.project(id, x, D, h);
     ctx.fillStyle = ws.line;
     const hline = (h: number, color = ws.line) => { const a = wallPt(x0, h), b = wallPt(x1, h); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), Math.round(b.x - a.x), 1); };
     const vline = (x: number, h0: number, h1: number, color = ws.line) => { const a = wallPt(x, h1), b = wallPt(x, h0); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), 1, Math.round(b.y - a.y)); };
-    switch (ws.pattern) {
+    if (wallTex) {
+      // Texture at native scale, anchored to the wall's top-left so it never swims.
+      const q = this.proj.projectFacade(id, x0, x1, D, 0, H);
+      const pat = ctx.createPattern(wallTex, 'repeat')!;
+      pat.setTransform(new DOMMatrix([1, 0, 0, 1, Math.round(q[3].x), Math.round(q[3].y)]));
+      fillQuad(ctx, q, pat);
+    } else switch (ws.pattern) {
       case 'planks': for (let x = x0 + 1; x < x1; x++) vline(x, 0, H * 0.55); hline(H * 0.55); break;
       case 'brick': for (let h = 0.25, i = 0; h < H; h += 0.25, i++) { hline(h); for (let x = x0 + (i % 2) * 0.5; x < x1; x += 1) vline(x, h - 0.25, h); } break;
       case 'tiles': for (let h = 0.5; h < H; h += 0.5) hline(h); for (let x = x0 + 0.5; x < x1; x += 0.5) vline(x, 0, H); break;
@@ -223,9 +261,10 @@ export class WorldRenderer {
 
     // Floor plane (z 0..D): the only visible walk plane.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, 0, D), fs.base);
+    if (floorTex) this.drawFloorTexture(ctx, floorTex, id, x0, x1, D);
     const zl = (z: number, color: string) => { const a = this.proj.project(id, x0, z), b = this.proj.project(id, x1, z); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), Math.round(b.x - a.x), 1); };
     const xl = (x: number, z0: number, z1: number, color: string) => line(ctx, this.proj.project(id, x, z0), this.proj.project(id, x, z1), color);
-    switch (fs.pattern) {
+    if (!floorTex) switch (fs.pattern) {
       case 'planks': for (let z = 0.5, i = 0; z < D; z += 0.5, i++) { zl(z, fs.line); for (let x = x0 + (i % 3) + 1; x < x1; x += 3) xl(x, z - 0.5, z, fs.line); } break;
       case 'grid': for (let z = 1; z < D; z++) zl(z, fs.line); for (let x = x0 + 1; x < x1; x++) xl(x, 0, D, fs.line); break;
       case 'speckle': { const r = seeded(cell.x + 7); for (let i = 0; i < cell.width * D * 3; i++) { const p = this.proj.project(id, x0 + r() * cell.width, r() * D); ctx.fillStyle = fs.line; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); } break; }
@@ -233,6 +272,27 @@ export class WorldRenderer {
     }
     // Contact shadow where the floor meets the back wall.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, D - 0.18, D), hexA('#000000', 0.18));
+  }
+
+  /**
+   * Map a tileable floor texture onto the shallow floor band one screen row at
+   * a time: each screen row takes the next texel row and spans exactly the
+   * projected width at that depth, so seams follow the room's perspective.
+   */
+  private drawFloorTexture(ctx: Ctx, tex: HTMLCanvasElement, id: string, x0: number, x1: number, D: number) {
+    const front = this.proj.project(id, x0, 0).y, back = this.proj.project(id, x0, D).y;
+    for (let y = Math.round(back); y < Math.round(front); y++) {
+      const z = ((front - (y + 0.5)) / (front - back)) * D;
+      // Texel rows map 1:1 to screen rows (the floor is already foreshortened by
+      // the projection), so 1-texel seams stay continuous instead of aliasing.
+      const v = (y - Math.round(back)) % tex.height;
+      const a = this.proj.project(id, x0, z), b = this.proj.project(id, x1, z);
+      const left = Math.round(a.x), right = Math.round(b.x);
+      for (let x = left; x < right; x += tex.width) {
+        const w = Math.min(tex.width, right - x);
+        ctx.drawImage(tex, 0, v, w, 1, x, y, w, 1);
+      }
+    }
   }
 
   private drawShaft(ctx: Ctx, e: CompiledElevator) {
@@ -458,7 +518,13 @@ export class WorldRenderer {
       const a = this.proj.project(f.def.id, x0, 0), b = this.proj.project(f.def.id, x1, 0);
       const slabPx = this.proj.params.slab * 16;
       const y = Math.round(a.y);
-      ctx.fillStyle = st.slab; ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), slabPx);
+      const slabTex = this.texture(this.compiled.world.structure?.slabTextureId, 'trim-texture');
+      if (slabTex) {
+        const pat = ctx.createPattern(slabTex, 'repeat')!;
+        pat.setTransform(new DOMMatrix([1, 0, 0, 1, Math.round(a.x), y]));
+        ctx.fillStyle = pat;
+      } else ctx.fillStyle = st.slab;
+      ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), slabPx);
       ctx.fillStyle = st.slabTop; ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), 1);
       ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(a.x), y + slabPx - 2, Math.round(b.x - a.x), 2);
       for (let x = x0 + 2; x < x1; x += 4) {
@@ -499,7 +565,7 @@ export class WorldRenderer {
 
 // ── canvas utilities ─────────────────────────────────────────
 
-function fillQuad(ctx: Ctx, q: ProjectedPoint[], color: string) {
+function fillQuad(ctx: Ctx, q: ProjectedPoint[], color: string | CanvasPattern) {
   ctx.beginPath();
   ctx.moveTo(Math.round(q[0].x), Math.round(q[0].y));
   for (let i = 1; i < q.length; i++) ctx.lineTo(Math.round(q[i].x), Math.round(q[i].y));

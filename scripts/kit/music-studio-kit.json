@@ -1,0 +1,169 @@
+{
+  "packId": "music-studio-kit-v1",
+  "name": "Music Studio kit (night lab)",
+  "stylePackId": "night-lab-pixel-v1",
+  "promptVersion": "kit-v1",
+  "checkpoint": "v1-5-pruned-emaonly.safetensors",
+  "lora": "pixel-art-amr3303.safetensors",
+  "loraStrength": [
+    0.55,
+    0.45
+  ],
+  "sampler": {
+    "steps": 24,
+    "cfg": 6,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras"
+  },
+  "paletteColors": 48,
+  "negative": "people, person, character, face, hands, text, letters, words, logo, watermark, signature, top-down view, aerial view, isometric, map, landscape, room interior, perspective, vanishing point, blurry, photo, 3d render, smooth gradient",
+  "assets": [
+    {
+      "assetId": "studio-wall-acoustic",
+      "class": "wall-texture",
+      "guide": "acoustic",
+      "guideSize": [
+        512,
+        512
+      ],
+      "texels": [
+        64,
+        64
+      ],
+      "tileable": true,
+      "denoise": 0.62,
+      "seed": 31101,
+      "prompt": "seamless tileable texture, recording studio wall covered in square acoustic foam panels and thin walnut battens, flat orthographic front view, evenly lit, deep teal and navy, 16-bit pixel art game texture, crisp pixel clusters"
+    },
+    {
+      "assetId": "studio-floor-oak",
+      "class": "floor-texture",
+      "guide": "planks",
+      "guideSize": [
+        512,
+        256
+      ],
+      "texels": [
+        64,
+        32
+      ],
+      "tileable": true,
+      "denoise": 0.55,
+      "seed": 31102,
+      "prompt": "seamless tileable texture, warm oak hardwood floor planks running horizontally, flat orthographic view straight down, subtle wood grain, 16-bit pixel art game texture"
+    },
+    {
+      "assetId": "studio-trim-slab",
+      "class": "trim-texture",
+      "guide": "beam",
+      "guideSize": [
+        512,
+        256
+      ],
+      "texels": [
+        32,
+        16
+      ],
+      "tileable": true,
+      "denoise": 0.55,
+      "seed": 31103,
+      "prompt": "seamless tileable texture, dark steel and concrete floor beam edge with rivets, flat orthographic front view, 16-bit pixel art game texture"
+    },
+    {
+      "assetId": "studio-sky-night",
+      "class": "sky-layer",
+      "guide": "skyline",
+      "guideSize": [
+        768,
+        256
+      ],
+      "texels": [
+        384,
+        128
+      ],
+      "tileable": true,
+      "denoise": 0.6,
+      "seed": 31104,
+      "prompt": "night sky over distant city skyline silhouette and soft violet nebula clouds, stars, horizontal panorama, flat side view, 16-bit pixel art game background"
+    },
+    {
+      "assetId": "studio-diffuser",
+      "class": "decor-sprite",
+      "guide": "diffuser",
+      "attachment": "back-wall",
+      "guideSize": [
+        512,
+        512
+      ],
+      "texels": [
+        32,
+        32
+      ],
+      "denoise": 0.62,
+      "seed": 31105,
+      "prompt": "wooden quadratic sound diffuser panel, grid of square wooden blocks of different depths, framed, flat orthographic front view, isolated on plain magenta background, 16-bit pixel art game sprite"
+    },
+    {
+      "assetId": "studio-poster",
+      "class": "decor-sprite",
+      "guide": "poster",
+      "attachment": "back-wall",
+      "guideSize": [
+        256,
+        512
+      ],
+      "texels": [
+        16,
+        32
+      ],
+      "denoise": 0.62,
+      "seed": 31106,
+      "prompt": "framed abstract music poster with glowing sound waveform and vinyl record, no text, flat orthographic front view, isolated on plain magenta background, 16-bit pixel art game sprite"
+    },
+    {
+      "assetId": "studio-speaker",
+      "class": "furniture-sprite",
+      "guide": "speaker",
+      "category": "misc",
+      "guideSize": [
+        256,
+        512
+      ],
+      "texels": [
+        16,
+        32
+      ],
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "denoise": 0.62,
+      "seed": 31107,
+      "prompt": "tall black studio monitor floor speaker cabinet with two round drivers, wood sides, flat orthographic front view, isolated on plain magenta background, 16-bit pixel art game sprite"
+    },
+    {
+      "assetId": "studio-console",
+      "class": "furniture-sprite",
+      "guide": "console",
+      "category": "desks",
+      "isDesk": true,
+      "guideSize": [
+        768,
+        512
+      ],
+      "texels": [
+        48,
+        32
+      ],
+      "footprint": [
+        3,
+        2
+      ],
+      "backgroundRows": 1,
+      "denoise": 0.62,
+      "seed": 31108,
+      "prompt": "music mixing console desk with rows of faders and colourful knobs and small glowing meters, wooden desk frame and legs, flat front view, isolated on plain magenta background, 16-bit pixel art game sprite"
+    }
+  ]
+}
