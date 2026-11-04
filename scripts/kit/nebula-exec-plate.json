@@ -10,7 +10,7 @@
   ],
   "sampler": { "steps": 8, "cfg": 1.5, "sampler_name": "lcm", "scheduler": "sgm_uniform" },
   "grid": 8,
-  "paletteColors": 64,
+  "paletteColors": 96,
   "paletteAnchors": ["#0a0820", "#241d3c", "#3a2266", "#4a2a86", "#b9a4ff", "#d9a95b", "#ffc46b", "#fff1c4", "#5a3424", "#45261a", "#74452e", "#6e4026", "#1f4a58", "#a8323a", "#2e5aa0", "#3a8a5a"],
   "stylePrompt": "pixel art, detailed 16-bit game art, dollhouse cutaway view, cozy warm amber lamplight, deep violet night palette, mahogany and gold, densely furnished",
   "negative": "people, person, character, face, text, letters, watermark, blurry, photo, 3d render, smooth gradient, empty room",

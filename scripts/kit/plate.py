@@ -17,7 +17,24 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).parent))
-from post import FLOOR, build_palette, clean, nearest, stray_mask  # noqa: E402
+from post import FLOOR, clean, nearest, stray_mask  # noqa: E402
+
+
+def plate_palette(kit, native):
+    """Palette from EVERY cell of the plate, plus the style anchors at a light
+    weight (each anchor counts like ~0.2% of the image): anchors nudge the room
+    toward the shared style without eating the colour budget it needs."""
+    pool = native.reshape(-1, 3)
+    anchors = [tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) for h in kit.get('paletteAnchors', [])]
+    if anchors:
+        pool = np.concatenate([pool, np.repeat(np.array(anchors, np.uint8), max(1, len(pool) // 500), axis=0)])
+    side = int(np.ceil(np.sqrt(len(pool))))
+    sheet = np.zeros((side * side, 3), np.uint8)
+    sheet[: len(pool)] = pool
+    sheet[len(pool):] = pool[0]
+    n = kit['paletteColors']
+    img = Image.fromarray(sheet.reshape(side, side, 3)).quantize(colors=n, method=Image.Quantize.MEDIANCUT)
+    return np.array(img.getpalette()[: n * 3]).reshape(-1, 3)
 
 
 def cells(img, g, ox, oy, tw, th, reduce):
@@ -50,7 +67,7 @@ def main():
         native = np.clip(native, 0, 255).astype(np.uint8)
 
         opaque = np.ones((th, tw), bool)
-        palette = build_palette(kit, [(native, opaque)])
+        palette = plate_palette(kit, native)
         idx = nearest(native, palette)
         noise = float(stray_mask(idx, opaque).mean())
         idx = clean(idx, opaque)
