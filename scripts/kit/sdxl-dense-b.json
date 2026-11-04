@@ -1,0 +1,36 @@
+{
+  "packId": "sdxl-dense-b",
+  "name": "SDXL whole-room plate test (CPU)",
+  "stylePackId": "nebula-night",
+  "promptVersion": "plate-sdxl-v1",
+  "checkpoint": "sd_xl_base_1.0.safetensors",
+  "loras": [
+    {
+      "name": "pixel-art-xl.safetensors",
+      "model": 0.75,
+      "clip": 0.75
+    },
+    {
+      "name": "sdxl_lightning_8step_lora.safetensors",
+      "model": 1,
+      "clip": 1
+    }
+  ],
+  "sampler": {
+    "steps": 8,
+    "cfg": 1,
+    "sampler_name": "euler",
+    "scheduler": "sgm_uniform"
+  },
+  "stylePrompt": "pixel art, detailed 16-bit game art, dollhouse cutaway view, cozy warm amber lamplight, deep violet night palette, mahogany and gold, densely furnished",
+  "negative": "people, person, character, face, text, letters, watermark, blurry, photo, 3d render, smooth gradient, empty room",
+  "assets": [
+    {
+      "assetId": "dense-b",
+      "class": "room-backdrop",
+      "denoise": 0.55,
+      "seed": 8201,
+      "prompt": "grand executive office at night, pixel art game interior, bookshelves full of books, arched window with purple galaxy and violet curtains, glass display cabinet, carved mahogany desk with three glowing monitors, red velvet sofa and coffee table, red armchairs, brass globe, potted plants, warm floor lamps, ornate violet galaxy rug, parquet floor, intricate detail"
+    }
+  ]
+}

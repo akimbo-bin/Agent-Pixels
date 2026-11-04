@@ -1,0 +1,18 @@
+{
+  "packId": "sdxl-plate-test",
+  "name": "SDXL whole-room plate test (CPU)",
+  "stylePackId": "nebula-night",
+  "promptVersion": "plate-sdxl-v1",
+  "checkpoint": "sd_xl_base_1.0.safetensors",
+  "loras": [
+    { "name": "pixel-art-xl.safetensors", "model": 1.0, "clip": 1.0 },
+    { "name": "lcm-lora-sdxl.safetensors", "model": 1.0, "clip": 1.0 }
+  ],
+  "sampler": { "steps": 8, "cfg": 1.5, "sampler_name": "lcm", "scheduler": "sgm_uniform" },
+  "stylePrompt": "pixel art, detailed 16-bit game art, dollhouse cutaway view, cozy warm amber lamplight, deep violet night palette, mahogany and gold, densely furnished",
+  "negative": "people, person, character, face, text, letters, watermark, blurry, photo, 3d render, smooth gradient, empty room",
+  "assets": [
+    { "assetId": "lead-plate-lcm", "class": "room-backdrop", "denoise": 0.7, "seed": 8101,
+      "prompt": "grand executive office at night, large carved mahogany desk with computer monitors, tall bookshelves full of books, arched windows showing a purple galaxy, violet banners with a gold galaxy emblem, red velvet sofa and armchairs, small coffee table, brass globe, potted plants, ornate violet galaxy rug, warm floor lamps" }
+  ]
+}

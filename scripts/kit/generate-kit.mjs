@@ -55,17 +55,22 @@ for (const { a, k, n, seed } of jobs) {
   assert.ok(up.ok, 'guide upload failed');
   const { name } = await up.json();
 
-  const [ls, lc] = kit.loraStrength;
+  // LoRA chain: "loras": [{ name, model, clip }] (SDXL kits stack a pixel-art
+  // LoRA with a few-step sampler LoRA); older kits give one "lora".
+  const loras = kit.loras ?? [{ name: kit.lora, model: kit.loraStrength[0], clip: kit.loraStrength[1] }];
   // One shared style suffix keeps every asset in a kit in the same visual language.
   const prompt = kit.stylePrompt ? `${a.prompt}, ${kit.stylePrompt}` : a.prompt;
+  const last = `lora${loras.length - 1}`;
   const wf = {
     ckpt: { class_type: 'CheckpointLoaderSimple', inputs: { ckpt_name: kit.checkpoint } },
-    lora: { class_type: 'LoraLoader', inputs: { lora_name: kit.lora, strength_model: ls, strength_clip: lc, model: ['ckpt', 0], clip: ['ckpt', 1] } },
-    pos: { class_type: 'CLIPTextEncode', inputs: { text: prompt, clip: ['lora', 1] } },
-    neg: { class_type: 'CLIPTextEncode', inputs: { text: a.negative ?? kit.negative, clip: ['lora', 1] } },
+    ...Object.fromEntries(loras.map((l, i) => [`lora${i}`, { class_type: 'LoraLoader', inputs: {
+      lora_name: l.name, strength_model: l.model, strength_clip: l.clip,
+      model: [i ? `lora${i - 1}` : 'ckpt', 0], clip: [i ? `lora${i - 1}` : 'ckpt', 1] } }])),
+    pos: { class_type: 'CLIPTextEncode', inputs: { text: prompt, clip: [last, 1] } },
+    neg: { class_type: 'CLIPTextEncode', inputs: { text: a.negative ?? kit.negative, clip: [last, 1] } },
     load: { class_type: 'LoadImage', inputs: { image: name } },
     enc: { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
-    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: ['lora', 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
+    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: [last, 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
     dec: { class_type: 'VAEDecode', inputs: { samples: ['ks', 0], vae: ['ckpt', 2] } },
     save: { class_type: 'SaveImage', inputs: { images: ['dec', 0], filename_prefix: `AgentPixelsKit_${a.assetId}` } },
   };
@@ -89,7 +94,7 @@ for (const { a, k, n, seed } of jobs) {
   await writeFile(path.join(work, `${tag}.raw.png`), bytes);
   const receipt = {
     assetId: a.assetId, class: a.class, source: 'local-comfyui', comfyui: stats.system.comfyui_version,
-    checkpoint: kit.checkpoint, lora: kit.lora, loraStrength: kit.loraStrength, seed, candidate: n > 1 ? k : undefined, denoise: a.denoise,
+    checkpoint: kit.checkpoint, loras, seed, candidate: n > 1 ? k : undefined, denoise: a.denoise,
     sampler: kit.sampler, promptVersion: kit.promptVersion, prompt, negative: a.negative ?? kit.negative,
     conditioning: { kind: 'img2img-guide', guide: `${a.assetId}.guide.png`, guideSha256: sha(guide) },
     rawSha256: sha(bytes), rawWidth: bytes.readUInt32BE(16), rawHeight: bytes.readUInt32BE(20),

@@ -5,7 +5,7 @@ import { OfficeState } from '../../src/office/engine/officeState.js';
 import { loadPixelAssets } from '../../src/ui/pixelAssets.js';
 import { WorldEditor } from '../../src/office/editor/editorState.js';
 import { TravelSystem } from '../../src/office/navigation/elevator.js';
-import { createProjection, characterWorld, type Projection } from '../../src/office/geometry/projection.js';
+import { createProjection, characterWorld, DEFAULT_VIEW, type Projection } from '../../src/office/geometry/projection.js';
 import { WorldRenderer } from '../../src/office/rendering/worldRenderer.js';
 import { Viewport } from '../../src/office/rendering/viewport.js';
 import { STYLE_PACKS, stylePackFor } from '../../src/office/rendering/stylePack.js';
@@ -61,7 +61,8 @@ class Scene {
   /** (Re)derive every runtime structure from the compiled world. */
   build(fresh: boolean) {
     const c = this.compiled;
-    this.proj = createProjection(c);
+    // ?rise= overrides the camera tilt (floor rows per tile of depth); default 0.5.
+    this.proj = createProjection(c, { ...DEFAULT_VIEW, rise: Number(new URLSearchParams(location.search).get('rise') ?? DEFAULT_VIEW.rise) });
     if (this.renderer) this.renderer.setWorld(c, this.proj);
     else this.renderer = new WorldRenderer(c, this.proj, stylePackFor(c.world.stylePackId));
     this.renderer.setStyle(stylePackFor(c.world.stylePackId));
