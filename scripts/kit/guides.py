@@ -188,7 +188,172 @@ def console(w, h, rnd):
     return img, mask
 
 
-GUIDES = {f.__name__: f for f in (acoustic, planks, beam, skyline, diffuser, poster, speaker, console)}
+def exec_wall(w, h, rnd):
+    img = Image.new('RGB', (w, h), (70, 38, 26))
+    d = ImageDraw.Draw(img)
+    pw = w // 4
+    rail = int(h * 0.62)
+    for i in range(4):
+        x0 = i * pw
+        d.rectangle([x0, 0, x0 + pw - 1, h], fill=(84, 46, 30))
+        d.rectangle([x0, 0, x0 + 6, h], fill=(52, 28, 18))  # stile shadow
+        for (y0, y1) in ((24, rail - 24), (rail + 28, h - 20)):
+            d.rectangle([x0 + 22, y0, x0 + pw - 22, y1], fill=(100, 56, 36))
+            d.rectangle([x0 + 22, y0, x0 + pw - 22, y0 + 5], fill=(130, 78, 48))
+            d.rectangle([x0 + 22, y1 - 5, x0 + pw - 22, y1], fill=(56, 30, 20))
+    d.rectangle([0, rail - 6, w, rail + 6], fill=(217, 169, 91))
+    d.rectangle([0, rail + 6, w, rail + 10], fill=(110, 76, 34))
+    return img, None
+
+
+def parquet(w, h, rnd):
+    img = Image.new('RGB', (w, h), (90, 52, 30))
+    d = ImageDraw.Draw(img)
+    s = 64
+    for gy in range(h // s):
+        for gx in range(w // s):
+            x0, y0 = gx * s, gy * s
+            horiz = (gx + gy) % 2 == 0
+            for k in range(4):
+                tone = rnd.uniform(0.85, 1.15)
+                col = shade((112, 66, 38), tone)
+                if horiz:
+                    d.rectangle([x0, y0 + k * 16, x0 + s - 1, y0 + k * 16 + 15], fill=col)
+                    d.rectangle([x0, y0 + k * 16 + 14, x0 + s - 1, y0 + k * 16 + 15], fill=(58, 32, 20))
+                else:
+                    d.rectangle([x0 + k * 16, y0, x0 + k * 16 + 15, y0 + s - 1], fill=col)
+                    d.rectangle([x0 + k * 16 + 14, y0, x0 + k * 16 + 15, y0 + s - 1], fill=(58, 32, 20))
+    return img, None
+
+
+def arch_window(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    pad = w // 10
+    arch_r = (w - 2 * pad) // 2
+    body = [pad, pad + arch_r, w - pad, h - pad]
+    for dr, m_ in ((d, False), (m, True)):
+        fill = 255 if m_ else (110, 70, 40)
+        dr.rectangle(body, fill=fill)
+        dr.pieslice([pad, pad, w - pad, pad + 2 * arch_r], 180, 360, fill=fill)
+    inner = pad + 12
+    ir = arch_r - 12
+    d.rectangle([inner, pad + arch_r, w - inner, h - inner], fill=(16, 18, 60))
+    d.pieslice([inner, pad + 12, w - inner, pad + 12 + 2 * ir], 180, 360, fill=(16, 18, 60))
+    cx, cy = w // 2, h // 2
+    for r in range(70, 6, -8):
+        d.ellipse([cx - r, cy - r // 2, cx + r, cy + r // 2], outline=(120 + r // 2, 80, 200), width=4)
+    for _ in range(40):
+        x, y = rnd.randint(inner, w - inner), rnd.randint(pad + 20, h - inner)
+        d.rectangle([x, y, x + 3, y + 3], fill=(240, 236, 255))
+    d.rectangle([w // 2 - 4, pad + 20, w // 2 + 4, h - inner], fill=(217, 169, 91))
+    d.rectangle([inner, h // 2 + 30, w - inner, h // 2 + 38], fill=(217, 169, 91))
+    d.rectangle([pad - 8, h - pad - 4, w - pad + 8, h - pad + 10], fill=(217, 169, 91))
+    m.rectangle([pad - 8, h - pad - 4, w - pad + 8, h - pad + 10], fill=255)
+    return img, mask
+
+
+def banner(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    poly = [(w // 8, h // 12), (w - w // 8, h // 12), (w - w // 8, h - h // 6), (w // 2, h - h // 16), (w // 8, h - h // 6)]
+    d.polygon(poly, fill=(74, 42, 134))
+    m.polygon(poly, fill=255)
+    d.line(poly + [poly[0]], fill=(217, 169, 91), width=8)
+    d.rectangle([0, h // 12 - 8, w, h // 12 + 4], fill=(217, 169, 91))
+    m.rectangle([0, h // 12 - 8, w, h // 12 + 4], fill=255)
+    cx, cy = w // 2, h // 2
+    for r in range(34, 4, -6):
+        d.arc([cx - r, cy - r, cx + r, cy + r], 0 + r * 7, 230 + r * 7, fill=(185, 164, 255), width=5)
+    d.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=(255, 255, 255))
+    return img, mask
+
+
+def rug(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    box = [w // 16, h // 8, w - w // 16, h - h // 8]
+    d.rectangle(box, fill=(70, 40, 120))
+    m.rectangle(box, fill=255)
+    d.rectangle([box[0] + 16, box[1] + 16, box[2] - 16, box[3] - 16], outline=(217, 169, 91), width=10)
+    cx, cy = w // 2, h // 2
+    d.ellipse([cx - 70, cy - 50, cx + 70, cy + 50], fill=(96, 60, 160))
+    for r in range(48, 6, -10):
+        d.arc([cx - r * 1.4, cy - r, cx + r * 1.4, cy + r], r * 9, 220 + r * 9, fill=(217, 169, 91), width=6)
+    for x in range(box[0], box[2], 16):
+        d.rectangle([x, box[1] - 10, x + 6, box[1]], fill=(217, 169, 91))
+        d.rectangle([x, box[3], x + 6, box[3] + 10], fill=(217, 169, 91))
+        m.rectangle([x, box[1] - 10, x + 6, box[3] + 10], fill=255)
+    return img, mask
+
+
+def bookshelf(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    box = [w // 16, h // 24, w - w // 16, h - 2]
+    d.rectangle(box, fill=(74, 40, 24))
+    m.rectangle(box, fill=255)
+    d.rectangle([box[0] - 6, box[1], box[2] + 6, box[1] + 24], fill=(120, 72, 42))
+    m.rectangle([box[0] - 6, box[1], box[2] + 6, box[1] + 24], fill=255)
+    shelves = 4
+    top, bottom = box[1] + 34, box[3] - 24
+    sh = (bottom - top) // shelves
+    colours = [(168, 50, 58), (46, 90, 160), (217, 169, 91), (58, 138, 90), (106, 58, 138), (200, 120, 60)]
+    for s_ in range(shelves):
+        y1 = top + (s_ + 1) * sh
+        d.rectangle([box[0] + 12, top + s_ * sh, box[2] - 12, y1 - 8], fill=(36, 20, 14))
+        x = box[0] + 14
+        while x < box[2] - 22:
+            bw = rnd.randint(10, 18)
+            bh = rnd.randint(int(sh * 0.55), sh - 12)
+            d.rectangle([x, y1 - 8 - bh, x + bw, y1 - 9], fill=rnd.choice(colours))
+            d.rectangle([x + 2, y1 - 8 - bh + 6, x + bw - 2, y1 - 8 - bh + 9], fill=(230, 200, 120))
+            x += bw + 2
+        d.rectangle([box[0], y1 - 8, box[2], y1], fill=(110, 66, 38))
+    return img, mask
+
+
+def exec_desk(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    top = h // 4
+    d.rectangle([0, top, w, top + h // 8], fill=(140, 84, 50))
+    d.rectangle([0, top, w, top + 6], fill=(200, 140, 90))
+    body = [8, top + h // 8, w - 8, h - 4]
+    d.rectangle(body, fill=(86, 46, 28))
+    m.rectangle([0, top, w, h - 4], fill=255)
+    d.rectangle([24, top + h // 8 + 14, w - 24, top + h // 8 + 20], fill=(217, 169, 91))
+    for x0 in (30, w - 150):
+        d.rectangle([x0, top + h // 8 + 34, x0 + 120, h - 22], fill=(104, 58, 34))
+        for k in range(3):
+            yy = top + h // 8 + 44 + k * 26
+            d.rectangle([x0 + 50, yy, x0 + 70, yy + 6], fill=(217, 169, 91))
+    d.rectangle([w // 2 - 70, top + h // 8 + 40, w // 2 + 70, h - 30], fill=(70, 38, 22))
+    return img, mask
+
+
+def floor_lamp(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    shade_box = [w // 8, h // 20, w - w // 8, h // 4]
+    d.polygon([(w // 4, shade_box[1]), (w - w // 4, shade_box[1]), (shade_box[2], shade_box[3]), (shade_box[0], shade_box[3])], fill=(255, 196, 107))
+    m.polygon([(w // 4, shade_box[1]), (w - w // 4, shade_box[1]), (shade_box[2], shade_box[3]), (shade_box[0], shade_box[3])], fill=255)
+    d.rectangle([w // 2 - 5, shade_box[3], w // 2 + 5, h - 24], fill=(170, 130, 70))
+    m.rectangle([w // 2 - 5, shade_box[3], w // 2 + 5, h - 24], fill=255)
+    d.ellipse([w // 6, h - 30, w - w // 6, h - 4], fill=(110, 80, 40))
+    m.ellipse([w // 6, h - 30, w - w // 6, h - 4], fill=255)
+    return img, mask
+
+
+def meeting_table(w, h, rnd):
+    img, mask, d, m = sprite_canvas(w, h)
+    top = int(h * 0.3)
+    d.rectangle([4, top, w - 4, top + 26], fill=(168, 112, 70))
+    d.rectangle([4, top, w - 4, top + 6], fill=(214, 160, 106))
+    d.rectangle([0, top + 26, w, top + 44], fill=(110, 66, 40))
+    m.rectangle([0, top, w, top + 44], fill=255)
+    for lx in (14, 70, w - 90, w - 34):
+        d.rectangle([lx, top + 44, lx + 20, h - 4], fill=(84, 50, 30))
+        m.rectangle([lx, top + 44, lx + 20, h - 4], fill=255)
+    return img, mask
+
+
+GUIDES = {f.__name__: f for f in (acoustic, planks, beam, skyline, diffuser, poster, speaker, console,
+                                  exec_wall, parquet, arch_window, banner, rug, bookshelf, exec_desk, floor_lamp, meeting_table)}
 
 
 def main():

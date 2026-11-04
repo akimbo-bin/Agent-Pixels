@@ -44,6 +44,31 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
   return w;
 }
 
+/** Nebula-night executive office for the campus sample's Lead (Main) room. */
+export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
+  packId: 'nebula-exec-kit-v1',
+  wallTextureId: 'exec-wall-wood',
+  floorTextureId: 'exec-floor-parquet',
+  replaceFurniture: ['lead-desk', 'lead-library', 'lead-plant'],
+  replaceDecor: ['lead-art'],
+  furniture: [
+    { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
+    { id: 'exec-shelf-1', assetId: 'exec-bookshelf', col: 0, row: 0 },
+    { id: 'exec-shelf-2', assetId: 'exec-bookshelf', col: 2, row: 0 },
+    { id: 'exec-lamp', assetId: 'exec-lamp', col: 11, row: 0 },
+    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 9, row: 0 },
+  ],
+  decor: [
+    { id: 'exec-window', assetId: 'exec-window', attachment: 'back-wall', col: 5, y: 1.7 },
+    { id: 'exec-banner-l', assetId: 'exec-banner', attachment: 'back-wall', col: 4, y: 2.6 },
+    { id: 'exec-banner-r', assetId: 'exec-banner', attachment: 'back-wall', col: 8, y: 2.6 },
+    { id: 'exec-rug', assetId: 'exec-rug', attachment: 'floor', col: 4, y: 4 },
+  ],
+};
+
+/** Every dressing we can offer, keyed by the room it was authored for. */
+export const ROOM_KITS: Array<{ roomId: string; dressing: RoomKitDressing }> = [];
+
 /** The first generated kit, dressing the two-floor sample's Music Studio. */
 export const MUSIC_STUDIO_DRESSING: RoomKitDressing = {
   packId: 'music-studio-kit-v1',
@@ -67,3 +92,5 @@ export const MUSIC_STUDIO_DRESSING: RoomKitDressing = {
   ],
   seat: { agentId: 'a-guest', chairId: 'kit-chair' },
 };
+
+ROOM_KITS.push({ roomId: 'music', dressing: MUSIC_STUDIO_DRESSING }, { roomId: 'lead', dressing: NEBULA_EXEC_DRESSING });

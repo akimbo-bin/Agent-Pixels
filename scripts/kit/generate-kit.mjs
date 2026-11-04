@@ -40,10 +40,12 @@ for (const a of kit.assets) {
   const { name } = await up.json();
 
   const [ls, lc] = kit.loraStrength;
+  // One shared style suffix keeps every asset in a kit in the same visual language.
+  const prompt = kit.stylePrompt ? `${a.prompt}, ${kit.stylePrompt}` : a.prompt;
   const wf = {
     ckpt: { class_type: 'CheckpointLoaderSimple', inputs: { ckpt_name: kit.checkpoint } },
     lora: { class_type: 'LoraLoader', inputs: { lora_name: kit.lora, strength_model: ls, strength_clip: lc, model: ['ckpt', 0], clip: ['ckpt', 1] } },
-    pos: { class_type: 'CLIPTextEncode', inputs: { text: a.prompt, clip: ['lora', 1] } },
+    pos: { class_type: 'CLIPTextEncode', inputs: { text: prompt, clip: ['lora', 1] } },
     neg: { class_type: 'CLIPTextEncode', inputs: { text: kit.negative, clip: ['lora', 1] } },
     load: { class_type: 'LoadImage', inputs: { image: name } },
     enc: { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
@@ -72,7 +74,7 @@ for (const a of kit.assets) {
   const receipt = {
     assetId: a.assetId, class: a.class, source: 'local-comfyui', comfyui: stats.system.comfyui_version,
     checkpoint: kit.checkpoint, lora: kit.lora, loraStrength: kit.loraStrength, seed: a.seed, denoise: a.denoise,
-    sampler: kit.sampler, promptVersion: kit.promptVersion, prompt: a.prompt, negative: kit.negative,
+    sampler: kit.sampler, promptVersion: kit.promptVersion, prompt, negative: kit.negative,
     conditioning: { kind: 'img2img-guide', guide: `${a.assetId}.guide.png`, guideSha256: sha(guide) },
     rawSha256: sha(bytes), rawWidth: bytes.readUInt32BE(16), rawHeight: bytes.readUInt32BE(20),
     generatedAt: new Date().toISOString(), elapsedSeconds: Math.round((Date.now() - started) / 1000),

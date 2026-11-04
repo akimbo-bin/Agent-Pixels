@@ -33,7 +33,7 @@ export interface ViewParams {
 }
 
 export const DEFAULT_VIEW: ViewParams = {
-  tilePx: 16, rise: 0.5, perspective: 0.016, slab: 1, roof: 2, ground: 2, margin: 3,
+  tilePx: 16, rise: 0.5, perspective: 0.007, slab: 1, roof: 2, ground: 2, margin: 3,
 };
 
 export interface ProjectedPoint { x: number; y: number; s: number }

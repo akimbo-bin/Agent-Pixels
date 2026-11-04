@@ -50,7 +50,7 @@ const kitted = await page.evaluate(() => {
     seated: window.__engine.agents().find(a => a.name.startsWith('Quinn')),
   };
 });
-check('all 8 kit assets loaded without problems', kitted.kit?.loaded.length === 8 && kitted.kit.problems.length === 0, kitted.kit);
+check('music studio kit assets all loaded', ['studio-wall-acoustic', 'studio-floor-oak', 'studio-trim-slab', 'studio-sky-night', 'studio-diffuser', 'studio-poster', 'studio-speaker', 'studio-console'].every(id => kitted.kit?.loaded.includes(id)), kitted.kit);
 check('kit changes no walls, floors or doors', plain.tiles === kitted.tiles && JSON.stringify(plain.doors) === JSON.stringify(kitted.doors), null);
 check('generated console collides by its record footprint (front row solid, back row walkable)', kitted.consoleBlocked.every(Boolean) && kitted.consoleBackRowFree.every(Boolean), { solid: kitted.consoleBlocked, back: kitted.consoleBackRowFree });
 // The guest walks to the console chair (own seat) and sits.

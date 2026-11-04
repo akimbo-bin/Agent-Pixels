@@ -1,6 +1,7 @@
 import { registerPackEntries, type CatalogEntryWithCategory, type FurnitureCategory } from '../layout/furnitureCatalog.js';
 import type { SpriteData } from '../types.js';
 import { type AssetPack, type AssetRecord, usable, validateAssetPack } from './manifest.js';
+import { definitionById } from './definitions.js';
 
 export interface LoadedAssetPack {
   pack: AssetPack;
@@ -26,6 +27,12 @@ export async function loadAssetPack(baseUrl: string): Promise<LoadedAssetPack> {
   const records = new Map<string, AssetRecord>();
   const entries: CatalogEntryWithCategory[] = [];
   await Promise.all(pack.assets.filter(usable).map(async a => {
+    // Art may only skin a definition with the SAME physical footprint.
+    const def = a.class === 'furniture-sprite' ? definitionById(a.assetId) : undefined;
+    if (def && (def.footprint.w !== a.footprint?.w || def.footprint.h !== a.footprint?.h || def.footprint.backgroundRows !== a.footprint?.backgroundRows)) {
+      problems.push(`${a.assetId}: footprint differs from its furniture definition; art skipped`);
+      return;
+    }
     try {
       const img = new Image();
       img.src = new URL(a.file, base).href;

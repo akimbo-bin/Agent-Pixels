@@ -4,9 +4,9 @@ import { type AssetPack, type AssetRecord, validateAssetPack } from '../../src/o
 import { toCatalogEntry } from '../../src/office/assets/loader.js';
 import { registerPackEntries } from '../../src/office/layout/furnitureCatalog.js';
 import { compileWorld } from '../../src/office/world/compiler.js';
-import { checkConnectivity } from '../../src/office/world/connectivity.js';
-import { applyRoomKit, MUSIC_STUDIO_DRESSING } from '../../src/office/world/kits.js';
-import { twoFloorOffice } from '../../src/office/world/templates.js';
+import { blockedFurnitureTiles, checkConnectivity } from '../../src/office/world/connectivity.js';
+import { applyRoomKit, MUSIC_STUDIO_DRESSING, NEBULA_EXEC_DRESSING } from '../../src/office/world/kits.js';
+import { nebulaCampusSample, twoFloorOffice } from '../../src/office/world/templates.js';
 import { loadCatalog } from './helpers.js';
 
 const sha = 'a'.repeat(64);
@@ -62,6 +62,18 @@ describe('room kit dressing', () => {
     const f = c.layout.furniture.find(x => x.uid === 'kit-console')!;
     assert.equal(c.cellAt(f.col, f.row)?.id, 'music');
   });
+  test('executive kit on the campus sample: side-on definitions collide, building stays connected', () => {
+    const base = nebulaCampusSample();
+    const dressed = applyRoomKit(base, 'lead', NEBULA_EXEC_DRESSING);
+    const c = compileWorld(dressed);
+    assert.deepEqual(c.layout.tiles, compileWorld(base).layout.tiles);
+    assert.deepEqual(checkConnectivity(c), []);
+    const desk = c.layout.furniture.find(f => f.uid === 'exec-desk')!;
+    // 4x2 desk with one overhang row: only its front row blocks.
+    const blocked = blockedFurnitureTiles(c);
+    assert.ok([0, 1, 2, 3].every(dc => blocked.has(`${desk.col + dc},${desk.row + 1}`)));
+  });
+
   test('base template is untouched (dressing works on a copy)', () => {
     const base = twoFloorOffice();
     applyRoomKit(base, 'music', MUSIC_STUDIO_DRESSING);

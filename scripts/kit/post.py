@@ -63,6 +63,10 @@ def main():
     # samples, so a large sky cannot crowd out a small sprite's colours.
     rs = np.random.default_rng(7)
     pool = np.concatenate([rgb[m][rs.integers(0, int(m.sum()), 4096)] for rgb, m in small.values()])
+    # Style-pack anchor colours are always in the palette, so kits share one look.
+    anchors = [tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) for h in kit.get('paletteAnchors', [])]
+    if anchors:
+        pool = np.concatenate([pool, np.repeat(np.array(anchors, np.uint8), 2048, axis=0)])
     side = int(np.ceil(np.sqrt(len(pool))))
     sheet = np.zeros((side * side, 3), np.uint8)
     sheet[: len(pool)] = pool
@@ -103,6 +107,8 @@ def main():
             'provenance': {**receipt, 'postProcess': {'script': 'scripts/kit/post.py', 'paletteColors': kit['paletteColors'],
                            'seamless': bool(a.get('tileable')), 'cutout': 'guide-mask AND magenta-key' if a['class'] in SPRITES else None}},
         }
+        if a.get('attachment') == 'floor':
+            rec['projection'] = 'floor-plane-foreshortened'
         if 'attachment' in a:
             rec['attachment'] = a['attachment']
         if a['class'] == 'furniture-sprite':

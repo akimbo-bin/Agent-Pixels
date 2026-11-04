@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { buildDynamicCatalog } from '../../src/office/layout/furnitureCatalog.js';
+import { registerFurnitureDefinitions } from '../../src/office/assets/definitions.js';
 // @ts-expect-error plain ESM helper shared with the dev build
 import { buildAssetIndex } from '../../scripts/asset-index.mjs';
 import { OfficeState } from '../../src/office/engine/officeState.js';
@@ -14,6 +15,7 @@ export async function loadCatalog(): Promise<void> {
   const sprites: Record<string, string[][]> = {};
   for (const f of index.furniture) sprites[f.id] = [['']];
   buildDynamicCatalog({ catalog: index.furniture, sprites });
+  registerFurnitureDefinitions();
   loaded = true;
 }
 

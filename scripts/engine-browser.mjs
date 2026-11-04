@@ -54,8 +54,8 @@ for (const [w, h, tag] of [[1920, 1080, 'desktop'], [1366, 768, 'laptop'], [390,
   const samples = [];
   const t0 = Date.now();
   while (Date.now() - t0 < 60000) {
-    const a = await page.evaluate(i => ({ a: window.__engine.agents().find(x => x.id === i), cab: window.__engine.cabins()[0], tours: window.__engine.scene().tours.size }), id);
-    samples.push({ t: Date.now() - t0, ...a.a, cabin: a.cab.phase, cabinFloor: a.cab.floorId, tours: a.tours });
+    const a = await page.evaluate(i => ({ a: window.__engine.agents().find(x => x.id === i), cab: window.__engine.cabins()[0], tours: window.__engine.scene().tours.size, sim: window.__engine.simTime() }), id);
+    samples.push({ t: Date.now() - t0, sim: a.sim, ...a.a, cabin: a.cab.phase, cabinFloor: a.cab.floorId, tours: a.tours });
     if (samples.length > 20 && a.tours === 0 && !a.a.trip) break;
     if (samples.length === 25) await shot(page, 'tour-door-crossing.png');
     if (a.a.riding && a.cab.phase === 'moving' && !report.screenshots.includes('tour-elevator-ride.png')) await shot(page, 'tour-elevator-ride.png');
@@ -70,8 +70,8 @@ for (const [w, h, tag] of [[1920, 1080, 'desktop'], [1366, 768, 'laptop'], [390,
   check('tour visits several rooms through doorways', rooms.length >= 3 && doorway, { rooms });
   check('tour reaches another floor', floors.length >= 2, { floors });
   check('floor changes only while in the cabin sequence', floorChanges.every(s => ['exiting', 'walk', 'riding'].includes(s.trip) || s.riding), floorChanges.map(s => s.trip));
-  // Speed between consecutive samples (sample spacing varies with evaluate overhead).
-  const maxSpeed = Math.max(0, ...samples.slice(1).map((s, i) => s.floor === samples[i].floor ? Math.hypot(s.x - samples[i].x, s.y - samples[i].y) / ((s.t - samples[i].t) / 1000) : 0));
+  // Speed against SIMULATED time between samples (wall-clock sampling jitters under load).
+  const maxSpeed = Math.max(0, ...samples.slice(1).map((s, i) => s.floor === samples[i].floor && s.sim > samples[i].sim ? Math.hypot(s.x - samples[i].x, s.y - samples[i].y) / (s.sim - samples[i].sim) : 0));
   check('no same-floor teleport (speed never above walking pace)', maxSpeed <= 48 * 1.25, { maxPxPerSec: +maxSpeed.toFixed(1), walkPxPerSec: 48 });
   const back = await page.evaluate(i => window.__engine.agents().find(x => x.id === i), id);
   check('agent returns to its seat and works', back.state === 'type', { state: back.state, room: back.room });

@@ -20,8 +20,8 @@ import {
 const door = (id: string, a: string, b: string, z = 0, width = 3, open = true): DoorDef =>
   ({ kind: 'door', id, between: [a, b], z, width, open });
 const room = (id: string, floorId: string, name: string, kind: string, x: number, width: number, depth?: number,
-  wall?: string, floor?: string): RoomDef =>
-  ({ id, floorId, name, kind, x, width, ...(depth ? { depth } : {}),
+  wall?: string, floor?: string, subtitle?: string): RoomDef =>
+  ({ id, floorId, name, kind, x, width, ...(depth ? { depth } : {}), ...(subtitle ? { subtitle } : {}),
     surfaces: { backWall: { material: wall ?? 'plaster' }, floor: { material: floor ?? 'wood' } } });
 
 /** Desk facing the viewer with a chair behind it: the agent sits facing out. */
@@ -59,9 +59,9 @@ export function smallStudio(): OfficeWorld {
     item('studio-shelf', 'studio', 'DOUBLE_BOOKSHELF', 10, 0),
     item('studio-plant', 'studio', 'PLANT', 0, 3),
     item('lounge-sofa', 'lounge', 'SOFA_FRONT', 3, 1),
-    item('lounge-table', 'lounge', 'COFFEE_TABLE', 3, 2),
+    item('lounge-table', 'lounge', 'low-table', 3, 2),
     item('lounge-plant', 'lounge', 'LARGE_PLANT', 7, 0),
-    item('kitchen-coffee', 'kitchen', 'SMALL_TABLE_FRONT', 3, 0),
+    item('kitchen-coffee', 'kitchen', 'low-table', 3, 1),
     item('kitchen-bin', 'kitchen', 'BIN', 0, 0),
   );
   w.decor.push(wallArt('studio-board', 'studio', 'WHITEBOARD', 4, 1.6), wallArt('lounge-art', 'lounge', 'LARGE_PAINTING', 1, 1.5),
@@ -104,8 +104,8 @@ export function twoFloorOffice(): OfficeWorld {
     item('hall-plant', 'hall', 'PLANT', 8, 0),
     item('workshop-shelf', 'workshop', 'DOUBLE_BOOKSHELF', 6, 0),
     item('lead-shelf', 'lead', 'DOUBLE_BOOKSHELF', 6, 0),
-    item('meeting-table', 'meeting', 'TABLE_FRONT', 4, 1),
-    item('meeting-chair-l', 'meeting', 'WOODEN_CHAIR_SIDE', 3, 2),
+    item('meeting-table', 'meeting', 'meeting-table', 3, 2),
+    item('meeting-chair-l', 'meeting', 'WOODEN_CHAIR_SIDE', 2, 2),
     item('meeting-chair-r', 'meeting', 'WOODEN_CHAIR_SIDE:left', 7, 2),
     item('music-sofa', 'music', 'SOFA_FRONT', 2, 2),
     item('music-arcade', 'music', 'ARCADE_MACHINE', 9, 0),
@@ -136,19 +136,20 @@ export function nebulaCampusSample(): OfficeWorld {
     { id: 'middle', level: 1, name: 'Labs', depth: 6, wallHeight: 6 },
     { id: 'lower', level: 0, name: 'Operations', depth: 6, wallHeight: 6 },
   ]);
+  w.stylePackId = 'nebula-night';
   w.rooms.push(
-    room('lead', 'upper', 'Executive Office', 'office', 1, 12, 6, 'wood-panel', 'wood'),
-    room('leadSol', 'upper', 'Director Office', 'office', 14, 8, 6, 'wood-panel', 'wood'),
-    room('reception', 'upper', 'Reception', 'reception', 23, 7, 6, 'plaster', 'stone'),
-    room('observatory', 'upper', 'Observatory', 'observatory', 35, 16, 6, 'glass', 'technical'),
-    room('gallery', 'upper', 'Music Studio', 'studio', 52, 10, 6, 'acoustic', 'wood'),
-    room('engineering', 'middle', 'Engineering', 'workshop', 1, 29, 6, 'brick', 'concrete'),
-    room('data', 'middle', 'Data Lab', 'lab', 35, 14, 6, 'lab-tile', 'tile'),
-    room('rendering', 'middle', 'Rendering', 'operations', 50, 12, 6, 'panel', 'technical'),
-    room('clinic', 'lower', 'Wellness', 'clinic', 1, 12, 6, 'plaster', 'tile'),
-    room('review', 'lower', 'Review', 'review', 14, 16, 6, 'plaster', 'carpet'),
-    room('training', 'lower', 'Training Lab', 'lab', 35, 14, 6, 'panel', 'technical'),
-    room('experiments', 'lower', 'Experiments', 'lab', 50, 12, 6, 'lab-tile', 'technical'),
+    room('lead', 'upper', 'Lead (Main)', 'office', 1, 12, 6, 'wood-panel', 'wood', 'Executive Office'),
+    room('leadSol', 'upper', 'Lead (Second)', 'office', 14, 8, 6, 'wood-panel', 'wood', 'Director Office'),
+    room('reception', 'upper', 'Admin / Clerk', 'reception', 23, 7, 6, 'plaster', 'stone', 'Reception & Operations'),
+    room('observatory', 'upper', 'Nebula Observatory', 'observatory', 35, 16, 6, 'glass', 'technical', 'Plugin Development & Expansion'),
+    room('gallery', 'upper', 'Music Studio', 'studio', 52, 10, 6, 'acoustic', 'wood', 'Listening Lounge'),
+    room('engineering', 'middle', 'Engineers', 'workshop', 1, 29, 6, 'brick', 'concrete', 'Rocket Lab · Systems'),
+    room('data', 'middle', 'Data Team', 'lab', 35, 14, 6, 'lab-tile', 'tile', 'Math Lab'),
+    room('rendering', 'middle', 'Operations', 'operations', 50, 12, 6, 'panel', 'technical', 'Live Pipeline'),
+    room('clinic', 'lower', 'Doctor', 'clinic', 1, 12, 6, 'plaster', 'tile', 'Wellness Office'),
+    room('review', 'lower', 'Reviewers', 'review', 14, 16, 6, 'plaster', 'carpet', 'Review Office'),
+    room('training', 'lower', 'Trainers', 'lab', 35, 14, 6, 'panel', 'technical', 'Training Lab'),
+    room('experiments', 'lower', 'Experiments', 'lab', 50, 12, 6, 'lab-tile', 'technical', 'Research Bench'),
   );
   w.connectors.push({ kind: 'elevator', id: 'core-lift', x: 31, width: 3, lobbyDepth: 2, capacity: 1, secondsPerFloor: 2.4,
     stops: [{ floorId: 'upper' }, { floorId: 'middle' }, { floorId: 'lower' }] });
@@ -173,7 +174,7 @@ export function nebulaCampusSample(): OfficeWorld {
     item('lead-library', 'lead', 'DOUBLE_BOOKSHELF', 0, 0), item('lead-plant', 'lead', 'LARGE_PLANT', 10, 0),
     item('gallery-sofa', 'gallery', 'SOFA_FRONT', 3, 2), item('gallery-arcade', 'gallery', 'ARCADE_MACHINE', 7, 0),
     item('eng-shelf-1', 'engineering', 'DOUBLE_BOOKSHELF', 14, 0), item('eng-shelf-2', 'engineering', 'DOUBLE_BOOKSHELF', 17, 0),
-    item('eng-plant', 'engineering', 'PLANT', 27, 4), item('exp-table', 'experiments', 'TABLE_FRONT', 4, 1),
+    item('eng-plant', 'engineering', 'PLANT', 27, 4), item('exp-table', 'experiments', 'meeting-table', 4, 2),
     item('review-plant', 'review', 'PLANT_2', 14, 0), item('clinic-plant', 'clinic', 'PLANT', 10, 0),
   );
   w.decor.push(
@@ -233,7 +234,7 @@ export function fiveStoreyTower(): OfficeWorld {
   const s2 = workstation(w.furniture, 'l3-archive', 't3', 4);
   const s3 = workstation(w.furniture, 'l4-suite', 't4', 3);
   w.furniture.push(
-    item('cafe-table', 'l0-cafe', 'SMALL_TABLE_FRONT', 3, 1), item('entry-plant', 'l0-entry', 'LARGE_PLANT', 0, 0),
+    item('cafe-table', 'l0-cafe', 'low-table', 3, 2), item('entry-plant', 'l0-entry', 'LARGE_PLANT', 0, 0),
     item('arch-shelf-1', 'l3-archive', 'DOUBLE_BOOKSHELF', 9, 0), item('arch-shelf-2', 'l3-archive', 'DOUBLE_BOOKSHELF', 11, 0),
     item('terrace-plant', 'l4-terrace', 'PLANT_2', 6, 0), item('c-sofa', 'l1-c', 'SOFA_FRONT', 2, 2),
   );

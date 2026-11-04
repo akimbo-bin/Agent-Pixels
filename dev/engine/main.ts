@@ -8,7 +8,7 @@ import { TravelSystem } from '../../src/office/navigation/elevator.js';
 import { createProjection, characterWorld, type Projection } from '../../src/office/geometry/projection.js';
 import { WorldRenderer } from '../../src/office/rendering/worldRenderer.js';
 import { Viewport } from '../../src/office/rendering/viewport.js';
-import { FALLBACK_STYLE } from '../../src/office/rendering/stylePack.js';
+import { STYLE_PACKS, stylePackFor } from '../../src/office/rendering/stylePack.js';
 import { TEMPLATES } from '../../src/office/world/templates.js';
 import { generateBuilding, rng } from '../../src/office/world/generator.js';
 import { isDoor, type OfficeWorld } from '../../src/office/world/schema.js';
@@ -18,14 +18,15 @@ import { getCatalogEntry } from '../../src/office/layout/furnitureCatalog.js';
 import { getCachedSprite } from '../../src/office/sprites/spriteCache.js';
 import { CharacterState } from '../../src/office/types.js';
 import { loadAssetPack, type LoadedAssetPack } from '../../src/office/assets/loader.js';
-import { applyRoomKit, MUSIC_STUDIO_DRESSING } from '../../src/office/world/kits.js';
+import { registerFurnitureDefinitions } from '../../src/office/assets/definitions.js';
+import { applyRoomKit, ROOM_KITS } from '../../src/office/world/kits.js';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('view');
 const ctx = canvas.getContext('2d')!;
 const ui = {
   template: $<HTMLSelectElement>('template'), fit: $<HTMLButtonElement>('fit'), tour: $<HTMLButtonElement>('tour'),
-  ambient: $<HTMLInputElement>('ambient'), kit: $<HTMLInputElement>('kit'), edit: $<HTMLInputElement>('edit'), debug: $<HTMLInputElement>('debug'),
+  ambient: $<HTMLInputElement>('ambient'), kit: $<HTMLInputElement>('kit'), style: $<HTMLSelectElement>('style'), edit: $<HTMLInputElement>('edit'), debug: $<HTMLInputElement>('debug'),
   undo: $<HTMLButtonElement>('undo'), redo: $<HTMLButtonElement>('redo'), exportBtn: $<HTMLButtonElement>('export'),
   importBtn: $<HTMLButtonElement>('import'), status: $('status'), issues: $('issues'), json: $<HTMLTextAreaElement>('json'), hint: $('hint'),
 };
@@ -62,8 +63,9 @@ class Scene {
     const c = this.compiled;
     this.proj = createProjection(c);
     if (this.renderer) this.renderer.setWorld(c, this.proj);
-    else this.renderer = new WorldRenderer(c, this.proj, FALLBACK_STYLE);
-    this.renderer.setAssets(kitPack && ui.kit.checked ? kitPack : null);
+    else this.renderer = new WorldRenderer(c, this.proj, stylePackFor(c.world.stylePackId));
+    this.renderer.setStyle(stylePackFor(c.world.stylePackId));
+    this.renderer.setAssets(ui.kit.checked && kitAssets.images.size ? kitAssets : null);
     this.travel = new TravelSystem(c);
     this.tours.clear();
     if (fresh || !this.office) {
@@ -124,8 +126,12 @@ class Scene {
     this.say(`Tour: ${this.names.get(id)} → ${legs.length} legs`);
   }
 
+  /** Simulated seconds (what movement speed is measured against). */
+  simTime = 0;
+
   update(dt: number) {
     if (!this.drag) {
+      this.simTime += dt;
       this.office.update(dt);
       this.travel.update(this.office, dt);
     }
@@ -170,7 +176,12 @@ class Scene {
     this.renderer.render(this.office, this.travel, { debug: ui.debug.checked || ui.edit.checked, selectedId: this.selected, hoverTile: this.hover, time: t0 / 1000 });
     if (this.drag?.candidate) this.drawGhost();
     const dpr = window.devicePixelRatio || 1;
-    this.view.draw(ctx, this.renderer.canvas, this.renderer.labels(), FALLBACK_STYLE, dpr);
+    const tags = this.renderer.hits.filter(h => h.kind === 'agent').map(h => {
+      const id = Number(h.id), full = this.names.get(id) ?? '';
+      const selected = id === this.selected;
+      return { text: selected ? full : full.replace(/ (.*)$/, ''), x: h.x + h.w / 2, y: h.y + 4, selected };
+    });
+    this.view.draw(ctx, this.renderer.canvas, this.renderer.labels(), this.renderer.pack, dpr, this.renderer.backdrop(), tags);
     this.frameTimes.push(performance.now() - t0);
     if (this.frameTimes.length > 600) this.frameTimes.shift();
   }
@@ -243,13 +254,33 @@ const params = new URLSearchParams(location.search);
 let scene: Scene;
 const templateNames = [...Object.keys(TEMPLATES), 'generated'];
 
-let kitPack: LoadedAssetPack | null = null;
-const KIT_ROOM = 'music';
+/** All loaded room-kit packs merged into one asset view for the renderer. */
+const kitPacks = new Map<string, LoadedAssetPack>();
+const kitAssets = { images: new Map<string, HTMLCanvasElement>(), records: new Map<string, import('../../src/office/assets/manifest.js').AssetRecord>() };
+
+async function loadKitPacks() {
+  const problems: string[] = [];
+  for (const id of new Set(ROOM_KITS.map(k => k.dressing.packId))) {
+    if (kitPacks.has(id)) continue;
+    try {
+      const p = await loadAssetPack(`/packs/${id}/`);
+      kitPacks.set(id, p);
+      for (const [k, v] of p.images) kitAssets.images.set(k, v);
+      for (const [k, v] of p.records) kitAssets.records.set(k, v);
+      problems.push(...p.problems);
+    } catch (err) { problems.push(`${id}: not available (${String(err).slice(0, 80)})`); }
+  }
+  return problems;
+}
 
 function makeWorld(name: string): OfficeWorld {
   const base = makeBaseWorld(name);
-  if (ui.kit.checked && kitPack && base.rooms.some(r => r.id === KIT_ROOM)) return applyRoomKit(base, KIT_ROOM, MUSIC_STUDIO_DRESSING);
-  return base;
+  if (!ui.kit.checked) return base;
+  let w = base;
+  for (const { roomId, dressing } of ROOM_KITS) {
+    if (kitPacks.has(dressing.packId) && w.rooms.some(r => r.id === roomId)) w = applyRoomKit(w, roomId, dressing);
+  }
+  return w;
 }
 
 function makeBaseWorld(name: string): OfficeWorld {
@@ -270,7 +301,11 @@ function showIssues(issues: WorldIssue[]) {
 }
 
 function load(name: string) {
-  scene = new Scene(makeWorld(name));
+  const world = makeWorld(name);
+  const forced = params.get('style');
+  if (forced && STYLE_PACKS[forced]) world.stylePackId = forced;
+  scene = new Scene(world);
+  ui.style.value = stylePackFor(scene.compiled.world.stylePackId).id;
   ui.template.value = name;
   showIssues([]);
   resize();
@@ -379,10 +414,9 @@ ui.tour.addEventListener('click', () => {
 });
 ui.edit.addEventListener('change', refreshButtons);
 ui.kit.addEventListener('change', async () => {
-  if (ui.kit.checked && !kitPack) {
-    try { kitPack = await loadAssetPack('/packs/music-studio-kit-v1/'); }
-    catch (err) { ui.kit.checked = false; showIssues([{ code: 'pack', message: String(err) }]); return; }
-    if (kitPack.problems.length) showIssues(kitPack.problems.map(m => ({ code: 'pack', message: m })));
+  if (ui.kit.checked) {
+    const problems = await loadKitPacks();
+    if (problems.length) showIssues(problems.map(m => ({ code: 'pack', message: m })));
   }
   const u = new URL(location.href); u.searchParams.set('kit', ui.kit.checked ? '1' : '0'); history.replaceState(null, '', u);
   load(ui.template.value);
@@ -400,6 +434,12 @@ ui.importBtn.addEventListener('click', () => {
   } catch (err) { showIssues([{ code: 'json', message: `Not valid JSON: ${String(err)}` }]); }
 });
 
+for (const id of Object.keys(STYLE_PACKS)) { const o = document.createElement('option'); o.value = id; o.textContent = id; ui.style.appendChild(o); }
+ui.style.addEventListener('change', () => {
+  // A style pack is a property of the building: switching it is a validated, undoable edit.
+  applyEdit(scene.editor.apply(w => { w.stylePackId = ui.style.value; }), `style ${ui.style.value}`);
+  const u = new URL(location.href); u.searchParams.set('style', ui.style.value); history.replaceState(null, '', u);
+});
 for (const n of templateNames) { const o = document.createElement('option'); o.value = n; o.textContent = n; ui.template.appendChild(o); }
 window.addEventListener('resize', resize);
 
@@ -437,9 +477,11 @@ function writeStatus() {
 declare global { interface Window { __engine: unknown } }
 
 await loadPixelAssets();
+registerFurnitureDefinitions();
 if (params.get('kit') === '1') {
   ui.kit.checked = true;
-  kitPack = await loadAssetPack('/packs/music-studio-kit-v1/').catch(err => { ui.kit.checked = false; console.error(err); return null; });
+  const problems = await loadKitPacks();
+  if (problems.length) console.warn(problems);
 }
 load(templateNames.includes(params.get('building') ?? '') ? params.get('building')! : 'two-floor-office');
 ui.debug.checked = params.get('debug') === '1';
@@ -458,6 +500,7 @@ window.__engine = {
       riding: !!scene.travel.riderSlot(ch.id) };
   }),
   cabins: () => scene.travel.getCabins(),
+  simTime: () => scene.simTime,
   travelToRoom: (id: number, roomId: string) => scene.travelTo(id, roomSpot(scene.compiled, scene.office, roomId)),
   travelToTile: (id: number, col: number, row: number) => scene.travelTo(id, { col, row }),
   roomTile: (roomId: string, col: number, row: number) => scene.compiled.roomTile(roomId, col, row),
@@ -483,7 +526,7 @@ window.__engine = {
     scene.view.focus(a.x, b.y, b.x - a.x, a.y - b.y + 20, canvas.width, canvas.height);
   },
   fit: () => scene.fit(),
-  kit: () => kitPack ? { id: kitPack.pack.id, loaded: [...kitPack.images.keys()], problems: kitPack.problems } : null,
+  kit: () => kitPacks.size ? { id: [...kitPacks.keys()].join(','), loaded: [...kitAssets.images.keys()], problems: [...kitPacks.values()].flatMap(p => p.problems) } : null,
   stats: () => scene.stats(),
   resetStats: () => { scene.frameTimes = []; },
   screenOf: (col: number, row: number) => {

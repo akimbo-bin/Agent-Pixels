@@ -22,7 +22,20 @@ export interface RenderOptions {
   time: number;
 }
 
-export interface RoomLabel { text: string; x: number; y: number; cellId: string }
+/** Screen-filling sky/ground description (drawn by the viewport, buffer pixel scale). */
+export interface Backdrop {
+  /** Horizontally tileable sky strip whose bottom sits on the ground line. */
+  tile: HTMLCanvasElement;
+  /** Repeating star field for sky above the strip. */
+  stars: HTMLCanvasElement;
+  top: string;
+  /** Ground line in buffer pixels. */
+  groundY: number;
+  ground: string;
+  groundLine: string;
+}
+
+export interface RoomLabel { text: string; subtitle?: string; x: number; y: number; cellId: string }
 /** Screen-space bounds of drawn entities from the last frame (for hit testing). */
 export interface Hit { kind: 'agent' | 'furniture'; id: string; x: number; y: number; w: number; h: number }
 
@@ -50,6 +63,7 @@ export class WorldRenderer {
   hits: Hit[] = [];
   private walls: Array<Omit<Item, 'draw'> & { draw: (ctx: Ctx) => void }> = [];
   private assets: RenderAssets | null = null;
+  private sky: Backdrop | null = null;
 
   constructor(public compiled: CompiledWorld, public proj: Projection, public pack: StylePack = FALLBACK_STYLE) {
     this.canvas = document.createElement('canvas');
@@ -62,13 +76,22 @@ export class WorldRenderer {
     this.canvas.width = proj.width;
     this.canvas.height = proj.height;
     this.bg = this.fg = null;
+    this.sky = null;
+    this.walls = this.buildWallSegments();
+  }
+
+  /** Swap the style pack (theme); geometry untouched, cached layers rebuilt. */
+  setStyle(pack: StylePack) {
+    if (pack === this.pack) return;
+    this.pack = pack;
+    this.bg = this.fg = this.sky = null;
     this.walls = this.buildWallSegments();
   }
 
   /** Swap surface art without touching geometry; cached layers are rebuilt. */
   setAssets(assets: RenderAssets | null) {
     this.assets = assets;
-    this.bg = this.fg = null;
+    this.bg = this.fg = this.sky = null;
   }
 
   private texture(id: string | undefined, cls: AssetRecord['class']): HTMLCanvasElement | null {
@@ -81,13 +104,16 @@ export class WorldRenderer {
     return this.compiled.cells.filter(c => c.kind === 'room').map(c => {
       const f = this.floor(c.floorId);
       const p = this.proj.project(c.floorId, c.x + c.width / 2, c.depth, f.def.wallHeight - 0.15);
-      return { text: c.room!.name, x: p.x, y: p.y, cellId: c.id };
+      const subtitle = c.room!.subtitle ?? this.pack.roomKinds?.[c.room!.kind]?.subtitle;
+      return { text: c.room!.name, subtitle, x: p.x, y: p.y, cellId: c.id };
     });
   }
 
   render(office: OfficeState, travel: TravelSystem, opts: RenderOptions) {
     const ctx = this.canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
+    // The buffer is transparent outside the building (the backdrop shows through).
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.bg ??= this.layer(c => this.drawBackground(c));
     this.fg ??= this.layer(c => this.drawForeground(c));
     ctx.drawImage(this.bg, 0, 0);
@@ -127,45 +153,87 @@ export class WorldRenderer {
 
   // ── layer 0-4: background ────────────────────────────────────
 
-  private drawBackground(ctx: Ctx) {
+  /**
+   * Sky and ground live OUTSIDE the building buffer: the viewport tiles this
+   * backdrop across the whole screen (with parallax), so no zoom level or
+   * aspect ratio ever reveals an empty edge.
+   */
+  backdrop(): Backdrop {
+    if (this.sky) return this.sky;
     const { world } = this.compiled;
     const sky = this.pack.sky[world.background.preset] ?? this.pack.sky.night;
-    const W = this.proj.width, H = this.proj.height;
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, sky.top); g.addColorStop(1, sky.horizon);
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    const rand = seeded(world.background.seed ?? world.seed);
-    for (let i = 0; i < sky.stars * (W * H) / 400000; i++) {
-      ctx.fillStyle = rand() < 0.15 ? '#fff4d6' : '#a9b4ff';
-      ctx.globalAlpha = 0.35 + rand() * 0.6;
-      ctx.fillRect(Math.floor(rand() * W), Math.floor(rand() * H * 0.8), 1, 1);
+    const groundY = this.groundY();
+    const skyTex = this.texture(world.background.skyLayerId, 'sky-layer');
+    const tile = document.createElement('canvas');
+    tile.width = skyTex ? skyTex.width : 512;
+    tile.height = Math.max(1, groundY);
+    const ctx = tile.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    let top = sky.top;
+    if (skyTex) {
+      const t = skyTex.getContext('2d')!.getImageData(0, 0, 1, 1).data;
+      top = `rgb(${t[0]},${t[1]},${t[2]})`;
+      ctx.fillStyle = top; ctx.fillRect(0, 0, tile.width, tile.height);
+      ctx.drawImage(skyTex, 0, tile.height - skyTex.height);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, tile.height);
+      g.addColorStop(0, sky.top); g.addColorStop(1, sky.horizon);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, tile.width, tile.height);
+      // Wrap-safe procedural skyline (buildings never straddle the tile edge).
+      const rand = seeded((world.background.seed ?? world.seed) + 3);
+      for (let x = 0; x < tile.width - 12;) {
+        const w = Math.min(12 + Math.floor(rand() * 40), tile.width - x), h = 20 + Math.floor(rand() * 90);
+        ctx.fillStyle = sky.skyline; ctx.fillRect(x, tile.height - h, w, h);
+        ctx.fillStyle = sky.skylineLit;
+        for (let wy = tile.height - h + 4; wy < tile.height - 4; wy += 6) for (let wx = x + 3; wx < x + w - 3; wx += 5) {
+          if (rand() < 0.12) { ctx.globalAlpha = 0.5; ctx.fillRect(wx, wy, 2, 2); ctx.globalAlpha = 1; }
+        }
+        x += w + Math.floor(rand() * 10);
+      }
+    }
+    if (this.pack.features?.groundDecor === 'forest') {
+      // Pine silhouettes along the ground line, in front of the skyline (wraps at the tile edge).
+      const r3 = seeded((world.background.seed ?? world.seed) + 9);
+      const tw = tile.width;
+      for (let x = 0; x < tw; x += 5 + Math.floor(r3() * 9)) {
+        const h = 14 + Math.floor(r3() * 26), w = Math.max(5, Math.floor(h * 0.45));
+        for (let j = 0; j < h; j++) {
+          const half = Math.floor(((j / h) * w) / 2 + ((j % 6) < 2 ? 1 : 0));
+          ctx.fillStyle = j > h - 3 ? '#0b1418' : '#0f1d24';
+          for (const ox of [0, -tw, tw]) ctx.fillRect(x - half + ox, tile.height - h + j, half * 2 + 1, 1);
+        }
+      }
+    }
+    const stars = document.createElement('canvas');
+    stars.width = stars.height = 128;
+    const sc = stars.getContext('2d')!;
+    sc.fillStyle = top; sc.fillRect(0, 0, 128, 128);
+    const r2 = seeded((world.background.seed ?? world.seed) + 1);
+    const n = Math.round(sky.stars / 6) + (skyTex ? 18 : 0);
+    for (let i = 0; i < n; i++) {
+      sc.fillStyle = r2() < 0.2 ? '#fff4d6' : '#c9b8ff'; sc.globalAlpha = 0.3 + r2() * 0.6;
+      sc.fillRect(Math.floor(r2() * 128), Math.floor(r2() * 128), 1, 1);
+    }
+    // Stars over the upper part of the sky tile too (stop above the skyline).
+    const starBand = Math.max(0, tile.height - (skyTex ? skyTex.height : 120));
+    for (let i = 0; i < tile.width * starBand / 700; i++) {
+      ctx.fillStyle = r2() < 0.2 ? '#fff4d6' : '#c9b8ff'; ctx.globalAlpha = 0.3 + r2() * 0.6;
+      ctx.fillRect(Math.floor(r2() * tile.width), Math.floor(r2() * starBand), 1, 1);
     }
     ctx.globalAlpha = 1;
-    const groundY = Math.round(this.proj.project(this.lowest().def.id, 0, 0).y + this.proj.params.slab * 16);
-    const skyTex = this.texture(world.background.skyLayerId, 'sky-layer');
-    if (skyTex) {
-      // Generated sky layer: tiled horizontally, sitting on the ground line.
-      const top = skyTex.getContext('2d')!.getImageData(0, 0, 1, 1).data;
-      ctx.fillStyle = `rgb(${top[0]},${top[1]},${top[2]})`; ctx.fillRect(0, 0, W, groundY - skyTex.height);
-      const r2 = seeded((world.background.seed ?? world.seed) + 1);
-      for (let i = 0; i < W * (groundY - skyTex.height) / 900; i++) {
-        ctx.fillStyle = r2() < 0.2 ? '#fff4d6' : '#c9b8ff'; ctx.globalAlpha = 0.3 + r2() * 0.6;
-        ctx.fillRect(Math.floor(r2() * W), Math.floor(r2() * (groundY - skyTex.height)), 1, 1);
-      }
-      ctx.globalAlpha = 1;
-      for (let x = 0; x < W; x += skyTex.width) ctx.drawImage(skyTex, x, groundY - skyTex.height);
-    }
-    // Distant skyline silhouettes (procedural fallback; no interaction).
-    for (let x = 0; x < W && !skyTex;) {
-      const w = 12 + Math.floor(rand() * 40), h = 20 + Math.floor(rand() * 90);
-      ctx.fillStyle = sky.skyline; ctx.fillRect(x, groundY - h, w, h);
-      ctx.fillStyle = sky.skylineLit;
-      for (let wy = groundY - h + 4; wy < groundY - 4; wy += 6) for (let wx = x + 3; wx < x + w - 3; wx += 5) {
-        if (rand() < 0.12) { ctx.globalAlpha = 0.5; ctx.fillRect(wx, wy, 2, 2); ctx.globalAlpha = 1; }
-      }
-      x += w + Math.floor(rand() * 10);
-    }
-    ctx.fillStyle = this.pack.structure.ground; ctx.fillRect(0, groundY, W, H - groundY);
+    this.sky = { tile, stars, top, groundY, ground: this.pack.structure.ground, groundLine: this.pack.structure.slabShadow };
+    return this.sky;
+  }
+
+  private groundY() {
+    return Math.round(this.proj.project(this.lowest().def.id, 0, 0).y + this.proj.params.slab * 16);
+  }
+
+  private drawBackground(ctx: Ctx) {
+    const W = this.proj.width;
+    const groundY = this.groundY();
+    // Ground band under the building (the viewport extends it across the screen).
+    ctx.fillStyle = this.pack.structure.ground; ctx.fillRect(0, groundY, W, this.proj.height - groundY);
 
     const st = this.pack.structure;
     for (const f of this.compiled.floors) {
@@ -208,12 +276,14 @@ export class WorldRenderer {
   private drawRoomShell(ctx: Ctx, cell: CompiledCell) {
     const f = this.floor(cell.floorId);
     const H = f.def.wallHeight, D = cell.depth, x0 = cell.x, x1 = cell.x + cell.width, id = cell.floorId;
-    const ws = wallStyle(this.pack, cell.room?.surfaces?.backWall?.material);
-    const fs = floorStyle(this.pack, cell.room?.surfaces?.floor?.material);
+    // Explicit room surfaces win; otherwise the style pack's default for this room kind.
+    const kind = this.pack.roomKinds?.[cell.room?.kind ?? ''];
+    const ws = wallStyle(this.pack, cell.room?.surfaces?.backWall?.material ?? kind?.wall);
+    const fs = floorStyle(this.pack, cell.room?.surfaces?.floor?.material ?? kind?.floor);
     // Back wall (vertical plane at the room's depth).
     fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, H), ws.base);
-    const wallTex = this.texture(cell.room?.surfaces?.backWall?.textureId, 'wall-texture');
-    const floorTex = this.texture(cell.room?.surfaces?.floor?.textureId, 'floor-texture');
+    const wallTex = this.texture(cell.room?.surfaces?.backWall?.textureId ?? kind?.wallTextureId, 'wall-texture');
+    const floorTex = this.texture(cell.room?.surfaces?.floor?.textureId ?? kind?.floorTextureId, 'floor-texture');
     const wallPt = (x: number, h: number) => this.proj.project(id, x, D, h);
     ctx.fillStyle = ws.line;
     const hline = (h: number, color = ws.line) => { const a = wallPt(x0, h), b = wallPt(x1, h); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), Math.round(b.x - a.x), 1); };
@@ -258,6 +328,7 @@ export class WorldRenderer {
     ctx.fillRect(lamp.x - rad, lamp.y - 4, rad * 2, rad * 2); ctx.restore();
     ctx.fillStyle = '#2b2433'; ctx.fillRect(Math.round(lamp.x) - 5, Math.round(lamp.y) - 2, 10, 3);
     ctx.fillStyle = this.pack.lamp; ctx.fillRect(Math.round(lamp.x) - 4, Math.round(lamp.y) + 1, 8, 1);
+    if (this.pack.features?.sconces && cell.width >= 6) this.drawSconces(ctx, cell, H, D);
 
     // Floor plane (z 0..D): the only visible walk plane.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, 0, D), fs.base);
@@ -272,6 +343,35 @@ export class WorldRenderer {
     }
     // Contact shadow where the floor meets the back wall.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, D - 0.18, D), hexA('#000000', 0.18));
+  }
+
+  /** Warm brass wall sconces with light pools on the wall and on the floor below. */
+  private drawSconces(ctx: Ctx, cell: CompiledCell, H: number, D: number) {
+    const id = cell.floorId, warm = this.pack.features?.warmth ?? 0.6;
+    const xs = [0.2, 0.8];
+    const at = (t: number) => this.proj.project(id, cell.x + cell.width * t, D, Math.min(H * 0.55, 2.6));
+    ctx.save();
+    clipQuad(ctx, this.proj.projectFacade(id, cell.x, cell.x + cell.width, D, 0, H));
+    ctx.globalCompositeOperation = 'lighter';
+    for (const t of xs) {
+      const p = at(t);
+      const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 26);
+      g.addColorStop(0, hexA(this.pack.lamp, 0.34 * warm)); g.addColorStop(1, hexA(this.pack.lamp, 0));
+      ctx.fillStyle = g; ctx.fillRect(p.x - 26, p.y - 26, 52, 52);
+    }
+    ctx.restore();
+    for (const t of xs) {
+      const p = at(t);
+      const x = Math.round(p.x), y = Math.round(p.y);
+      ctx.fillStyle = '#6a4a22'; ctx.fillRect(x - 1, y + 1, 3, 3);
+      ctx.fillStyle = '#d9a95b'; ctx.fillRect(x - 2, y - 3, 5, 4);
+      ctx.fillStyle = '#fff1c4'; ctx.fillRect(x - 1, y - 2, 3, 2);
+      const f = this.proj.project(id, cell.x + cell.width * t, D - 0.8);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, 22);
+      g.addColorStop(0, hexA(this.pack.lamp, 0.16 * warm)); g.addColorStop(1, hexA(this.pack.lamp, 0));
+      ctx.fillStyle = g; ctx.fillRect(f.x - 22, f.y - 10, 44, 20); ctx.restore();
+    }
   }
 
   /**
@@ -323,7 +423,9 @@ export class WorldRenderer {
       const p = this.proj.project(cell.floorId, cell.x + col, cell.depth, y);
       ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
     } else {
-      const z = cell.depth - y - entry.footprintH;
+      // Floor decor is authored foreshortened: 16 px wide per tile, 16*rise px per row of depth.
+      const rows = sprite.height / (16 * this.proj.params.rise);
+      const z = cell.depth - y - rows;
       const p = this.proj.project(cell.floorId, cell.x + col, z);
       ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
     }
@@ -371,7 +473,11 @@ export class WorldRenderer {
           out.push({
             floor: fi, key: s.z0, order: 0,
             draw: ctx => {
-              // No cap face: the slab above covers the wall top in a real cutaway.
+              // Lit cap on the cut wall top, so partitions read as solid thick walls.
+              const cap = [this.proj.project(id, col, s.z0, s.h1), this.proj.project(id, col + 1, s.z0, s.h1),
+                this.proj.project(id, col + 1, s.z1, s.h1), this.proj.project(id, col, s.z1, s.h1)];
+              fillQuad(ctx, cap, s.kind === 'closed' ? '#8a6a48' : st.cut);
+              line(ctx, cap[0], cap[1], st.cutLight);
               const front = this.proj.projectFacade(id, col, col + 1, s.z0, s.h0, s.h1);
               fillQuad(ctx, front, s.kind === 'closed' ? '#7a5a3e' : st.cut);
               const a = front[3], b = front[1];
@@ -525,12 +631,58 @@ export class WorldRenderer {
         ctx.fillStyle = pat;
       } else ctx.fillStyle = st.slab;
       ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), slabPx);
-      ctx.fillStyle = st.slabTop; ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), 1);
+      const trim = this.pack.features?.trim;
+      ctx.fillStyle = trim ?? st.slabTop; ctx.fillRect(Math.round(a.x), y, Math.round(b.x - a.x), 1);
+      if (trim) { ctx.fillStyle = trim; ctx.globalAlpha = 0.55; ctx.fillRect(Math.round(a.x), y + slabPx - 3, Math.round(b.x - a.x), 1); ctx.globalAlpha = 1; }
       ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(a.x), y + slabPx - 2, Math.round(b.x - a.x), 2);
       for (let x = x0 + 2; x < x1; x += 4) {
         const p = this.proj.project(f.def.id, x, 0);
         ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(p.x), y + 5, 1, slabPx - 9);
       }
+      if (this.pack.features?.railings) this.drawRailing(ctx, f.def.id, x0, x1);
+      if (this.pack.features?.banners) this.drawBanners(ctx, f.def.id, f.def.wallHeight, x0, x1);
+    }
+  }
+
+  /** Low balcony railing along the cut floor edge, lamp posts at wall columns. */
+  private drawRailing(ctx: Ctx, floorId: string, x0: number, x1: number) {
+    const st = this.pack.structure, trim = this.pack.features?.trim ?? st.cutLight;
+    const left = this.proj.project(floorId, x0, 0, 0.55), right = this.proj.project(floorId, x1, 0, 0.55);
+    const base = this.proj.project(floorId, x0, 0, 0);
+    const yTop = Math.round(left.y), yBase = Math.round(base.y);
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = st.cut;
+    for (let x = Math.round(left.x) + 2; x < right.x; x += 4) ctx.fillRect(x, yTop + 1, 1, yBase - yTop - 1);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = trim; ctx.fillRect(Math.round(left.x), yTop, Math.round(right.x - left.x), 1);
+    ctx.fillStyle = st.slabShadow; ctx.fillRect(Math.round(left.x), yTop + 1, Math.round(right.x - left.x), 1);
+    for (const col of this.compiled.walls.get(floorId)?.keys() ?? []) {
+      const p = this.proj.project(floorId, col + 0.5, 0, 0), top = this.proj.project(floorId, col + 0.5, 0, 1.25);
+      const x = Math.round(p.x);
+      ctx.fillStyle = '#1c1630'; ctx.fillRect(x - 1, Math.round(top.y), 2, Math.round(p.y - top.y));
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(x, top.y - 2, 1, x, top.y - 2, 16);
+      g.addColorStop(0, hexA(this.pack.lamp, 0.45)); g.addColorStop(1, hexA(this.pack.lamp, 0));
+      ctx.fillStyle = g; ctx.fillRect(x - 16, top.y - 18, 32, 32); ctx.restore();
+      ctx.fillStyle = trim; ctx.fillRect(x - 2, Math.round(top.y) - 5, 4, 1);
+      ctx.fillStyle = this.pack.lamp; ctx.fillRect(x - 1, Math.round(top.y) - 4, 3, 3);
+      ctx.fillStyle = '#fff6dc'; ctx.fillRect(x, Math.round(top.y) - 3, 1, 1);
+    }
+  }
+
+  /** Pennants hanging on the outer wall faces of each storey. */
+  private drawBanners(ctx: Ctx, floorId: string, H: number, x0: number, x1: number) {
+    const b = this.pack.features!.banners!;
+    for (const col of [x0, x1 - 1]) {
+      const top = this.proj.project(floorId, col + 0.5, 0, H - 0.4);
+      const x = Math.round(top.x) - 5, y = Math.round(top.y);
+      ctx.fillStyle = b.trim; ctx.fillRect(x - 1, y - 1, 12, 2);
+      ctx.fillStyle = b.cloth; ctx.fillRect(x, y + 1, 10, 22);
+      for (let i = 0; i < 5; i++) { ctx.fillRect(x + i, y + 23 + Math.floor(i / 2), 1, 1); ctx.fillRect(x + 9 - i, y + 23 + Math.floor(i / 2), 1, 1); }
+      ctx.fillStyle = b.trim; ctx.fillRect(x, y + 1, 1, 22); ctx.fillRect(x + 9, y + 1, 1, 22);
+      ctx.fillStyle = b.emblem;
+      for (const [dx, dy] of [[4, 8], [5, 8], [6, 9], [6, 10], [5, 11], [4, 11], [3, 10], [3, 9], [2, 8], [3, 7], [5, 6], [7, 7], [8, 9]]) ctx.fillRect(x + dx, y + dy + 2, 1, 1);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 11, 2, 1);
     }
   }
 

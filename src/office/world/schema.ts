@@ -43,6 +43,8 @@ export interface RoomDef {
   id: string;
   floorId: string;
   name: string;
+  /** Optional second line on the room's name plate. */
+  subtitle?: string;
   /** Freeform preset/category ('office', 'corridor', 'studio', ...). */
   kind: string;
   /** Left interior column in building coordinates. */
