@@ -160,6 +160,14 @@ export class WorldRenderer {
       const g = c.getContext('2d')!;
       g.imageSmoothingEnabled = false;
       g.drawImage(sprite, 0, 0);
+      // Erode the silhouette by 1 px: where the painting came out a touch
+      // smaller than its guide, the cut must not drag wall/floor over an agent.
+      const m = g.getImageData(0, 0, c.width, c.height), a = m.data, W = c.width, H = c.height;
+      const solid = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && a[(y * W + x) * 4 + 3] > 0;
+      const keep = new Uint8Array(W * H);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) keep[y * W + x] = solid(x, y) && solid(x - 1, y) && solid(x + 1, y) && solid(x, y - 1) && solid(x, y + 1) ? 1 : 0;
+      for (let i = 0; i < W * H; i++) if (!keep[i]) a[i * 4 + 3] = 0;
+      g.putImageData(m, 0, 0);
       g.globalCompositeOperation = 'source-in';
       g.drawImage(plate, r.x - x, r.y - y);
       this.slices.set(key, c);
@@ -757,8 +765,10 @@ export class WorldRenderer {
     const sprite = getCachedSprite(data, 1);
     const sit = ch.state === CharacterState.TYPE ? SIT_PX : 0;
     const x = Math.round(feet.x - sprite.width / 2), y = Math.round(feet.y + sit - sprite.height);
-    ctx.fillStyle = 'rgba(0,0,0,0.28)';
-    ctx.fillRect(Math.round(feet.x) - 5, Math.round(feet.y) - 1, 10, 2);
+    // Contact shadow: a soft 2-tone ellipse so agents sit IN the room.
+    const fx = Math.round(feet.x), fy = Math.round(feet.y);
+    ctx.fillStyle = 'rgba(8,4,16,0.22)'; ctx.fillRect(fx - 7, fy - 1, 14, 3); ctx.fillRect(fx - 5, fy - 2, 10, 5);
+    ctx.fillStyle = 'rgba(8,4,16,0.25)'; ctx.fillRect(fx - 4, fy - 1, 8, 3);
     if (selected) {
       const outline = getCachedSprite(getOutlineSprite(data), 1);
       ctx.globalAlpha = 0.9; ctx.drawImage(outline, x - 1, y - 1); ctx.globalAlpha = 1;

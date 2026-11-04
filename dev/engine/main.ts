@@ -542,10 +542,17 @@ window.__engine = {
   roomGuide: (roomId: string) => {
     const cell = scene.compiled.cells.find(x => x.id === roomId)!;
     const r = scene.renderer.plateRect(cell);
+    // Never guide from an existing plate: render the layout itself.
+    const live = ui.kit.checked && kitAssets.images.size ? kitAssets : null;
+    if (live) {
+      const keep = [...live.records].filter(([, rec]) => rec.class !== 'room-plate');
+      scene.renderer.setAssets({ records: new Map(keep), images: new Map(keep.map(([id]) => [id, live.images.get(id)!])) });
+    }
     scene.renderer.render(scene.office, scene.travel, { debug: false, selectedId: null, hoverTile: null, time: 0, hideAgents: true });
     const c = document.createElement('canvas');
     c.width = r.w; c.height = r.h;
     c.getContext('2d')!.drawImage(scene.renderer.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    if (live) scene.renderer.setAssets(live);
     return { rect: r, rise: scene.proj.params.rise, png: c.toDataURL('image/png') };
   },
   resetStats: () => { scene.frameTimes = []; },

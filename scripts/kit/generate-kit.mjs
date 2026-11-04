@@ -75,7 +75,19 @@ for (const { a, k, n, seed } of jobs) {
     enc: kit.vaeTile
       ? { class_type: 'VAEEncodeTiled', inputs: { pixels: ['load', 0], vae: ['ckpt', 2], tile_size: kit.vaeTile, overlap: 64, temporal_size: 64, temporal_overlap: 8 } }
       : { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
-    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: [last, 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
+    // "control": edge lock (T2I-Adapter / ControlNet on a Canny map of the
+    // guide). Silhouettes stay where the engine put them, so denoise can go
+    // high enough to add real detail, and furniture cut back out of a plate
+    // along its guide silhouette matches the painting.
+    ...(kit.control ? {
+      cnet: { class_type: 'ControlNetLoader', inputs: { control_net_name: kit.control.model } },
+      edges: { class_type: 'Canny', inputs: { image: ['load', 0], low_threshold: kit.control.low ?? 0.3, high_threshold: kit.control.high ?? 0.6 } },
+      ctl: { class_type: 'ControlNetApplyAdvanced', inputs: {
+        positive: ['pos', 0], negative: ['neg', 0], control_net: ['cnet', 0], image: ['edges', 0],
+        strength: kit.control.strength, start_percent: 0, end_percent: kit.control.end ?? 1, vae: ['ckpt', 2] } },
+    } : {}),
+    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: [last, 0],
+      positive: kit.control ? ['ctl', 0] : ['pos', 0], negative: kit.control ? ['ctl', 1] : ['neg', 0], latent_image: ['enc', 0] } },
     dec: kit.vaeTile
       ? { class_type: 'VAEDecodeTiled', inputs: { samples: ['ks', 0], vae: ['ckpt', 2], tile_size: kit.vaeTile, overlap: 64, temporal_size: 64, temporal_overlap: 8 } }
       : { class_type: 'VAEDecode', inputs: { samples: ['ks', 0], vae: ['ckpt', 2] } },
@@ -101,7 +113,7 @@ for (const { a, k, n, seed } of jobs) {
   await writeFile(path.join(work, `${tag}.raw.png`), bytes);
   const receipt = {
     assetId: a.assetId, class: a.class, source: 'local-comfyui', comfyui: stats.system.comfyui_version,
-    checkpoint: kit.checkpoint, loras, seed, candidate: n > 1 ? k : undefined, denoise: a.denoise,
+    checkpoint: kit.checkpoint, loras, control: kit.control, seed, candidate: n > 1 ? k : undefined, denoise: a.denoise,
     sampler: kit.sampler, promptVersion: kit.promptVersion, prompt, negative: a.negative ?? kit.negative,
     conditioning: { kind: 'img2img-guide', guide: `${a.assetId}.guide.png`, guideSha256: sha(guide) },
     rawSha256: sha(bytes), rawWidth: bytes.readUInt32BE(16), rawHeight: bytes.readUInt32BE(20),

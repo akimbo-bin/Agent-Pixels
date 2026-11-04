@@ -29,12 +29,18 @@ export interface FurnitureDefinition {
 
 type Painter = (set: (x: number, y: number, c: string) => void, rect: (x: number, y: number, w: number, h: number, c: string) => void, w: number, h: number) => void;
 
-function paint(p: Painter): (w: number, h: number) => SpriteData {
+/** Paint a sprite; with `outline`, every opaque pixel touching transparency takes that colour. */
+function paint(p: Painter, outline?: string): (w: number, h: number) => SpriteData {
   return (w, h) => {
     const px: string[][] = Array.from({ length: h }, () => new Array<string>(w).fill(''));
-    const set = (x: number, y: number, c: string) => { if (x >= 0 && y >= 0 && x < w && y < h) px[y][x] = c; };
-    const rect = (x: number, y: number, rw: number, rh: number, c: string) => { for (let j = 0; j < rh; j++) for (let i = 0; i < rw; i++) set(x + i, y + j, c); };
+    const set = (x: number, y: number, c: string) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < w && y < h) px[y][x] = c; };
+    const rect = (x: number, y: number, rw: number, rh: number, c: string) => { for (let j = 0; j < Math.round(rh); j++) for (let i = 0; i < Math.round(rw); i++) set(x + i, y + j, c); };
     p(set, rect, w, h);
+    if (outline) {
+      const edge = (x: number, y: number) => x < 0 || y < 0 || x >= w || y >= h || !px[y][x];
+      const border = px.map((row, y) => row.map((c, x) => !!c && (edge(x - 1, y) || edge(x + 1, y) || edge(x, y - 1) || edge(x, y + 1))));
+      border.forEach((row, y) => row.forEach((b, x) => { if (b) px[y][x] = outline; }));
+    }
     return px;
   };
 }
@@ -123,13 +129,36 @@ export interface BoxDefinition extends Omit<FurnitureDefinition, 'size' | 'fallb
 
 const topPx = (d: { footprint: { h: number } }, rise: number) => Math.round(d.footprint.h * 16 * rise);
 
-/** Upholstered seat (sofa / armchair) seen from the front: backrest band behind the cushions. */
-const seat = (cloth: string, dark: string, light: string) => (set: (x: number, y: number, c: string) => void, rect: (x: number, y: number, w: number, h: number, c: string) => void, w: number, h: number, top: number) => {
-  const back = Math.round(top * 0.55) + 6;
-  rect(0, 0, w, back, dark); rect(1, 1, w - 2, back - 2, cloth);
-  rect(0, back, w, h - back, cloth); rect(2, back, w - 4, 2, light);
-  rect(0, back - 2, 4, h - back + 2, dark); rect(w - 4, back - 2, 4, h - back + 2, dark);
-  rect(0, h - 3, w, 3, '#2a1210');
+type Pen = (x: number, y: number, c: string) => void;
+type Box = (x: number, y: number, w: number, h: number, c: string) => void;
+
+/**
+ * Upholstered seat seen from the front (sofa / armchair): tufted backrest with
+ * rounded shoulders, rolled arms, separate seat cushions with seams, short legs
+ * with floor showing between them. Real silhouettes matter: a whole-room
+ * painting is edge-locked to these shapes, so a box here paints as a box.
+ */
+const seat = (cloth: string, dark: string, light: string) => (set: Pen, rect: Box, w: number, h: number, top: number) => {
+  const arm = Math.max(3, Math.round(w / 10)), base = h - 2, backH = Math.round(top * 0.65) + 5;
+  // Backrest with rounded shoulders and button tufting.
+  rect(arm - 1, 1, w - 2 * arm + 2, backH, cloth); rect(arm, 0, w - 2 * arm, 1, cloth);
+  for (let y = 3; y < backH - 1; y += 4) for (let x = arm + 2 + ((y / 4) % 2) * 2; x < w - arm - 2; x += 5) { set(x, y, dark); set(x, y - 1, light); }
+  // Seat cushions with seams and a lit front edge.
+  const seatTop = backH, seatFront = Math.round(seatTop + (base - seatTop) * 0.45), n = Math.max(1, Math.round((w - 2 * arm) / 15));
+  rect(arm, seatTop, w - 2 * arm, seatFront - seatTop, light);
+  rect(arm, seatFront, w - 2 * arm, base - seatFront, cloth);
+  for (let i = 1; i < n; i++) { const x = Math.round(arm + ((w - 2 * arm) * i) / n); rect(x, seatTop, 1, base - seatTop, dark); }
+  rect(arm, seatFront, w - 2 * arm, 1, dark);
+  // Rolled arms (round tops, darker inner face).
+  for (const x0 of [0, w - arm]) {
+    rect(x0, backH - 4, arm, base - backH + 4, cloth);
+    rect(x0 + 1, backH - 5, arm - 2, 1, cloth);
+    rect(x0 + (x0 ? 0 : arm - 1), backH - 3, 1, base - backH + 3, dark);
+    rect(x0 + 1, backH - 4, arm - 2, 1, light);
+  }
+  // Skirt and legs; the floor shows between the legs.
+  rect(1, base - 1, w - 2, 1, dark);
+  for (const x of [1, w - 3, ...(w >= 40 ? [Math.round(w / 2) - 1] : [])]) rect(x, base, 2, 2, '#2a1210');
 };
 
 export const BOX_DEFINITIONS: BoxDefinition[] = [
@@ -137,27 +166,49 @@ export const BOX_DEFINITIONS: BoxDefinition[] = [
     id: 'exec-desk', label: 'Executive desk', category: 'desks', isDesk: true, frontH: 16,
     footprint: { w: 4, h: 2, backgroundRows: 1 },
     paint: (set, rect, w, h, top) => {
-      rect(0, 0, w, top, '#80492c'); rect(0, 0, w, 1, '#a8643c'); rect(0, top - 1, w, 1, '#d9a95b');
-      rect(0, top, w, h - top, '#56301c'); rect(4, top + 1, w - 8, 1, '#8c602c');
-      for (const x of [3, w - 21]) { rect(x, top + 3, 18, h - top - 5, '#683a22'); rect(x + 7, top + 6, 4, 1, '#d9a95b'); rect(x + 7, top + 10, 4, 1, '#d9a95b'); }
-      rect(Math.round(top * 0.4), Math.round(top * 0.3), 16, Math.max(3, Math.round(top * 0.35)), '#3c5a46');
+      // Top: bevelled edge, leather blotter, papers, a stack of books, inkwell.
+      rect(0, 0, w, top, '#7a4428'); rect(1, 0, w - 2, 1, '#a8643c'); rect(0, top - 2, w, 1, '#d9a95b'); rect(0, top - 1, w, 1, '#5a3220');
+      for (let y = 2; y < top - 3; y += 3) rect(2, y, w - 4, 1, '#724026');
+      const by = Math.round(top * 0.3), bh = Math.max(3, Math.round(top * 0.4));
+      rect(16, by, 24, bh, '#4a7a5e'); rect(17, by + 1, 22, bh - 2, '#2f5a46');
+      rect(43, by + 1, 8, Math.max(2, bh - 2), '#ece2c8');
+      for (let y = by + 2; y < by + bh - 2; y += 2) rect(44, y, 6, 1, '#b8ad90');
+      const books: Array<[string, number]> = [['#a8323a', 0], ['#2e5aa0', 2], ['#d9a95b', 4]];
+      for (const [c, dy] of books) rect(4, Math.round(top * 0.2) + dy, 8, 2, c);
+      set(55, by + 1, '#14141c'); set(56, by + 1, '#14141c'); set(55, by, '#d9a95b');
+      // Front: carved trim, two drawer pedestals with brass pulls, open kneehole, feet.
+      const ped = 18, foot = h - 3;
+      rect(0, top, w, 3, '#56301c'); rect(2, top + 1, w - 4, 1, '#8c602c');
+      for (const x of [1, w - 1 - ped]) {
+        rect(x, top + 3, ped, foot - top - 3, '#683a22');
+        for (let k = 0; k < 3; k++) {
+          const y = top + 4 + Math.round(((foot - top - 5) * k) / 3);
+          rect(x + 1, y, ped - 2, 1, '#3e2214'); rect(x + ped / 2 - 2, y + 2, 4, 1, '#d9a95b');
+        }
+        rect(x, foot, 3, 3, '#3e2214'); rect(x + ped - 3, foot, 3, 3, '#3e2214');
+      }
+      rect(ped + 1, top + 3, w - 2 * ped - 2, Math.round((foot - top - 3) * 0.55), '#3e2214');
     },
   },
   {
     id: 'velvet-sofa', label: 'Velvet sofa', category: 'misc', frontH: 14,
-    footprint: { w: 3, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#6a1a24', '#c44a54'),
+    footprint: { w: 3, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#5a1420', '#c44a54'),
   },
   {
     id: 'velvet-armchair', label: 'Velvet armchair', category: 'misc', frontH: 14,
-    footprint: { w: 1, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#6a1a24', '#c44a54'),
+    footprint: { w: 1, h: 1, backgroundRows: 0 }, paint: seat('#9a2c38', '#5a1420', '#c44a54'),
   },
   {
     id: 'coffee-table', label: 'Coffee table', category: 'desks', isDesk: true, frontH: 7,
     footprint: { w: 2, h: 1, backgroundRows: 0 },
     paint: (set, rect, w, h, top) => {
-      rect(0, 0, w, top, '#7a4428'); rect(0, top - 1, w, 1, '#d9a95b');
-      rect(1, top, w - 2, 3, '#56301c'); for (const x of [1, w - 4]) rect(x, top + 3, 3, h - top - 3, '#46261a');
-      rect(6, Math.round(top * 0.3), 7, Math.max(2, Math.round(top * 0.3)), '#ece2c8');
+      rect(0, 0, w, top, '#7a4428'); rect(1, 0, w - 2, 1, '#a8643c'); rect(0, top - 2, w, 1, '#d9a95b'); rect(0, top - 1, w, 1, '#5a3220');
+      // A book and a teacup on the top.
+      rect(5, Math.round(top * 0.35), 9, Math.max(2, Math.round(top * 0.3)), '#2e5aa0'); rect(6, Math.round(top * 0.35), 7, 1, '#ece2c8');
+      rect(w - 10, Math.round(top * 0.4), 4, 3, '#ece2c8'); set(w - 6, Math.round(top * 0.4) + 1, '#ece2c8');
+      // Apron and turned legs; floor shows between them.
+      rect(1, top, w - 2, 3, '#56301c'); rect(2, top + 1, w - 4, 1, '#8c602c');
+      for (const x of [2, w - 4]) { rect(x, top + 3, 2, h - top - 3, '#46261a'); rect(x - 1, top + 5, 4, 1, '#46261a'); }
     },
   },
   {
@@ -166,9 +217,12 @@ export const BOX_DEFINITIONS: BoxDefinition[] = [
     paint: (set, rect, w, h) => {
       const cy = 9;
       for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-        const d = Math.hypot(x - 7.5, y - cy); if (d < 6.5) set(x, y, d < 5.5 ? ((x + y) % 5 < 2 ? '#3a8a5a' : '#4682b4') : '#d9a95b');
+        const d = Math.hypot(x - 7.5, y - cy);
+        if (d < 6.5) set(x, y, d < 5.5 ? ((x * 3 + y * 2) % 7 < 3 ? '#3a8a5a' : (x - y > 3 ? '#2e5aa0' : '#4682b4')) : '#d9a95b');
       }
-      rect(7, cy + 7, 2, h - cy - 10, '#d9a95b'); rect(3, h - 3, 10, 3, '#8c602c');
+      set(5, cy - 3, '#a8d8f0'); set(6, cy - 4, '#a8d8f0');
+      rect(7, cy + 7, 2, h - cy - 10, '#d9a95b'); rect(6, cy + 7, 4, 1, '#d9a95b');
+      rect(3, h - 3, 10, 2, '#8c602c'); rect(2, h - 1, 2, 1, '#8c602c'); rect(12, h - 1, 2, 1, '#8c602c');
     },
   },
 ];
@@ -180,7 +234,7 @@ function boxToDefinition(b: BoxDefinition, rise: number): FurnitureDefinition {
   const size = { w: b.footprint.w * 16, h: b.frontH + top };
   return {
     ...b, size, surfaceY: b.isDesk ? Math.round(top / 2) : undefined,
-    fallback: paint((set, rect, w, h) => b.paint(set, rect, w, h, top)),
+    fallback: paint((set, rect, w, h) => b.paint(set, rect, w, h, top), '#1c0e0a'),
   };
 }
 
