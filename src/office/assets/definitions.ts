@@ -98,10 +98,14 @@ export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
   },
   {
     id: 'desk-monitor', label: 'Desk monitor', category: 'electronics', onSurfaces: true,
+    light: { color: '#7aa6ff', radius: 22, y: 6 },
     footprint: { w: 1, h: 1, backgroundRows: 0 }, size: { w: 16, h: 16 },
+    // Turned toward a sitter on its LEFT: casing and back toward the viewer, the lit
+    // screen seen edge-on. Place it beside the sitter (desk end), not in front of them.
     fallback: paint((set, rect) => {
-      rect(1, 1, 14, 10, '#2a2a36'); rect(2, 2, 12, 8, '#5a7ad0'); rect(3, 3, 6, 1, '#b9d0ff'); rect(3, 5, 9, 1, '#8aa8f0');
-      rect(7, 11, 2, 3, '#3a3a46'); rect(4, 14, 8, 2, '#2a2a36');
+      rect(6, 1, 8, 10, '#2e2e3c'); rect(7, 2, 6, 8, '#3a3a4c'); rect(8, 3, 4, 1, '#4a4a5e');
+      rect(2, 2, 4, 9, '#6a90f0'); rect(2, 2, 1, 9, '#b9d0ff'); rect(3, 4, 2, 1, '#cfe0ff'); rect(3, 6, 2, 1, '#9ab8ff');
+      rect(9, 11, 2, 3, '#3a3a46'); rect(6, 14, 8, 2, '#2a2a36');
     }, '#14141c'),
   },
   {

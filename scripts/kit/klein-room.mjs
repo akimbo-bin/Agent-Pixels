@@ -76,6 +76,7 @@ print('sheet', f'{work}/candidates.png')
   const packSpec = {
     packId: spec.packId, name: spec.name, stylePackId: spec.stylePackId, tilePx: spec.tilePx ?? 16,
     paletteColors: spec.paletteColors ?? 128, paletteAnchors: spec.paletteAnchors ?? [],
+    shellColors: spec.shellColors, spriteColors: spec.spriteColors,
     shell: { ...spec.shell, render: `shell.c${pick.shell ?? 0}.png`, guide: 'shell.guide' },
     furniture: spec.furniture.map(f => ({ ...f, render: `${f.assetId}.c${pick[f.assetId] ?? 0}.png`, guide: `sprite-${pieceType(f)}.guide` })),
   };

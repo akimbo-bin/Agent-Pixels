@@ -56,6 +56,12 @@ export interface StyleFeatures {
   warmth?: number;
   /** Ambient occlusion in room corners and under the ceiling (0..1). */
   occlusion?: number;
+  /**
+   * Scene lighting: the frame is multiplied by a light map. Ambient colours are
+   * multipliers (white = unlit change); lights push toward white within their room.
+   * Painted rooms already carry baked light, so they get a gentler ambient.
+   */
+  lighting?: { exterior: string; room: string; paintedRoom: string; bloom: number };
 }
 
 export const FALLBACK_STYLE: StylePack = {
@@ -155,6 +161,7 @@ export const NEBULA_STYLE: StylePack = {
   },
   features: {
     sconces: true, railings: true, groundDecor: 'forest', trim: '#d9a95b', warmth: 0.85, occlusion: 0.9,
+    lighting: { exterior: '#6f6496', room: '#9a8cc0', paintedRoom: '#d9d0ee', bloom: 0.35 },
     banners: { cloth: '#4a2a86', trim: '#d9a95b', emblem: '#b9a4ff' },
   },
 };

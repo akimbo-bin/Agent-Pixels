@@ -99,6 +99,8 @@ interface Item { floor: number; key: number; order: number; draw: () => void }
 interface Surface { floorId: string; key: number; y: number }
 
 type Ctx = CanvasRenderingContext2D;
+/** A light source in buffer pixels; `clip` is the room it lights (walls stop light). */
+interface Light { x: number; y: number; color: string; radius: number; clip?: { x: number; y: number; w: number; h: number } }
 
 /** Transparent rows under a sprite's lowest opaque pixel (legacy art is padded). */
 const bottomPad = new WeakMap<object, number>();
@@ -149,6 +151,7 @@ export class WorldRenderer {
     this.canvas.height = proj.height;
     this.bg = this.fg = null;
     this.sky = null;
+    this.lightmap = null;
     this.slices.clear();
     this.walls = this.buildWallSegments();
   }
@@ -158,6 +161,7 @@ export class WorldRenderer {
     if (pack === this.pack) return;
     this.pack = pack;
     this.bg = this.fg = this.sky = null;
+    this.lightmap = null;
     this.walls = this.buildWallSegments();
   }
 
@@ -165,6 +169,7 @@ export class WorldRenderer {
   setAssets(assets: RenderAssets | null) {
     this.assets = assets;
     this.bg = this.fg = this.sky = null;
+    this.lightmap = null;
     this.slices.clear();
   }
 
@@ -277,7 +282,7 @@ export class WorldRenderer {
     const floorIndex = new Map(this.compiled.floors.map((f, i) => [f.def.id, i]));
     for (const w of this.walls) items.push({ ...w, draw: () => w.draw(ctx) });
     const surfaces = this.deskSurfaces();
-    const lights: Array<{ x: number; y: number; color: string; radius: number }> = [];
+    const lights: Light[] = this.pack.features?.lighting ? this.fixtureLights() : [];
     for (const f of opts.hideFurniture ? [] : this.compiled.layout.furniture) {
       const it = this.furnitureItem(ctx, f.uid, f.type, f.col, f.row, floorIndex, surfaces.get(`${f.col},${f.row}`), lights);
       if (it) items.push(it);
@@ -290,8 +295,10 @@ export class WorldRenderer {
     }
     items.sort((a, b) => a.floor - b.floor || b.key - a.key || a.order - b.order);
     for (const it of items) it.draw();
-    this.drawLights(ctx, lights);
+    const lit = !!this.pack.features?.lighting;
+    if (!lit) this.drawLights(ctx, lights);
     ctx.drawImage(this.fg, 0, 0);
+    if (lit) this.applyLighting(ctx, lights);
     if (opts.debug) this.drawDebug(ctx, office, opts);
     if (opts.ghost) this.drawGhost(ctx, opts.ghost);
     for (const hl of opts.highlight ?? []) {
@@ -768,7 +775,7 @@ export class WorldRenderer {
   }
 
   private furnitureItem(ctx: Ctx, uid: string, type: string, col: number, row: number, floorIndex: Map<string, number>,
-    surface: Surface | undefined, lights: Array<{ x: number; y: number; color: string; radius: number }>): Item | null {
+    surface: Surface | undefined, lights: Light[]): Item | null {
     const entry = getCatalogEntry(type);
     const floor = this.compiled.floorOfRow(row);
     if (!entry || !floor) return null;
@@ -796,7 +803,12 @@ export class WorldRenderer {
     const roomPlate = cell?.kind === 'room' ? this.plate(cell) : null;
     const painted = roomPlate && this.assets?.records.get(cell!.room!.surfaces!.plate!.textureId!)?.room?.withFurniture !== false;
     const plate = painted ? roomPlate : null;
-    if (def?.light && !plate) lights.push({ x: x + sprite.width / 2, y: y + def.light.y * this.k, color: def.light.color, radius: def.light.radius * this.k });
+    // With a lighting model every emitter lights the scene (painted rooms included); without one,
+    // painted rooms keep only their baked light.
+    if (def?.light && (!plate || this.pack.features?.lighting)) lights.push({
+      x: x + sprite.width / 2, y: y + def.light.y * this.k, color: def.light.color, radius: def.light.radius * this.k,
+      clip: cell?.kind === 'room' ? this.plateRect(cell) : undefined,
+    });
     return {
       floor: floorIndex.get(fid)!, key, order: 1,
       draw: () => {
@@ -819,7 +831,87 @@ export class WorldRenderer {
   }
 
   /** Additive light pools from emitting furniture (lamps), over furniture and agents. */
-  private drawLights(ctx: Ctx, lights: Array<{ x: number; y: number; color: string; radius: number }>) {
+  /**
+   * Built-in fixtures of plain (unpainted) rooms as light sources: the ceiling
+   * lamp and, with the style's sconces, the two wall sconces.
+   */
+  private fixtureLights(): Light[] {
+    const out: Light[] = [];
+    for (const cell of this.compiled.cells) {
+      if (cell.kind !== 'room' || this.plate(cell)) continue;
+      const H = this.floor(cell.floorId).def.wallHeight, D = cell.depth, clip = this.plateRect(cell);
+      const c = this.proj.project(cell.floorId, cell.x + cell.width / 2, D, H - 0.3);
+      out.push({ x: c.x, y: c.y + this.T, color: this.pack.lamp, radius: Math.min(cell.width, 6) * this.T * 0.45, clip });
+      if (this.pack.features?.sconces && cell.width >= 6) for (const t of [0.2, 0.8]) {
+        const p = this.proj.project(cell.floorId, cell.x + cell.width * t, D, Math.min(H * 0.55, 2.6));
+        out.push({ x: p.x, y: p.y, color: this.pack.lamp, radius: this.T * 1.3, clip });
+      }
+    }
+    // Balcony lamp posts at the wall columns of every cut floor edge.
+    if (this.pack.features?.railings) for (const f of this.compiled.floors) for (const col of this.compiled.walls.get(f.def.id)?.keys() ?? []) {
+      const p = this.proj.project(f.def.id, col + 0.5, 0, 1.25);
+      out.push({ x: p.x, y: p.y - 3 * this.k, color: this.pack.lamp, radius: this.T * 1.1 });
+    }
+    return out;
+  }
+
+  private lightmap: HTMLCanvasElement | null = null;
+  private maskedLight: HTMLCanvasElement | null = null;
+  private lightSig = '';
+
+  /**
+   * Multiply the frame by a light map: ambient everywhere (darker outside and in
+   * plain rooms, gentle in painted rooms), lifted toward white around each light
+   * and clipped to the light's room. Agents and furniture are lit by the same
+   * map. A soft additive bloom marks the sources themselves.
+   */
+  private applyLighting(ctx: Ctx, lights: Light[]) {
+    const L = this.pack.features!.lighting!;
+    const sig = lights.map(l => `${l.x | 0},${l.y | 0},${l.radius},${l.color}`).join(';');
+    if (!this.lightmap || sig !== this.lightSig || this.lightmap.width !== this.canvas.width || this.lightmap.height !== this.canvas.height) {
+      const m = this.lightmap ?? document.createElement('canvas');
+      m.width = this.canvas.width; m.height = this.canvas.height;
+      const g = m.getContext('2d')!;
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = L.exterior; g.fillRect(0, 0, m.width, m.height);
+      for (const cell of this.compiled.cells) {
+        if (cell.kind !== 'room') continue;
+        const r = this.plateRect(cell);
+        g.fillStyle = this.plate(cell) ? L.paintedRoom : L.room;
+        g.fillRect(r.x, r.y, r.w, r.h);
+      }
+      g.globalCompositeOperation = 'lighter';
+      for (const l of lights) {
+        g.save();
+        if (l.clip) { g.beginPath(); g.rect(l.clip.x, l.clip.y, l.clip.w, l.clip.h); g.clip(); }
+        const R = l.radius * 2.6;
+        const gr = g.createRadialGradient(l.x, l.y, 1, l.x, l.y, R);
+        gr.addColorStop(0, hexA(l.color, 0.75)); gr.addColorStop(0.4, hexA(l.color, 0.32)); gr.addColorStop(1, hexA(l.color, 0));
+        g.fillStyle = gr; g.fillRect(l.x - R, l.y - R, 2 * R, 2 * R);
+        g.restore();
+      }
+      this.lightmap = m; this.lightSig = sig;
+    }
+    // Multiply over transparent pixels would paint the light map itself: mask it to the building first.
+    const masked = this.maskedLight ??= document.createElement('canvas');
+    if (masked.width !== this.canvas.width || masked.height !== this.canvas.height) { masked.width = this.canvas.width; masked.height = this.canvas.height; }
+    const mg = masked.getContext('2d')!;
+    mg.globalCompositeOperation = 'copy'; mg.drawImage(this.lightmap, 0, 0);
+    mg.globalCompositeOperation = 'destination-in'; mg.drawImage(this.canvas, 0, 0);
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(masked, 0, 0);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const l of lights) {
+      const R = l.radius * 0.7;
+      const gr = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, R);
+      gr.addColorStop(0, hexA(l.color, L.bloom)); gr.addColorStop(1, hexA(l.color, 0));
+      ctx.fillStyle = gr; ctx.fillRect(l.x - R, l.y - R, 2 * R, 2 * R);
+    }
+    ctx.restore();
+  }
+
+  private drawLights(ctx: Ctx, lights: Light[]) {
     if (!lights.length) return;
     const warm = this.pack.features?.warmth ?? 0.6;
     ctx.save();

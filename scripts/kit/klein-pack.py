@@ -52,6 +52,32 @@ def grow(mask, n):
     return out
 
 
+def pixelize(native, opaque, palette, max_colors, passes=2):
+    """Painted cells -> pixel art: each asset keeps only its `max_colors` most-used
+    colours of the shared palette (clean clusters instead of speckle, still one
+    palette for the room), then majority smoothing: a pixel unlike 3+ agreeing
+    neighbours takes their colour (kills jaggies, keeps 1 px lines)."""
+    idx = nearest(native.astype(np.uint8), palette)
+    used, counts = np.unique(idx[opaque], return_counts=True)
+    keep = used[np.argsort(-counts)[:max_colors]]
+    if len(keep) < len(used):
+        sub = palette[keep].astype(np.int32)
+        flat = palette[idx].reshape(-1, 3).astype(np.int32)
+        d = ((flat[:, None, :] - sub[None, :, :]) ** 2).sum(-1)
+        idx = keep[d.argmin(1)].reshape(idx.shape)
+    h, w = idx.shape
+    for _ in range(passes):
+        p = np.pad(idx, 1, mode='edge')
+        nb = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
+        out = idx.copy()
+        for k in range(4):
+            agree = (nb == nb[k]).sum(0)
+            flip = (agree >= 3) & (nb[k] != idx) & opaque
+            out[flip] = nb[k][flip]
+        idx = out
+    return clean(idx, opaque)
+
+
 def palette_from(pixels, anchors, n):
     pool = pixels.reshape(-1, 3).astype(np.uint8)
     if anchors:
@@ -118,13 +144,13 @@ def main():
                         'licenseStatus': 'review-required', 'reviewStatus': 'candidate', 'sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
                         'provenance': {**receipt, 'postProcess': {'script': 'scripts/kit/klein-pack.py', 'cells': 'median', 'paletteColors': spec['paletteColors']}}})
 
-    idx = clean(nearest(shell_native.astype(np.uint8), palette), np.ones((H, W), bool))
+    idx = pixelize(shell_native, np.ones((H, W), bool), palette, spec.get('shellColors', 40))
     rgba = np.dstack([palette[idx].astype(np.uint8), np.full((H, W), 255, np.uint8)])
     r = sh['room']
     write(sh['assetId'], rgba, {'class': 'room-plate', 'alphaMode': 'opaque', 'collision': 'none', 'projection': 'dollhouse-cutaway',
                                 'room': {'width': r[0], 'wallHeight': r[1], 'depth': r[2], 'rise': sh['rise'], 'withFurniture': False}}, sh['render'])
     for f, native, opaque, fw, fh in pieces:
-        idx = clean(nearest(native.astype(np.uint8), palette), opaque)
+        idx = pixelize(native, opaque, palette, spec.get('spriteColors', 16))
         rgba = np.dstack([palette[idx].astype(np.uint8), np.where(opaque, 255, 0).astype(np.uint8)])
         write(f['assetId'], rgba, {'class': 'furniture-sprite', 'alphaMode': 'cutout', 'collision': 'solid', 'projection': 'dollhouse-cutaway',
                                    'footprint': {'w': f['footprint'][0], 'h': f['footprint'][1], 'backgroundRows': f['backgroundRows']},

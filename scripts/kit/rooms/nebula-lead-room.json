@@ -127,5 +127,7 @@
     "exec-lamp": 1,
     "potted-fig": 0,
     "desk-monitor": 2
-  }
+  },
+  "shellColors": 64,
+  "spriteColors": 20
 }

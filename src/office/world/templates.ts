@@ -25,11 +25,14 @@ const room = (id: string, floorId: string, name: string, kind: string, x: number
     surfaces: { backWall: { material: wall ?? 'plaster' }, floor: { material: floor ?? 'wood' } } });
 
 /** Desk facing the viewer with a chair behind it: the agent sits facing out. */
-/** A side-on workstation: chair, then the desk directly in front of the sitter, monitor on the desk. */
+/**
+ * A side-on workstation: chair, the desk directly in front of the sitter, and
+ * the monitor at the desk's right end turned toward them (not in front of their face).
+ */
 function workstation(out: FurnitureDef[], roomId: string, id: string, col: number, row = 0): string {
   out.push({ id: `${id}-chair`, roomId, assetId: 'office-chair', col: col + 1, row });
   out.push({ id: `${id}-desk`, roomId, assetId: 'office-desk', col, row: row + 1 });
-  out.push({ id: `${id}-pc`, roomId, assetId: 'desk-monitor', col: col + 1, row: row + 1 });
+  out.push({ id: `${id}-pc`, roomId, assetId: 'desk-monitor', col: col + 2, row: row + 1 });
   return `${id}-chair`;
 }
 const item = (id: string, roomId: string, assetId: string, col: number, row: number): FurnitureDef => ({ id, roomId, assetId, col, row });

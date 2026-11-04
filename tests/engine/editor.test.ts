@@ -23,7 +23,7 @@ describe('furniture editing', () => {
   test('a monitor can be nudged freely on its desk', () => {
     const e = new WorldEditor(twoFloorOffice());
     const pc = at(e, 'wsa-pc');
-    const r = e.moveFurniture('wsa-pc', pc.roomId, pc.col + 1, pc.row, { x: 0.375, y: 0.25 });
+    const r = e.moveFurniture('wsa-pc', pc.roomId, pc.col - 1, pc.row, { x: 0.375, y: 0.25 });
     assert.ok(r.ok);
     assert.deepEqual(at(e, 'wsa-pc').offset, { x: 0.375, y: 0.25 });
     // Snapping back to a whole tile clears the offset.
