@@ -12,6 +12,10 @@ assert.ok(/^http:\/\/127\.0\.0\.1:\d+$/.test(origin), 'ComfyUI must be addressed
 const [kitPath, work, ...only] = process.argv.slice(2);
 const kit = JSON.parse(await readFile(kitPath, 'utf8'));
 const MIN_FREE_VRAM = 3.2e9;
+// COMFY_CPU=1 targets a CPU-only ComfyUI (started with --cpu): no VRAM check,
+// and a longer per-job timeout since a CPU step takes seconds, not milliseconds.
+const cpu = process.env.COMFY_CPU === '1';
+const JOB_TIMEOUT_MS = (cpu ? 20 : 5) * 60 * 1000;
 
 const get = async p => {
   const r = await fetch(origin + p, { signal: AbortSignal.timeout(15000) });
@@ -28,8 +32,10 @@ for (const a of kit.assets) {
   const stats = await get('/system_stats');
   const queue = await get('/queue');
   assert.equal(queue.queue_running.length + queue.queue_pending.length, 0, 'ComfyUI queue is busy; refusing to contend');
-  const free = stats.devices[0].vram_free;
-  assert.ok(free > MIN_FREE_VRAM, `only ${(free / 1e9).toFixed(1)} GB VRAM free; refusing to start`);
+  const device = stats.devices[0];
+  const free = device.vram_free;
+  if (cpu) assert.equal(device.type, 'cpu', 'COMFY_CPU=1 but this ComfyUI is not running with --cpu');
+  else assert.ok(free > MIN_FREE_VRAM, `only ${(free / 1e9).toFixed(1)} GB VRAM free; refusing to start`);
 
   const guide = await readFile(path.join(work, `${a.assetId}.guide.png`));
   const form = new FormData();
@@ -58,7 +64,7 @@ for (const a of kit.assets) {
   const queued = await res.json();
   if (!res.ok || !queued.prompt_id) throw Error('rejected: ' + JSON.stringify(queued).slice(0, 800));
   let image;
-  while (Date.now() - started < 5 * 60 * 1000) {
+  while (Date.now() - started < JOB_TIMEOUT_MS) {
     await new Promise(r => setTimeout(r, 1500));
     const rec = (await get('/history/' + queued.prompt_id))[queued.prompt_id];
     if (!rec) continue;
@@ -78,7 +84,7 @@ for (const a of kit.assets) {
     conditioning: { kind: 'img2img-guide', guide: `${a.assetId}.guide.png`, guideSha256: sha(guide) },
     rawSha256: sha(bytes), rawWidth: bytes.readUInt32BE(16), rawHeight: bytes.readUInt32BE(20),
     generatedAt: new Date().toISOString(), elapsedSeconds: Math.round((Date.now() - started) / 1000),
-    vramFreeAtStartGB: +(free / 1e9).toFixed(2),
+    device: device.type, vramFreeAtStartGB: cpu ? null : +(free / 1e9).toFixed(2),
   };
   await writeFile(path.join(work, `${a.assetId}.receipt.json`), JSON.stringify(receipt, null, 2));
   console.log(`generated ${a.assetId} in ${receipt.elapsedSeconds}s`);
