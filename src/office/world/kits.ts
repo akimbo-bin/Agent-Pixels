@@ -61,16 +61,17 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
   replaceFurniture: ['lead-desk', 'lead-pc', 'lead-library', 'lead-plant'],
   replaceDecor: ['lead-art'],
   furniture: [
-    { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
-    { id: 'exec-pc', assetId: 'desk-monitor', col: 6, row: 2 },
+    // Directly in front of the Lead's chair (col 5, row 0).
+    { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 1 },
+    { id: 'exec-pc', assetId: 'desk-monitor', col: 6, row: 1 },
     { id: 'exec-sofa', assetId: 'velvet-sofa', col: 0, row: 2 },
     { id: 'exec-coffee', assetId: 'coffee-table', col: 0, row: 4 },
     { id: 'exec-arm-l', assetId: 'velvet-armchair', col: 3, row: 5 },
     { id: 'exec-arm-r', assetId: 'velvet-armchair', col: 8, row: 5 },
     { id: 'exec-globe', assetId: 'brass-globe', col: 9, row: 2 },
-    { id: 'exec-lamp-l', assetId: 'exec-lamp', col: 3, row: 1 },
-    { id: 'exec-lamp-r', assetId: 'exec-lamp', col: 8, row: 1 },
-    { id: 'exec-plant', assetId: 'potted-fig', col: 10, row: 1 },
+    { id: 'exec-lamp-l', assetId: 'exec-lamp', col: 2, row: 0 },
+    { id: 'exec-lamp-r', assetId: 'exec-lamp', col: 9, row: 0 },
+    { id: 'exec-plant', assetId: 'potted-fig', col: 10, row: 2 },
   ],
   // The rug is painted into the shell (its guide was rendered with this decor in place).
   decor: [{ id: 'exec-rug', assetId: 'galaxy-rug', attachment: 'floor', col: 3, y: 2 }],

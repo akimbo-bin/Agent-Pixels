@@ -25,10 +25,11 @@ const room = (id: string, floorId: string, name: string, kind: string, x: number
     surfaces: { backWall: { material: wall ?? 'plaster' }, floor: { material: floor ?? 'wood' } } });
 
 /** Desk facing the viewer with a chair behind it: the agent sits facing out. */
+/** A side-on workstation: chair, then the desk directly in front of the sitter, monitor on the desk. */
 function workstation(out: FurnitureDef[], roomId: string, id: string, col: number, row = 0): string {
-  out.push({ id: `${id}-chair`, roomId, assetId: 'WOODEN_CHAIR_FRONT', col: col + 1, row });
-  out.push({ id: `${id}-desk`, roomId, assetId: 'DESK_FRONT', col, row: row + 2 });
-  out.push({ id: `${id}-pc`, roomId, assetId: 'PC_BACK', col: col + 1, row: row + 2 });
+  out.push({ id: `${id}-chair`, roomId, assetId: 'office-chair', col: col + 1, row });
+  out.push({ id: `${id}-desk`, roomId, assetId: 'office-desk', col, row: row + 1 });
+  out.push({ id: `${id}-pc`, roomId, assetId: 'desk-monitor', col: col + 1, row: row + 1 });
   return `${id}-chair`;
 }
 const item = (id: string, roomId: string, assetId: string, col: number, row: number): FurnitureDef => ({ id, roomId, assetId, col, row });
@@ -96,7 +97,7 @@ export function twoFloorOffice(): OfficeWorld {
   );
   const rec = workstation(w.furniture, 'reception', 'rec', 2);
   const ws1 = workstation(w.furniture, 'workshop', 'wsa', 2);
-  const ws2 = workstation(w.furniture, 'workshop', 'wsb', 8);
+  const ws2 = workstation(w.furniture, 'workshop', 'wsb', 9);
   const lead = workstation(w.furniture, 'lead', 'lead', 2);
   w.furniture.push(
     item('rec-plant', 'reception', 'PLANT_2', 0, 4),

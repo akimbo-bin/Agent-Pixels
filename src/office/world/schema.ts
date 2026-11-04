@@ -106,6 +106,11 @@ export interface FurnitureDef {
   assetId: string;
   col: number;
   row: number;
+  /**
+   * Visual nudge in tiles (x along the room, y toward the viewer), for items
+   * that don't block agents (things on desks). Collision stays on col/row.
+   */
+  offset?: { x: number; y: number };
 }
 
 export type DecorAttachment = 'back-wall' | 'floor';

@@ -23,6 +23,10 @@ export interface RenderOptions {
   time: number;
   /** Render the building without agents (used to author room-plate guides). */
   hideAgents?: boolean;
+  /** Editor outlines (hover, selection). */
+  highlight?: Highlight[];
+  /** Editor drag preview. */
+  ghost?: Ghost | null;
   /** Without movable furniture: a room-SHELL guide (furniture is painted as separate sprites). */
   hideFurniture?: boolean;
 }
@@ -42,7 +46,52 @@ export interface Backdrop {
 
 export interface RoomLabel { text: string; subtitle?: string; x: number; y: number; cellId: string }
 /** Screen-space bounds of drawn entities from the last frame (for hit testing). */
-export interface Hit { kind: 'agent' | 'furniture'; id: string; x: number; y: number; w: number; h: number }
+export interface Hit {
+  kind: 'agent' | 'furniture' | 'decor'; id: string; x: number; y: number; w: number; h: number;
+  /** The drawn sprite: picking tests its pixels, highlights trace its outline. */
+  sprite?: HTMLCanvasElement;
+}
+
+/** An editor highlight: outline the hit with this id in a colour. */
+export interface Highlight { kind: Hit['kind']; id: string; color: string }
+
+/** A drag preview: the item drawn where it would land, tinted by validity. */
+export interface Ghost {
+  kind: 'furniture' | 'decor'; type: string; floorId: string; valid: boolean;
+  /** furniture: absolute col/row + offset; decor: absolute x and wall height (back-wall) or depth z (floor). */
+  col: number; row: number; offset?: { x: number; y: number };
+  attachment?: 'back-wall' | 'floor'; x?: number; h?: number; z?: number; depth?: number;
+}
+
+const alphaCache = new WeakMap<HTMLCanvasElement, Uint8ClampedArray>();
+/** Is the sprite opaque at (x, y) or within 1 px of it (thin lamps stay grabbable)? */
+function opaqueNear(c: HTMLCanvasElement, x: number, y: number): boolean {
+  let a = alphaCache.get(c);
+  if (!a) { a = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data; alphaCache.set(c, a); }
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    const px = Math.floor(x) + dx, py = Math.floor(y) + dy;
+    if (px >= 0 && py >= 0 && px < c.width && py < c.height && a[(py * c.width + px) * 4 + 3] > 0) return true;
+  }
+  return false;
+}
+
+const outlineCache = new WeakMap<HTMLCanvasElement, Map<string, HTMLCanvasElement>>();
+/** A k-px ring around the sprite's opaque pixels, in one colour. */
+function outlineOf(src: HTMLCanvasElement, color: string, k: number): HTMLCanvasElement {
+  let byColor = outlineCache.get(src);
+  if (!byColor) { byColor = new Map(); outlineCache.set(src, byColor); }
+  const key = color + k;
+  let c = byColor.get(key);
+  if (!c) {
+    c = document.createElement('canvas'); c.width = src.width + 2 * k; c.height = src.height + 2 * k;
+    const g = c.getContext('2d')!;
+    for (const [dx, dy] of [[-k, 0], [k, 0], [0, -k], [0, k], [-k, -k], [k, k], [-k, k], [k, -k]]) g.drawImage(src, k + dx, k + dy);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
+    g.globalCompositeOperation = 'destination-out'; g.drawImage(src, k, k);
+    byColor.set(key, c);
+  }
+  return c;
+}
 
 /** One depth-sorted drawable in the physical layer (layer 5). */
 interface Item { floor: number; key: number; order: number; draw: () => void }
@@ -80,6 +129,8 @@ export class WorldRenderer {
   private fg: HTMLCanvasElement | null = null;
   /** Entities in draw order from the last frame; later entries are on top. */
   hits: Hit[] = [];
+  /** Decor is drawn into the cached background; its hit boxes are kept with it. */
+  private decorHits: Hit[] = [];
   private walls: Array<Omit<Item, 'draw'> & { draw: (ctx: Ctx) => void }> = [];
   private assets: RenderAssets | null = null;
   private sky: Backdrop | null = null;
@@ -216,12 +267,12 @@ export class WorldRenderer {
     ctx.imageSmoothingEnabled = false;
     // The buffer is transparent outside the building (the backdrop shows through).
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.bg ??= this.layer(c => this.drawBackground(c));
+    if (!this.bg) { this.decorHits = []; this.bg = this.layer(c => this.drawBackground(c)); }
     this.fg ??= this.layer(c => this.drawForeground(c));
     ctx.drawImage(this.bg, 0, 0);
     for (const e of this.compiled.elevators) this.drawCabin(ctx, e, office, travel, opts);
 
-    this.hits = [];
+    this.hits = [...this.decorHits];
     const items: Item[] = [];
     const floorIndex = new Map(this.compiled.floors.map((f, i) => [f.def.id, i]));
     for (const w of this.walls) items.push({ ...w, draw: () => w.draw(ctx) });
@@ -242,6 +293,11 @@ export class WorldRenderer {
     this.drawLights(ctx, lights);
     ctx.drawImage(this.fg, 0, 0);
     if (opts.debug) this.drawDebug(ctx, office, opts);
+    if (opts.ghost) this.drawGhost(ctx, opts.ghost);
+    for (const hl of opts.highlight ?? []) {
+      const h = this.hits.find(x => x.kind === hl.kind && x.id === hl.id);
+      if (h?.sprite) ctx.drawImage(outlineOf(h.sprite, hl.color, this.k), h.x - this.k, h.y - this.k);
+    }
   }
 
   // ── geometry helpers ─────────────────────────────────────────
@@ -370,7 +426,8 @@ export class WorldRenderer {
     for (const d of this.compiled.world.decor) {
       const cell = this.compiled.cells.find(c => c.id === d.roomId);
       if (cell && this.plate(cell)) continue; // painted into the plate
-      this.drawDecor(ctx, d.roomId, d.assetId, d.attachment, d.col, d.y);
+      const hit = this.drawDecor(ctx, d.roomId, d.assetId, d.attachment, d.col, d.y);
+      if (hit) this.decorHits.push({ ...hit, kind: 'decor', id: d.id });
     }
   }
 
@@ -592,18 +649,40 @@ export class WorldRenderer {
   private drawDecor(ctx: Ctx, roomId: string, assetId: string, attachment: 'back-wall' | 'floor', col: number, y: number) {
     const cell = this.compiled.cells.find(c => c.id === roomId);
     const entry = getCatalogEntry(assetId);
-    if (!cell || !entry) return;
+    if (!cell || !entry) return null;
     const sprite = getCachedSprite(entry.sprite, this.artScale(assetId));
-    if (attachment === 'back-wall') {
-      const p = this.proj.project(cell.floorId, cell.x + col, cell.depth, y);
-      ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
+    const p = this.decorAnchor(cell.floorId, cell.x + col, cell.depth, attachment, y, sprite.height);
+    const x = Math.round(p.x), top = Math.round(p.y - sprite.height);
+    ctx.drawImage(sprite, x, top);
+    return { x, y: top, w: sprite.width, h: sprite.height, sprite };
+  }
+
+  /** Bottom-left screen point of a decor sprite. back-wall: y = height on the wall; floor: y = rows from the back. */
+  private decorAnchor(floorId: string, x: number, depth: number, attachment: 'back-wall' | 'floor', y: number, spriteH: number) {
+    if (attachment === 'back-wall') return this.proj.project(floorId, x, depth, y);
+    // Floor decor is authored foreshortened: one tile wide per tile, tile*rise px per row of depth.
+    const rows = spriteH / (this.T * this.proj.params.rise);
+    return this.proj.project(floorId, x, depth - y - rows);
+  }
+
+  /** Editor drag preview: footprint tint plus the sprite where it would land. */
+  private drawGhost(ctx: Ctx, g: Ghost) {
+    const entry = getCatalogEntry(g.type);
+    if (!entry) return;
+    const sprite = getCachedSprite(entry.sprite, this.artScale(g.type));
+    const tint = g.valid ? 'rgba(80,255,140,0.35)' : 'rgba(255,80,80,0.45)';
+    let x: number, y: number;
+    if (g.kind === 'decor') {
+      const p = this.decorAnchor(g.floorId, g.x!, g.depth!, g.attachment!, g.attachment === 'back-wall' ? g.h! : g.z!, sprite.height);
+      x = Math.round(p.x); y = Math.round(p.y - sprite.height);
     } else {
-      // Floor decor is authored foreshortened: one tile wide per tile, tile*rise px per row of depth.
-      const rows = sprite.height / (this.T * this.proj.params.rise);
-      const z = cell.depth - y - rows;
-      const p = this.proj.project(cell.floorId, cell.x + col, z);
-      ctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height));
+      const zf = this.compiled.zOfRow(g.row + entry.footprintH), zb = this.compiled.zOfRow(g.row);
+      fillQuad(ctx, this.proj.projectFootprint(g.floorId, g.col, g.col + entry.footprintW, zf, zb), tint);
+      const p = this.proj.project(g.floorId, g.col + (g.offset?.x ?? 0), zf - (g.offset?.y ?? 0));
+      x = Math.round(p.x); y = Math.round(p.y - sprite.height);
     }
+    ctx.globalAlpha = 0.7; ctx.drawImage(sprite, x, y); ctx.globalAlpha = 1;
+    ctx.drawImage(outlineOf(sprite, g.valid ? '#5aff8c' : '#ff5a5a', this.k), x - this.k, y - this.k);
   }
 
   // ── layer 5: physical, depth-sorted ──────────────────────────
@@ -709,7 +788,9 @@ export class WorldRenderer {
     const fid = floor.def.id;
     const p = this.proj.project(fid, col, zFront);
     // On a desk the lowest VISIBLE pixel rests on the surface, not the padded sprite edge.
-    const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) * scale : Math.round(p.y - sprite.height);
+    const off = this.compiled.world.furniture.find(w => w.id === uid)?.offset;
+    const nx = off ? Math.round(off.x * this.T) : 0, ny = off ? Math.round(off.y * this.T * this.proj.params.rise) : 0;
+    const x = Math.round(p.x) + nx, y = (onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) * scale : Math.round(p.y - sprite.height)) + ny;
     const cell = this.compiled.cellAt(col, row);
     // Only a plate that has the furniture painted INTO it is sliced; a shell plate leaves pieces as sprites.
     const roomPlate = cell?.kind === 'room' ? this.plate(cell) : null;
@@ -722,7 +803,7 @@ export class WorldRenderer {
         if (plate && cell) {
           // Painted into the plate: re-draw just its silhouette at its depth.
           ctx.drawImage(this.plateSlice(cell, plate, sprite, x, y, `${uid}@${x},${y}`), x, y);
-          this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height });
+          this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height, sprite });
           return;
         }
         if (!onDesk) {
@@ -732,7 +813,7 @@ export class WorldRenderer {
         }
         if (mirrored) { ctx.save(); ctx.translate(x + sprite.width, y); ctx.scale(-1, 1); ctx.drawImage(sprite, 0, 0); ctx.restore(); }
         else ctx.drawImage(sprite, x, y);
-        this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height });
+        this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height, sprite });
       },
     };
   }
@@ -796,10 +877,15 @@ export class WorldRenderer {
     this.hits.push({ kind: 'agent', id: String(ch.id), x, y, w: sprite.width, h: sprite.height });
   }
 
-  pick(px: number, py: number, kind?: Hit['kind']): Hit | null {
+  /** Topmost hit under a buffer point; sprites are picked by their opaque pixels, not their box. */
+  pick(px: number, py: number, kind?: Hit['kind'] | Array<Hit['kind']>): Hit | null {
+    const kinds = kind === undefined ? null : Array.isArray(kind) ? kind : [kind];
     for (let i = this.hits.length - 1; i >= 0; i--) {
       const h = this.hits[i];
-      if ((!kind || h.kind === kind) && px >= h.x && px < h.x + h.w && py >= h.y && py < h.y + h.h) return h;
+      if (kinds && !kinds.includes(h.kind)) continue;
+      if (px < h.x || px >= h.x + h.w || py < h.y || py >= h.y + h.h) continue;
+      if (h.sprite && !opaqueNear(h.sprite, px - h.x, py - h.y)) continue;
+      return h;
     }
     return null;
   }

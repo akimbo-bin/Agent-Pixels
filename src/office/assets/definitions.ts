@@ -173,8 +173,9 @@ const seat = (cloth: string, dark: string, light: string) => (set: Pen, rect: Bo
 
 export const BOX_DEFINITIONS: BoxDefinition[] = [
   {
-    id: 'exec-desk', label: 'Executive desk', category: 'desks', isDesk: true, frontH: 16,
-    footprint: { w: 4, h: 2, backgroundRows: 1 },
+    // One row deep (a two-row top reads as a 2 m deep slab); front ~40% of a standing agent (32 px).
+    id: 'exec-desk', label: 'Executive desk', category: 'desks', isDesk: true, frontH: 14,
+    footprint: { w: 4, h: 1, backgroundRows: 0 },
     paint: (set, rect, w, h, top) => {
       // Top: bevelled edge, leather blotter, papers, a stack of books, inkwell.
       rect(0, 0, w, top, '#7a4428'); rect(1, 0, w - 2, 1, '#a8643c'); rect(0, top - 2, w, 1, '#d9a95b'); rect(0, top - 1, w, 1, '#5a3220');
@@ -198,6 +199,28 @@ export const BOX_DEFINITIONS: BoxDefinition[] = [
         rect(x, foot, 3, 3, '#3e2214'); rect(x + ped - 3, foot, 3, 3, '#3e2214');
       }
       rect(ped + 1, top + 3, w - 2 * ped - 2, Math.round((foot - top - 3) * 0.55), '#3e2214');
+    },
+  },
+  {
+    id: 'office-desk', label: 'Office desk', category: 'desks', isDesk: true, frontH: 13,
+    footprint: { w: 3, h: 1, backgroundRows: 0 },
+    paint: (set, rect, w, h, top) => {
+      rect(0, 0, w, top, '#9a6a42'); rect(1, 0, w - 2, 1, '#c08a58'); rect(0, top - 2, w, 1, '#d9b07a'); rect(0, top - 1, w, 1, '#6a4428');
+      for (let y = 2; y < top - 3; y += 3) rect(2, y, w - 4, 1, '#8e5f3a');
+      rect(6, Math.round(top * 0.35), 9, Math.max(2, Math.round(top * 0.3)), '#ece2c8');
+      rect(1, top, w - 2, 3, '#6a4428'); rect(2, top + 1, w - 4, 1, '#a87a4c');
+      rect(w - 15, top + 3, 13, h - top - 5, '#7a5030'); rect(w - 10, top + 6, 4, 1, '#d9a95b');
+      for (const x of [1, w - 3]) rect(x, top + 3, 2, h - top - 3, '#5a3a22');
+    },
+  },
+  {
+    // Seen from the front: the sitter sits IN it, the backrest rises behind them.
+    id: 'office-chair', label: 'Office chair', category: 'chairs', frontH: 9,
+    footprint: { w: 1, h: 1, backgroundRows: 0 },
+    paint: (set, rect, w, h, top) => {
+      rect(3, 0, w - 6, top + 2, '#3a3a52'); rect(4, 1, w - 8, top, '#4e4e6e');
+      rect(2, top + 2, w - 4, 3, '#4e4e6e'); rect(2, top + 2, w - 4, 1, '#6a6a8a');
+      rect(w / 2 - 1, top + 5, 2, h - top - 7, '#2a2a36'); rect(3, h - 2, w - 6, 2, '#2a2a36');
     },
   },
   {

@@ -43,17 +43,58 @@ export class WorldEditor {
     return r;
   }
 
-  moveFurniture(id: string, roomId: string, col: number, row: number): EditResult {
+  /** Validate a mutation without committing it (drag previews use exactly what a commit would). */
+  preview(mutate: (w: OfficeWorld) => void): EditResult {
+    const next = cloneWorld(this.world);
+    mutate(next);
+    return this.check(next);
+  }
+
+  /**
+   * Move a furniture item. A desk carries whatever sits on its tiles. Items
+   * that don't block (things on desks) may carry a sub-tile visual offset.
+   */
+  moveFurnitureTo(w: OfficeWorld, id: string, roomId: string, col: number, row: number, offset?: { x: number; y: number }) {
+    const f = w.furniture.find(x => x.id === id);
+    if (!f) throw Error(`No furniture ${id}`);
+    const fp = this.footprint(f.assetId);
+    const dc = col - f.col, dr = row - f.row;
+    if (fp?.isDesk) for (const other of w.furniture) {
+      if (other === f || other.roomId !== f.roomId || !this.footprint(other.assetId)?.canPlaceOnSurfaces) continue;
+      if (other.col >= f.col && other.col < f.col + fp.w && other.row >= f.row && other.row < f.row + fp.h) {
+        other.roomId = roomId; other.col += dc; other.row += dr;
+      }
+    }
+    f.roomId = roomId; f.col = col; f.row = row;
+    if (offset && (offset.x || offset.y)) f.offset = offset; else delete f.offset;
+  }
+
+  moveFurniture(id: string, roomId: string, col: number, row: number, offset?: { x: number; y: number }): EditResult {
+    return this.apply(w => this.moveFurnitureTo(w, id, roomId, col, row, offset));
+  }
+
+  moveDecorTo(w: OfficeWorld, id: string, col: number, y: number) {
+    const d = w.decor.find(x => x.id === id);
+    if (!d) throw Error(`No decor ${id}`);
+    d.col = col; d.y = y;
+  }
+
+  moveDecor(id: string, col: number, y: number): EditResult {
+    return this.apply(w => this.moveDecorTo(w, id, col, y));
+  }
+
+  /** Remove a furniture item (and what sits on it) or a decor item. */
+  remove(kind: 'furniture' | 'decor', id: string): EditResult {
     return this.apply(w => {
+      if (kind === 'decor') { w.decor = w.decor.filter(d => d.id !== id); return; }
       const f = w.furniture.find(x => x.id === id);
       if (!f) throw Error(`No furniture ${id}`);
-      // Items sitting on a desk move with it.
-      const dc = col - f.col, dr = row - f.row, sameRoom = roomId === f.roomId;
-      if (sameRoom) for (const other of w.furniture) {
-        if (other !== f && other.roomId === f.roomId && other.col >= f.col && other.col < f.col + (this.footprint(f.assetId)?.w ?? 0) && other.row === f.row
-          && this.footprint(other.assetId)?.canPlaceOnSurfaces && this.footprint(f.assetId)?.isDesk) { other.col += dc; other.row += dr; }
-      }
-      f.roomId = roomId; f.col = col; f.row = row;
+      const fp = this.footprint(f.assetId);
+      const riding = (o: typeof f) => !!fp?.isDesk && o !== f && o.roomId === f.roomId && !!this.footprint(o.assetId)?.canPlaceOnSurfaces
+        && o.col >= f.col && o.col < f.col + fp.w && o.row >= f.row && o.row < f.row + fp.h;
+      w.furniture = w.furniture.filter(o => o !== f && !riding(o));
+      // An agent whose chair is removed stays in that room, unseated.
+      for (const a of w.agents) if (a.seatId === id) { delete a.seatId; a.roomId = f.roomId; }
     });
   }
 

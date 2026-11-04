@@ -6,7 +6,7 @@ import { loadPixelAssets } from '../../src/ui/pixelAssets.js';
 import { WorldEditor } from '../../src/office/editor/editorState.js';
 import { TravelSystem } from '../../src/office/navigation/elevator.js';
 import { createProjection, characterWorld, DEFAULT_VIEW, type Projection } from '../../src/office/geometry/projection.js';
-import { WorldRenderer } from '../../src/office/rendering/worldRenderer.js';
+import { WorldRenderer, type Ghost, type Highlight } from '../../src/office/rendering/worldRenderer.js';
 import { Viewport } from '../../src/office/rendering/viewport.js';
 import { STYLE_PACKS, stylePackFor } from '../../src/office/rendering/stylePack.js';
 import { TEMPLATES } from '../../src/office/world/templates.js';
@@ -49,7 +49,14 @@ class Scene {
   ambientTimer = 3;
   frameTimes: number[] = [];
   log: string[] = [];
-  drag: { id: string; grab: GridPoint; candidate: { roomId: string; col: number; row: number } | null; valid: boolean } | null = null;
+  /** Editor: what the pointer is over, what is selected, and an in-progress drag. */
+  hoverHit: { kind: 'furniture' | 'decor'; id: string } | null = null;
+  selection: { kind: 'furniture' | 'decor'; id: string } | null = null;
+  drag: {
+    kind: 'furniture' | 'decor'; id: string; free: boolean; grab: { x: number; y: number };
+    candidate: { roomId: string; col: number; row: number; y?: number; offset?: { x: number; y: number } } | null;
+    valid: boolean; ghost: Ghost | null;
+  } | null = null;
 
   constructor(world: OfficeWorld) {
     this.editor = new WorldEditor(world);
@@ -177,8 +184,15 @@ class Scene {
 
   render() {
     const t0 = performance.now();
-    this.renderer.render(this.office, this.travel, { debug: ui.debug.checked || ui.edit.checked, selectedId: this.selected, hoverTile: this.hover, time: t0 / 1000 });
-    if (this.drag?.candidate) this.drawGhost();
+    const highlight: Highlight[] = [];
+    if (ui.edit.checked && !this.drag) {
+      if (this.selection) highlight.push({ ...this.selection, color: '#5ad1ff' });
+      if (this.hoverHit && !(this.selection && this.selection.id === this.hoverHit.id)) highlight.push({ ...this.hoverHit, color: '#fff6dc' });
+    }
+    this.renderer.render(this.office, this.travel, {
+      debug: ui.debug.checked || ui.edit.checked, selectedId: this.selected, hoverTile: this.hover, time: t0 / 1000,
+      highlight, ghost: this.drag?.ghost ?? null,
+    });
     const dpr = window.devicePixelRatio || 1;
     const tags = this.renderer.hits.filter(h => h.kind === 'agent').map(h => {
       const id = Number(h.id), full = this.names.get(id) ?? '';
@@ -190,24 +204,13 @@ class Scene {
     if (this.frameTimes.length > 600) this.frameTimes.shift();
   }
 
-  drawGhost() {
-    const d = this.drag!, c = this.compiled, cand = d.candidate!;
-    const f = c.world.furniture.find(x => x.id === d.id)!;
-    const entry = getCatalogEntry(f.assetId);
-    if (!entry) return;
-    const t = c.roomTile(cand.roomId, cand.col, cand.row);
-    const floor = c.floorOfRow(t.row)!.def.id;
-    const bctx = this.renderer.canvas.getContext('2d')!;
-    const zf = c.zOfRow(t.row + entry.footprintH), zb = c.zOfRow(t.row);
-    const q = this.proj.projectFootprint(floor, t.col, t.col + entry.footprintW, zf, zb);
-    bctx.beginPath(); q.forEach((p, i) => (i ? bctx.lineTo(p.x, p.y) : bctx.moveTo(p.x, p.y))); bctx.closePath();
-    bctx.fillStyle = d.valid ? 'rgba(80,255,140,0.35)' : 'rgba(255,80,80,0.45)'; bctx.fill();
-    const p = this.proj.project(floor, t.col, zf);
-    const sprite = getCachedSprite(entry.sprite, 1);
-    bctx.globalAlpha = 0.6; bctx.drawImage(sprite, Math.round(p.x), Math.round(p.y - sprite.height)); bctx.globalAlpha = 1;
+  /** Pointer on a floor plane: floor, world x and absolute (fractional) row. */
+  floorPoint(sx: number, sy: number) {
+    const b = this.view.toBuffer(sx, sy);
+    const w = this.proj.screenToFloor(b.x, b.y);
+    return w ? { floorId: w.floorId, x: w.x, row: this.compiled.rowOfZ(w.floorId, w.z) } : null;
   }
 
-  /** Floor tile under a canvas point, via the shared inverse projection. */
   tileAt(sx: number, sy: number): GridPoint | null {
     const b = this.view.toBuffer(sx, sy);
     const w = this.proj.screenToFloor(b.x, b.y);
@@ -321,7 +324,7 @@ function refreshButtons() {
   ui.undo.disabled = !scene.editor.canUndo;
   ui.redo.disabled = false;
   ui.hint.textContent = ui.edit.checked
-    ? 'Edit: drag furniture to move it (green = valid). Click a doorway to open/close it. Invalid edits are refused with a reason.'
+    ? 'Edit: hover to highlight, click to select, drag to move (green = valid). Desk items and decor move freely; Delete removes, Esc deselects. Click a doorway to open/close it.'
     : 'Click an agent to select, then click any floor to send them there (other storeys use the elevator). Scroll to zoom, drag to pan.';
 }
 
@@ -338,40 +341,94 @@ const toCanvas = (e: PointerEvent | WheelEvent) => {
   return { x: (e.clientX - r.left) * dpr, y: (e.clientY - r.top) * dpr };
 };
 
+/** 1/16 tile: one art pixel at 16 px/tile. Free placement snaps to it. */
+const q16 = (v: number) => Math.round(v * 16) / 16;
+
+/** Where the dragged item would land for the current pointer, validated exactly as a commit would be. */
+function dragTo(sx: number, sy: number) {
+  const d = scene.drag!, c = scene.compiled;
+  if (d.kind === 'furniture') {
+    const fp = scene.floorPoint(sx, sy);
+    if (!fp) return;
+    const tx = fp.x - d.grab.x, ty = fp.row - d.grab.y;
+    let col = Math.round(tx), row = Math.round(ty), offset: { x: number; y: number } | undefined;
+    if (d.free) { col = Math.floor(tx); row = Math.floor(ty); offset = { x: q16(tx - col), y: q16(ty - row) }; }
+    const cell = c.cellAt(col, row);
+    if (!cell || cell.kind !== 'room') { d.candidate = null; d.ghost = null; return; }
+    const cand = { roomId: cell.id, col: col - cell.x, row: row - cell.rowStart, offset };
+    const prev = d.candidate;
+    if (prev && prev.roomId === cand.roomId && prev.col === cand.col && prev.row === cand.row && prev.offset?.x === offset?.x && prev.offset?.y === offset?.y) return;
+    d.candidate = cand;
+    d.valid = scene.editor.preview(w => scene.editor.moveFurnitureTo(w, d.id, cand.roomId, cand.col, cand.row, offset)).ok;
+    const type = c.world.furniture.find(x => x.id === d.id)!.assetId;
+    d.ghost = { kind: 'furniture', type, floorId: cell.floorId, col, row, offset, valid: d.valid };
+    return;
+  }
+  const dec = c.world.decor.find(x => x.id === d.id)!;
+  const cell = c.cells.find(x => x.id === dec.roomId)!;
+  const b = scene.view.toBuffer(sx, sy);
+  let x: number, y: number;
+  if (dec.attachment === 'back-wall') {
+    const wp = scene.proj.screenToWall(cell.floorId, cell.depth, b.x, b.y);
+    x = q16(wp.x - d.grab.x); y = q16(wp.h - d.grab.y);
+  } else {
+    const fp = scene.floorPoint(sx, sy);
+    if (!fp) return;
+    x = q16(fp.x - d.grab.x); y = q16(fp.row - cell.rowStart - d.grab.y);
+  }
+  d.candidate = { roomId: dec.roomId, col: x - cell.x, row: 0, y };
+  d.valid = scene.editor.preview(w => scene.editor.moveDecorTo(w, d.id, x - cell.x, y)).ok;
+  d.ghost = { kind: 'decor', type: dec.assetId, floorId: cell.floorId, attachment: dec.attachment, col: 0, row: 0,
+    x, h: y, z: y, depth: cell.depth, valid: d.valid };
+}
+
 canvas.addEventListener('pointerdown', e => {
   const p = toCanvas(e);
   canvas.setPointerCapture(e.pointerId);
   pointer = { ...p, panX: scene.view.panX, panY: scene.view.panY, moved: false };
-  if (ui.edit.checked) {
-    const b = scene.view.toBuffer(p.x, p.y);
-    const hit = scene.renderer.pick(b.x, b.y, 'furniture');
-    const tile = scene.tileAt(p.x, p.y);
-    if (hit && tile) {
-      const f = scene.compiled.layout.furniture.find(x => x.uid === hit.id)!;
-      scene.drag = { id: hit.id, grab: { col: tile.col - f.col, row: tile.row - f.row }, candidate: null, valid: false };
+  if (!ui.edit.checked) return;
+  const b = scene.view.toBuffer(p.x, p.y);
+  const hit = scene.renderer.pick(b.x, b.y, ['furniture', 'decor']);
+  if (!hit) { scene.selection = null; return; }
+  const kind = hit.kind as 'furniture' | 'decor';
+  scene.selection = { kind, id: hit.id };
+  const c = scene.compiled;
+  if (kind === 'furniture') {
+    const f = c.layout.furniture.find(x => x.uid === hit.id)!;
+    const off = c.world.furniture.find(x => x.id === hit.id)?.offset ?? { x: 0, y: 0 };
+    const fp = scene.floorPoint(p.x, p.y);
+    const free = !!getCatalogEntry(f.type)?.canPlaceOnSurfaces;
+    scene.drag = { kind, id: hit.id, free, grab: fp ? { x: fp.x - (f.col + off.x), y: fp.row - (f.row + off.y) } : { x: 0, y: 0 }, candidate: null, valid: false, ghost: null };
+  } else {
+    const dec = c.world.decor.find(x => x.id === hit.id)!;
+    const cell = c.cells.find(x => x.id === dec.roomId)!;
+    let grab = { x: 0, y: 0 };
+    if (dec.attachment === 'back-wall') {
+      const wp = scene.proj.screenToWall(cell.floorId, cell.depth, b.x, b.y);
+      grab = { x: wp.x - (cell.x + dec.col), y: wp.h - dec.y };
+    } else {
+      const fp = scene.floorPoint(p.x, p.y);
+      if (fp) grab = { x: fp.x - (cell.x + dec.col), y: fp.row - cell.rowStart - dec.y };
     }
+    scene.drag = { kind, id: hit.id, free: true, grab, candidate: null, valid: false, ghost: null };
   }
 });
 
 canvas.addEventListener('pointermove', e => {
   const p = toCanvas(e);
   scene.hover = scene.tileAt(p.x, p.y);
-  if (!pointer) return;
+  if (!pointer) {
+    if (ui.edit.checked) {
+      const b = scene.view.toBuffer(p.x, p.y);
+      const hit = scene.renderer.pick(b.x, b.y, ['furniture', 'decor']);
+      scene.hoverHit = hit ? { kind: hit.kind as 'furniture' | 'decor', id: hit.id } : null;
+      canvas.style.cursor = hit ? 'grab' : '';
+    }
+    return;
+  }
   if (Math.hypot(p.x - pointer.x, p.y - pointer.y) > 4) pointer.moved = true;
   if (scene.drag) {
-    const t = scene.hover;
-    if (!t) return;
-    const col = t.col - scene.drag.grab.col, row = t.row - scene.drag.grab.row;
-    const cell = scene.compiled.cellAt(col, row);
-    if (!cell || cell.kind !== 'room') { scene.drag.candidate = null; return; }
-    const cand = { roomId: cell.id, col: col - cell.x, row: row - cell.rowStart };
-    const prev = scene.drag.candidate;
-    if (prev && prev.roomId === cand.roomId && prev.col === cand.col && prev.row === cand.row) return;
-    scene.drag.candidate = cand;
-    const world = JSON.parse(JSON.stringify(scene.editor.world)) as OfficeWorld;
-    const f = world.furniture.find(x => x.id === scene.drag!.id)!;
-    f.roomId = cand.roomId; f.col = cand.col; f.row = cand.row;
-    scene.drag.valid = scene.editor.check(world).ok;
+    if (pointer.moved) { canvas.style.cursor = 'grabbing'; dragTo(p.x, p.y); }
   } else if (pointer.moved) {
     scene.view.panX = pointer.panX + (p.x - pointer.x);
     scene.view.panY = pointer.panY + (p.y - pointer.y);
@@ -385,7 +442,12 @@ canvas.addEventListener('pointerup', e => {
   if (scene.drag) {
     const d = scene.drag;
     scene.drag = null;
-    if (d.candidate && was?.moved) applyEdit(scene.editor.moveFurniture(d.id, d.candidate.roomId, d.candidate.col, d.candidate.row), `move ${d.id}`);
+    canvas.style.cursor = '';
+    const cand = d.candidate;
+    if (cand && was?.moved) {
+      if (d.kind === 'furniture') applyEdit(scene.editor.moveFurniture(d.id, cand.roomId, cand.col, cand.row, cand.offset), `move ${d.id}`);
+      else applyEdit(scene.editor.moveDecor(d.id, cand.col, cand.y!), `move ${d.id}`);
+    }
     return;
   }
   if (was?.moved) return;
@@ -402,6 +464,16 @@ canvas.addEventListener('pointerup', e => {
   if (scene.selected != null && tile) {
     scene.tours.delete(scene.selected);
     if (scene.travelTo(scene.selected, tile)) scene.say(`→ ${scene.names.get(scene.selected)} to ${tile.col},${tile.row}`);
+  }
+});
+
+window.addEventListener('keydown', e => {
+  if (!ui.edit.checked || !scene.selection || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
+  if (e.key === 'Escape') { scene.selection = null; return; }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    const sel = scene.selection;
+    scene.selection = null;
+    applyEdit(scene.editor.remove(sel.kind, sel.id), `delete ${sel.id}`);
   }
 });
 

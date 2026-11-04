@@ -55,6 +55,8 @@ export interface Projection {
   projectAt(base: number, x: number, z: number, h?: number): ProjectedPoint;
   /** Inverse for points ON a floor plane (h = 0). */
   screenToFloor(px: number, py: number): { floorId: string; x: number; z: number } | null;
+  /** Inverse for points ON a vertical wall at depth z: world x and height h. */
+  screenToWall(floorId: string, z: number, px: number, py: number): { x: number; h: number };
   /** Footprint rectangle on the floor plane: x in [x0,x1], z in [z0,z1]. */
   projectFootprint(floorId: string, x0: number, x1: number, z0: number, z1: number): Quad;
   /** Vertical rectangle at depth z spanning x and height. */
@@ -106,6 +108,10 @@ export function createProjection(compiled: CompiledWorld, params: ViewParams = D
         return { floorId: f.def.id, x: cx + (px / T - p.margin - cx) / s, z };
       }
       return null;
+    },
+    screenToWall(floorId, z, px, py) {
+      const s = 1 - p.perspective * z;
+      return { x: cx + (px / T - p.margin - cx) / s, h: (topY - py / T - base.get(floorId)! - z * p.rise) / s };
     },
     projectFootprint(floorId, x0, x1, z0, z1) {
       return [project(floorId, x0, z0), project(floorId, x1, z0), project(floorId, x1, z1), project(floorId, x0, z1)];

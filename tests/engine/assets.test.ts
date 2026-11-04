@@ -75,9 +75,9 @@ describe('room kit dressing', () => {
     assert.deepEqual(c.layout.tiles, compileWorld(base).layout.tiles);
     assert.deepEqual(checkConnectivity(c), []);
     const desk = c.layout.furniture.find(f => f.uid === 'exec-desk')!;
-    // 4x2 desk with one overhang row: only its front row blocks.
+    // 4x1 desk directly in front of the Lead's chair: its row blocks.
     const blocked = blockedFurnitureTiles(c);
-    assert.ok([0, 1, 2, 3].every(dc => blocked.has(`${desk.col + dc},${desk.row + 1}`)));
+    assert.ok([0, 1, 2, 3].every(dc => blocked.has(`${desk.col + dc},${desk.row}`)));
   });
 
   test('base template is untouched (dressing works on a copy)', () => {
@@ -95,9 +95,9 @@ describe('camera-aware furniture and room plates', () => {
       registerFurnitureDefinitions(rise);
       const d = definitionById('exec-desk')!;
       const sprite = getCatalogEntry('exec-desk')!.sprite;
-      // 2 rows deep * 16 px * rise above a 16 px front face.
-      assert.equal(sprite.length, 16 + 2 * 16 * rise);
-      assert.equal(d.surfaceY, (2 * 16 * rise) / 2);
+      // 1 row deep * 16 px * rise above a 14 px front face (~40% of a standing agent).
+      assert.equal(sprite.length, 14 + 16 * rise);
+      assert.equal(d.surfaceY, Math.round((16 * rise) / 2));
     }
     registerFurnitureDefinitions(0.5);
   });
