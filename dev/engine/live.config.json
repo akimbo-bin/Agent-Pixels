@@ -1,9 +1,31 @@
 {
   "sources": [
-    { "id": "nebula.training", "title": "Nebula training queue", "kind": "module", "module": "../../scripts/live/adapters/nebula-training.mjs",
-      "options": { "base": "C:/NebulaResearch/train", "queue": "neb318" } },
-    { "id": "host.gpu", "title": "GPU", "kind": "module", "module": "../../scripts/live/adapters/host-gpu.mjs" },
-    { "id": "nebula.render", "title": "Nebula data renders (VM116)", "kind": "unconfigured",
-      "why": "VM116 render progress reports through Proxmox (watchdog / Machine Portal); no local source wired yet" }
+    {
+      "id": "nebula.training",
+      "title": "Nebula training queue",
+      "kind": "module",
+      "module": "../../scripts/live/adapters/nebula-training.mjs",
+      "options": {
+        "base": "C:/NebulaResearch/train",
+        "queue": "neb318"
+      }
+    },
+    {
+      "id": "host.gpu",
+      "title": "GPU",
+      "kind": "module",
+      "module": "../../scripts/live/adapters/host-gpu.mjs"
+    },
+    {
+      "id": "paperclip",
+      "title": "Paperclip organisation",
+      "kind": "module",
+      "module": "../../scripts/live/adapters/paperclip-org.mjs",
+      "options": {
+        "host": "192.168.8.105",
+        "user": "root",
+        "key": "~/.ssh/agentpixels_status"
+      }
+    }
   ]
 }

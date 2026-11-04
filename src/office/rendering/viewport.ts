@@ -2,7 +2,8 @@ import type { Backdrop, RoomLabel } from './worldRenderer.js';
 import type { StylePack } from './stylePack.js';
 
 /** Name tag above an agent, in buffer pixels (head top-centre). */
-export interface AgentTag { text: string; x: number; y: number; selected: boolean }
+/** color: a status dot (live presence); sub: a second line shown when selected (e.g. the current ticket). */
+export interface AgentTag { text: string; x: number; y: number; selected: boolean; color?: string; sub?: string }
 
 /**
  * Screen camera over the native render buffer: zoom/pan, fit, and the inverse
@@ -83,13 +84,22 @@ export class Viewport {
     for (const t of tags) {
       if (!showAll && !t.selected) continue;
       const p = this.toScreen(t.x, t.y);
-      const w = Math.round(ctx.measureText(t.text).width + size * 0.9), h = Math.round(size * 1.5);
+      const dot = t.color ? Math.round(size * 0.9) : 0;
+      const sub = t.selected && t.sub ? t.sub : '';
+      const w = Math.round(Math.max(ctx.measureText(t.text).width + dot, sub ? ctx.measureText(sub).width : 0) + size * 0.9);
+      const h = Math.round(size * (sub ? 2.7 : 1.5));
       const x = Math.round(p.x - w / 2), y = Math.round(p.y - h - 2 * dpr);
       ctx.fillStyle = t.selected ? 'rgba(48,32,10,0.92)' : 'rgba(12,10,24,0.78)';
       ctx.fillRect(x, y, w, h);
       if (t.selected) { ctx.strokeStyle = '#e3b46a'; ctx.lineWidth = dpr; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); }
       ctx.fillStyle = t.selected ? '#ffe3a8' : '#eae4f7';
-      ctx.fillText(t.text, Math.round(p.x), y + h / 2 + dpr * 0.5);
+      const ty = y + Math.round(size * 0.75) + dpr * 0.5;
+      ctx.fillText(t.text, Math.round(p.x + dot / 2), ty);
+      if (t.color) {
+        const tw = ctx.measureText(t.text).width, r = Math.max(2, Math.round(size * 0.3));
+        ctx.fillStyle = t.color; ctx.fillRect(Math.round(p.x + dot / 2 - tw / 2 - dot + (dot - 2 * r) / 2), Math.round(ty - r), 2 * r, 2 * r);
+      }
+      if (sub) { ctx.fillStyle = '#b9c4ff'; ctx.fillText(sub, Math.round(p.x), ty + Math.round(size * 1.2)); }
     }
   }
 

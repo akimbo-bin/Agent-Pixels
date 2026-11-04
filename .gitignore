@@ -11,3 +11,6 @@ dev/engine/dist/
 dev/engine/review/
 dev/engine/packs-work/
 dev/engine/packs/
+
+# screenshots from browser checks
+artifacts/

@@ -21,6 +21,7 @@ import { loadAssetPack, type LoadedAssetPack } from '../../src/office/assets/loa
 import { registerFurnitureDefinitions, wallFixtureById } from '../../src/office/assets/definitions.js';
 import { applyRoomKit, BUILDING_KITS, ROOM_KITS } from '../../src/office/world/kits.js';
 import { dressBuilding, placeFurniture } from '../../src/office/world/dress.js';
+import { presenceOf, rosterAgents, rosterKey, type OrgAgent, type Presence } from '../../src/office/world/roster.js';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('view');
@@ -44,6 +45,9 @@ class Scene {
   ids = new Map<string, number>();
   names = new Map<number, string>();
   selected: number | null = null;
+  /** Live organisation: membership fingerprint and each character's real member. */
+  rosterKey = '';
+  members = new Map<number, OrgAgent>();
   hover: GridPoint | null = null;
   tours = new Map<number, { legs: Leg[]; wait: number }>();
   ambientRand = rng(42);
@@ -170,7 +174,9 @@ class Scene {
     this.ambientTimer -= dt;
     if (this.ambientTimer > 0) return;
     this.ambientTimer = 4 + this.ambientRand() * 5;
-    const idle = [...this.office.characters.values()].filter(ch => !this.tours.has(ch.id) && !this.travel.isTravelling(ch.id) && ch.id !== this.selected);
+    // Real members only run errands when they're actually available (idle); paused or busy ones stay put.
+    const idle = [...this.office.characters.values()].filter(ch => !this.tours.has(ch.id) && !this.travel.isTravelling(ch.id) && ch.id !== this.selected
+      && (!this.members.has(ch.id) || presenceOf(this.members.get(ch.id)!) === 'idle'));
     if (!idle.length) return;
     const ch = idle[Math.floor(this.ambientRand() * idle.length)];
     const rooms = this.compiled.cells.filter(x => x.kind === 'room');
@@ -198,7 +204,10 @@ class Scene {
     const tags = this.renderer.hits.filter(h => h.kind === 'agent').map(h => {
       const id = Number(h.id), full = this.names.get(id) ?? '';
       const selected = id === this.selected;
-      return { text: selected ? full : full.replace(/ (.*)$/, ''), x: h.x + h.w / 2, y: h.y + 4, selected };
+      const m = this.members.get(id);
+      const sub = m ? `${PRESENCE_TEXT[presenceOf(m)]}${m.issue ? ` · ${m.issue.key} ${(m.issue.title ?? '').slice(0, 40)}` : ''}` : undefined;
+      return { text: selected ? full : (m ? m.name : full.replace(/ (.*)$/, '')), x: h.x + h.w / 2, y: h.y + 4, selected,
+        ...(m ? { color: PRESENCE_COLOR[presenceOf(m)], sub } : {}) };
     });
     this.view.draw(ctx, this.renderer.canvas, this.renderer.labels(), this.renderer.pack, dpr, this.renderer.backdrop(), tags);
     this.frameTimes.push(performance.now() - t0);
@@ -572,8 +581,39 @@ await loadPixelAssets();
 async function pollLive() {
   try {
     const r = await fetch('/live', { cache: 'no-store' });
-    if (r.ok && scene?.renderer) scene.renderer.live = await r.json();
+    if (r.ok && scene?.renderer) {
+      const data = await r.json();
+      scene.renderer.live = data;
+      applyRoster(data.org ?? {});
+    }
   } catch { /* the screens show STALE / NO DATA */ }
+}
+
+const PRESENCE_COLOR: Record<Presence, string> = { running: '#5be38a', waiting: '#ffd166', idle: '#8fa3ff', paused: '#8a8aa0', failed: '#ff5d6c', unknown: '#5a5a6e' };
+const PRESENCE_TEXT: Record<Presence, string> = { running: 'working', waiting: 'assigned', idle: 'idle', paused: 'paused', failed: 'error', unknown: 'unknown' };
+
+/** Real organisation members become the building's characters; their status drives what they do. */
+function applyRoster(org: Record<string, { agents?: OrgAgent[] }>) {
+  const roster = ui.kit.checked ? BUILDING_KITS.find(b => b.building === ui.template.value)?.roster : undefined;
+  const members = roster ? org[roster.source]?.agents : undefined;
+  if (!roster || !members?.length) return;
+  const key = rosterKey(members);
+  if (key !== scene.rosterKey) {
+    scene.tours.clear();
+    const agents = rosterAgents(scene.editor.world, members, roster);
+    scene.editor.world.agents = agents;
+    scene.compiled.world.agents = agents;
+    scene.build(true);
+    scene.rosterKey = key;
+  }
+  scene.members.clear();
+  for (const m of members) {
+    const id = scene.ids.get(`org:${m.id}`);
+    if (id == null) continue;
+    scene.members.set(id, m);
+    // Working members sit and type; everyone else is off their desk.
+    scene.office.setAgentActive(id, presenceOf(m) === 'running');
+  }
 }
 setInterval(pollLive, 5000);
 registerFurnitureDefinitions();

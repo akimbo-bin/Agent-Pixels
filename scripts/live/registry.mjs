@@ -86,8 +86,15 @@ export async function liveTasks(configPath) {
   let cfg;
   try { cfg = JSON.parse(readFileSync(configPath, 'utf8')); } catch (e) { return { observedAt: Date.now(), tasks: {}, why: `no live config: ${e.message}` }; }
   const baseDir = path.dirname(configPath);
-  const entries = await Promise.all((cfg.sources ?? []).map(async s => [s.id, normalize(s.id, s.title, await readSource(s, baseDir))]));
-  const result = { observedAt: Date.now(), tasks: Object.fromEntries(entries) };
+  // A source may also report sub-tasks (`tasks`, published as "<sourceId>.<key>") and organisation data (`org`).
+  const tasks = {}, org = {};
+  await Promise.all((cfg.sources ?? []).map(async s => {
+    const raw = await readSource(s, baseDir);
+    tasks[s.id] = normalize(s.id, s.title, raw);
+    for (const [k, t] of Object.entries(raw?.tasks ?? {})) tasks[`${s.id}.${k}`] = normalize(`${s.id}.${k}`, t?.title, t);
+    if (raw?.org) org[s.id] = raw.org;
+  }));
+  const result = { observedAt: Date.now(), tasks, org };
   cache.set(configPath, result);
   return result;
 }

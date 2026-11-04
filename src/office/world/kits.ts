@@ -1,4 +1,5 @@
 import type { DecorDef, FurnitureDef, OfficeWorld } from './schema.js';
+import type { RosterBinding } from './roster.js';
 
 /**
  * A room kit dressing: which pack textures skin one room, and which pack
@@ -86,14 +87,25 @@ export interface BuildingKit {
   building: string; packId: string; skipRooms: string[];
   /** Live objects: furniture bound to a real status source (world.bindings[id].live). */
   live?: Array<{ id: string; roomId: string; assetId: string; source: string; metricsFrom?: string }>;
+  /** Real organisation members as characters (see roster.ts). */
+  roster?: RosterBinding;
 }
 export const BUILDING_KITS: BuildingKit[] = [
   {
     building: 'nebula-campus', packId: 'nebula-campus-v1', skipRooms: ['lead'],
     live: [
       { id: 'live-training', roomId: 'training', assetId: 'training-rig', source: 'nebula.training', metricsFrom: 'host.gpu' },
-      { id: 'live-render', roomId: 'rendering', assetId: 'render-rack', source: 'nebula.render' },
+      { id: 'live-render', roomId: 'rendering', assetId: 'render-rack', source: 'paperclip.renders.vm116' },
     ],
+    roster: {
+      source: 'paperclip', defaultRoom: 'reception', skins: [0, 2, 3, 6, 8, 10, 14, 16, 18, 20],
+      rooms: {
+        'Lead': 'lead', 'Lead-Sol': 'leadSol', 'Clerk': 'reception', 'Planner (claude.ai)': 'reception',
+        'Engine': 'observatory', 'Builder-Luna-P': 'engineering', 'Builder-Luna-B': 'engineering',
+        'Data': 'data', 'Doctor': 'clinic', 'Training': 'training',
+        'Reviewer': 'review', 'Reviewer-Sol-P': 'review', 'Reviewer-Sol-B': 'review', 'Reviewer-Opus': 'review',
+      },
+    },
   },
 ];
 

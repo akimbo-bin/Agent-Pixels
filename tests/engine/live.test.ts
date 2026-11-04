@@ -32,3 +32,39 @@ describe('live tasks', () => {
     assert.equal(tasks.later.why, 'not wired');
   });
 });
+
+describe('live roster', async () => {
+  const { presenceOf, rosterAgents, rosterKey } = await import('../../src/office/world/roster.js');
+  const { nebulaCampusSample } = await import('../../src/office/world/templates.js');
+  const { BUILDING_KITS } = await import('../../src/office/world/kits.js');
+  const { compileWorld } = await import('../../src/office/world/compiler.js');
+  await (await import('./helpers.js')).loadCatalog();
+  (await import('../../src/office/assets/definitions.js')).registerFurnitureDefinitions(1);
+  const roster = BUILDING_KITS.find(b => b.building === 'nebula-campus')!.roster!;
+  const org = [
+    { id: 'a1', name: 'Reviewer', status: 'paused' }, { id: 'a2', name: 'Reviewer-Sol-P', status: 'idle' },
+    { id: 'a3', name: 'Reviewer-Sol-B', status: 'idle', issue: { key: 'NEB-1', title: 't', status: 'in_progress', running: true } },
+    { id: 'a4', name: 'Reviewer-Opus', status: 'idle' }, { id: 'a5', name: 'Someone New', status: 'idle' },
+  ];
+
+  test('presence comes from status and the current ticket, never guessed', () => {
+    assert.equal(presenceOf(org[0]), 'paused');
+    assert.equal(presenceOf(org[1]), 'idle');
+    assert.equal(presenceOf(org[2]), 'running');
+    assert.equal(presenceOf({ id: 'x', name: 'x', status: 'idle', issue: { key: 'K', title: null, status: 'in_progress', running: false } }), 'waiting');
+    assert.equal(presenceOf({ id: 'x', name: 'x', status: 'weird' }), 'unknown');
+  });
+
+  test('members get their kit room, distinct free chairs, and unnamed members land in the default room', () => {
+    const w = nebulaCampusSample();
+    const agents = rosterAgents(w, org, roster);
+    assert.equal(agents.length, 5);
+    const seats = agents.map(a => a.seatId).filter(Boolean);
+    assert.equal(new Set(seats).size, seats.length);
+    assert.equal(agents.filter(a => a.roomId === 'review').length, 4);
+    assert.equal(agents.find(a => a.name === 'Someone New')!.roomId, roster.defaultRoom);
+    w.agents = agents;
+    assert.doesNotThrow(() => compileWorld(w));
+    assert.equal(rosterKey(org), rosterKey([...org].reverse()));
+  });
+});

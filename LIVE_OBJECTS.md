@@ -53,3 +53,32 @@ What the object does by state:
 - a status badge on the room's name plate
 
 The engine API exposes `__engine.live()` (all tasks) and `__engine.live('<id>')` (one task's display status) for tests.
+
+## 3. One source, many tasks
+
+A `module` adapter may return `tasks: { <key>: LiveTask }` alongside its own fields. Each sub-task is published as `<sourceId>.<key>`. For example, the Paperclip adapter publishes `paperclip.job.NEB-318`, `paperclip.machine.vm116` and `paperclip.renders.vm116`. Bind objects to these like any other task.
+
+## 4. Real people as characters
+
+A source may also return `org: { agents: [...] }`, which `/live` passes through as `org.<sourceId>`. Add a `roster` to the building kit, and the organisation's members replace the sample characters:
+
+```ts
+roster: { source: 'paperclip', defaultRoom: 'reception', skins: [0, 2, 3],
+          rooms: { 'Lead': 'lead', 'Training': 'training' } }
+```
+
+- Each member gets their room and a free chair in it. Members the kit doesn't name go to `defaultRoom`.
+- Characters are rebuilt only when membership changes. Status changes only change behaviour:
+  - **working** (a ticket with a live run): sits and types
+  - **assigned**, **idle**, **paused**: away from the desk
+  - only **idle** members run errands around the building
+- Name tags show a status dot. Selecting a member shows their status and current ticket (`src/office/world/roster.ts`).
+
+### Paperclip (Nebula)
+
+Agent Pixels never touches Paperclip directly.
+- **The exporter.** `ops/agentpixels-status/` writes a snapshot built from an allow-list of fields. It runs inside the Paperclip container every 60 s, as a systemd timer, and only makes GET requests. The snapshot is written to `/var/lib/agentpixels/status.json`.
+- **The SSH key.** The dev server reads the snapshot with a dedicated key, `~/.ssh/agentpixels_status`. On the Proxmox host, the key is pinned with `command="pct exec 125 -- cat …",restrict`, so the only thing it can do is print that file.
+- **Removal.** The uninstall steps are in `install.sh`. To revoke access, delete the key's line from the host's `authorized_keys`.
+
+Check the whole chain end to end with `node scripts/live-browser.mjs` while the dev server is running.

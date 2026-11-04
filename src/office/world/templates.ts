@@ -173,7 +173,8 @@ export function nebulaCampusSample(): OfficeWorld {
   const seats: Record<string, string> = {
     lead: workstation(w.furniture, 'lead', 'lead', 4), leadSol: workstation(w.furniture, 'leadSol', 'sol', 2),
     reception: workstation(w.furniture, 'reception', 'clerk', 2), observatory: workstation(w.furniture, 'observatory', 'obs', 3),
-    engineering: workstation(w.furniture, 'engineering', 'eng', 6), data: workstation(w.furniture, 'data', 'data', 5),
+    engineering: workstation(w.furniture, 'engineering', 'eng', 6), eng2: workstation(w.furniture, 'engineering', 'eng2', 10),
+    rev2: workstation(w.furniture, 'review', 'rev2', 2), rev3: workstation(w.furniture, 'review', 'rev3', 10), data: workstation(w.furniture, 'data', 'data', 5),
     rendering: workstation(w.furniture, 'rendering', 'ops', 4), clinic: workstation(w.furniture, 'clinic', 'doc', 3),
     review: workstation(w.furniture, 'review', 'rev', 6), training: workstation(w.furniture, 'training', 'train', 5),
   };
@@ -194,6 +195,7 @@ export function nebulaCampusSample(): OfficeWorld {
     ['engineering', 'Engineer', 8], ['data', 'Data', 10], ['rendering', 'Operations', 14], ['clinic', 'Doctor', 16],
     ['review', 'Reviewer', 18], ['training', 'Trainer', 20],
   ];
+  // Sample people; a live roster (kits.ts BUILDING_KITS.roster) replaces them with the real organisation.
   roles.forEach(([r, role, skin], i) => w.agents.push(agent(`agent-${r}`, `${role} ${i + 1}`, role, skin, seats[r])));
   return w;
 }
