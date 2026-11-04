@@ -1,0 +1,30 @@
+{
+  "packId": "nebula-exec-room-v2",
+  "name": "Nebula night: executive office, room-first kit",
+  "stylePackId": "nebula-night",
+  "promptVersion": "room-v1",
+  "checkpoint": "v1-5-pruned-emaonly.safetensors",
+  "lora": "pixel-art-amr3303.safetensors",
+  "loraStrength": [0.6, 0.5],
+  "sampler": { "steps": 26, "cfg": 6.5, "sampler_name": "dpmpp_2m", "scheduler": "karras" },
+  "paletteColors": 56,
+  "paletteAnchors": ["#0a0820", "#241d3c", "#3a2266", "#4a2a86", "#b9a4ff", "#d9a95b", "#ffc46b", "#fff1c4", "#5a3424", "#45261a", "#74452e", "#6e4026", "#1f4a58", "#a8323a", "#2e5aa0", "#3a8a5a"],
+  "stylePrompt": "rich detailed 16-bit pixel art, cozy warm amber lamplight, deep violet night palette, mahogany wood and gold trim, crisp clean pixel clusters, high quality",
+  "negative": "people, person, character, face, hands, text, letters, words, logo, watermark, signature, top-down view, aerial view, isometric, map, landscape, room interior, perspective, vanishing point, blurry, noisy, jpeg artifacts, photo, 3d render, smooth gradient",
+  "assets": [
+    { "assetId": "exec-room-wall", "class": "room-backdrop", "guide": "room_backdrop_exec", "guideSize": [736, 368], "texels": [184, 92], "room": [12, 6, 6],
+      "candidates": 3, "denoise": 0.5, "seed": 52101,
+      "negative": "people, person, character, face, text, letters, words, logo, watermark, floor, ceiling, top-down view, isometric, perspective, vanishing point, blurry, noisy, photo, 3d render, smooth gradient",
+      "prompt": "back wall of a grand executive study at night, floor to ceiling mahogany bookcases packed with leather books and curios, tall arched window showing a purple spiral galaxy, violet velvet curtains, brass wall sconces, framed star chart, wall clock, lit glass display cabinet with trophies, crown moulding and wainscoting, flat front elevation, densely detailed" },
+    { "assetId": "exec-room-floor", "class": "room-floor", "guide": "room_floor_exec", "guideSize": [768, 192], "texels": [192, 48], "room": [12, 6, 6],
+      "candidates": 3, "denoise": 0.45, "seed": 52102,
+      "negative": "people, person, character, furniture, text, letters, logo, watermark, isometric, perspective, vanishing point, blurry, noisy, photo, 3d render, smooth gradient",
+      "prompt": "polished oak parquet floor with a thin gold inlay border and an ornate violet carpet with gold fringe and a spiral galaxy medallion, flat orthographic texture" },
+    { "assetId": "exec-desk", "class": "furniture-sprite", "guide": "exec_desk_box", "category": "desks", "isDesk": true, "guideSize": [512, 256], "texels": [64, 32], "footprint": [4, 2], "backgroundRows": 1,
+      "candidates": 3, "denoise": 0.5, "seed": 52107,
+      "prompt": "grand carved mahogany executive desk, wide polished top with a green leather blotter and papers, gold inlay trim, drawers with brass handles, front view from slightly above, isolated on plain magenta background" },
+    { "assetId": "exec-lamp", "class": "furniture-sprite", "guide": "floor_lamp_box", "category": "misc", "guideSize": [128, 320], "texels": [16, 40], "footprint": [1, 1], "backgroundRows": 0,
+      "candidates": 3, "denoise": 0.45, "seed": 52108,
+      "prompt": "polished brass floor lamp with a glowing warm amber pleated fabric shade, slim gold pole, round base, flat front view, isolated on plain magenta background" }
+  ]
+}

@@ -2,6 +2,9 @@
 // strictly one job at a time, and writes raw outputs plus provenance receipts.
 //
 // usage: node scripts/kit/generate-kit.mjs <kit.json> <work_dir> [assetId ...]
+//
+// An asset with "candidates": N is rendered N times (seed, seed+1000, ...) as
+// <id>.c<k>.raw.png; post.py scores them and keeps the best that passes.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -27,8 +30,15 @@ const sha = b => createHash('sha256').update(b).digest('hex');
 const info = await get('/object_info/CheckpointLoaderSimple');
 assert.ok(info.CheckpointLoaderSimple.input.required.ckpt_name[0].includes(kit.checkpoint), 'checkpoint missing');
 
+const jobs = [];
 for (const a of kit.assets) {
   if (only.length && !only.includes(a.assetId)) continue;
+  const n = a.candidates ?? 1;
+  for (let k = 0; k < n; k++) jobs.push({ a, k, n, seed: a.seed + k * 1000 });
+}
+
+for (const { a, k, n, seed } of jobs) {
+  const tag = n > 1 ? `${a.assetId}.c${k}` : a.assetId;
   const stats = await get('/system_stats');
   const queue = await get('/queue');
   assert.equal(queue.queue_running.length + queue.queue_pending.length, 0, 'ComfyUI queue is busy; refusing to contend');
@@ -52,10 +62,10 @@ for (const a of kit.assets) {
     ckpt: { class_type: 'CheckpointLoaderSimple', inputs: { ckpt_name: kit.checkpoint } },
     lora: { class_type: 'LoraLoader', inputs: { lora_name: kit.lora, strength_model: ls, strength_clip: lc, model: ['ckpt', 0], clip: ['ckpt', 1] } },
     pos: { class_type: 'CLIPTextEncode', inputs: { text: prompt, clip: ['lora', 1] } },
-    neg: { class_type: 'CLIPTextEncode', inputs: { text: kit.negative, clip: ['lora', 1] } },
+    neg: { class_type: 'CLIPTextEncode', inputs: { text: a.negative ?? kit.negative, clip: ['lora', 1] } },
     load: { class_type: 'LoadImage', inputs: { image: name } },
     enc: { class_type: 'VAEEncode', inputs: { pixels: ['load', 0], vae: ['ckpt', 2] } },
-    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed: a.seed, denoise: a.denoise, model: ['lora', 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
+    ks: { class_type: 'KSampler', inputs: { ...kit.sampler, seed, denoise: a.denoise, model: ['lora', 0], positive: ['pos', 0], negative: ['neg', 0], latent_image: ['enc', 0] } },
     dec: { class_type: 'VAEDecode', inputs: { samples: ['ks', 0], vae: ['ckpt', 2] } },
     save: { class_type: 'SaveImage', inputs: { images: ['dec', 0], filename_prefix: `AgentPixelsKit_${a.assetId}` } },
   };
@@ -76,16 +86,16 @@ for (const a of kit.assets) {
   const view = await fetch(origin + '/view?' + new URLSearchParams({ filename: image.filename, subfolder: image.subfolder || '', type: image.type }));
   const bytes = Buffer.from(await view.arrayBuffer());
   assert.ok(bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), 'not a PNG');
-  await writeFile(path.join(work, `${a.assetId}.raw.png`), bytes);
+  await writeFile(path.join(work, `${tag}.raw.png`), bytes);
   const receipt = {
     assetId: a.assetId, class: a.class, source: 'local-comfyui', comfyui: stats.system.comfyui_version,
-    checkpoint: kit.checkpoint, lora: kit.lora, loraStrength: kit.loraStrength, seed: a.seed, denoise: a.denoise,
-    sampler: kit.sampler, promptVersion: kit.promptVersion, prompt, negative: kit.negative,
+    checkpoint: kit.checkpoint, lora: kit.lora, loraStrength: kit.loraStrength, seed, candidate: n > 1 ? k : undefined, denoise: a.denoise,
+    sampler: kit.sampler, promptVersion: kit.promptVersion, prompt, negative: a.negative ?? kit.negative,
     conditioning: { kind: 'img2img-guide', guide: `${a.assetId}.guide.png`, guideSha256: sha(guide) },
     rawSha256: sha(bytes), rawWidth: bytes.readUInt32BE(16), rawHeight: bytes.readUInt32BE(20),
     generatedAt: new Date().toISOString(), elapsedSeconds: Math.round((Date.now() - started) / 1000),
     device: device.type, vramFreeAtStartGB: cpu ? null : +(free / 1e9).toFixed(2),
   };
-  await writeFile(path.join(work, `${a.assetId}.receipt.json`), JSON.stringify(receipt, null, 2));
-  console.log(`generated ${a.assetId} in ${receipt.elapsedSeconds}s`);
+  await writeFile(path.join(work, `${tag}.receipt.json`), JSON.stringify(receipt, null, 2));
+  console.log(`generated ${tag} in ${receipt.elapsedSeconds}s`);
 }

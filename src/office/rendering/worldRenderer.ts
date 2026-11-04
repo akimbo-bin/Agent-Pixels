@@ -11,6 +11,7 @@ import { characterWorld, type ProjectedPoint, type Projection } from '../geometr
 import type { TravelSystem } from '../navigation/elevator.js';
 import { FALLBACK_STYLE, type StylePack, floorStyle, wallStyle } from './stylePack.js';
 import type { AssetRecord } from '../assets/manifest.js';
+import { definitionById } from '../assets/definitions.js';
 
 /** Decoded asset-pack images the renderer may use for surfaces (visual only). */
 export interface RenderAssets { images: Map<string, HTMLCanvasElement>; records: Map<string, AssetRecord> }
@@ -41,8 +42,22 @@ export interface Hit { kind: 'agent' | 'furniture'; id: string; x: number; y: nu
 
 /** One depth-sorted drawable in the physical layer (layer 5). */
 interface Item { floor: number; key: number; order: number; draw: () => void }
+/** A desk work surface: items on these tiles rest on it instead of the floor. */
+interface Surface { floorId: string; key: number; y: number }
 
 type Ctx = CanvasRenderingContext2D;
+
+/** Transparent rows under a sprite's lowest opaque pixel (legacy art is padded). */
+const bottomPad = new WeakMap<object, number>();
+function emptyRowsBelow(sprite: string[][]): number {
+  let pad = bottomPad.get(sprite);
+  if (pad === undefined) {
+    pad = 0;
+    for (let y = sprite.length - 1; y >= 0 && sprite[y].every(c => !c); y--) pad++;
+    bottomPad.set(sprite, pad);
+  }
+  return pad;
+}
 const SIT_PX = 4;
 
 /**
@@ -100,6 +115,32 @@ export class WorldRenderer {
     return rec && rec.class === cls ? this.assets.images.get(id) ?? null : null;
   }
 
+  /**
+   * Whole-room art painted for this exact room size; anything else (a different
+   * size, a missing image) falls back to tiled textures rather than stretching.
+   */
+  private roomArt(id: string | undefined, cls: 'room-backdrop' | 'room-floor', cell: CompiledCell, H: number): HTMLCanvasElement | null {
+    if (!id || !this.assets) return null;
+    const rec = this.assets.records.get(id);
+    const r = rec?.room;
+    if (!rec || rec.class !== cls || !r || r.width !== cell.width || r.wallHeight !== H || r.depth !== cell.depth) return null;
+    return this.assets.images.get(id) ?? null;
+  }
+
+  /** Pixel size a room's backdrop / floor art must be painted at (asset authoring). */
+  roomArtSize(roomId: string) {
+    const cell = this.compiled.cells.find(c => c.id === roomId);
+    if (!cell) return null;
+    const H = this.floor(cell.floorId).def.wallHeight, id = cell.floorId;
+    const q = this.proj.projectFacade(id, cell.x, cell.x + cell.width, cell.depth, 0, H);
+    const f = this.proj.projectFootprint(id, cell.x, cell.x + cell.width, 0, cell.depth);
+    return {
+      room: { width: cell.width, wallHeight: H, depth: cell.depth },
+      backdrop: { w: Math.round(q[1].x) - Math.round(q[0].x), h: Math.round(q[0].y) - Math.round(q[3].y) },
+      floor: { w: Math.round(f[1].x) - Math.round(f[0].x), h: Math.round(f[0].y) - Math.round(f[3].y) },
+    };
+  }
+
   labels(): RoomLabel[] {
     return this.compiled.cells.filter(c => c.kind === 'room').map(c => {
       const f = this.floor(c.floorId);
@@ -123,8 +164,10 @@ export class WorldRenderer {
     const items: Item[] = [];
     const floorIndex = new Map(this.compiled.floors.map((f, i) => [f.def.id, i]));
     for (const w of this.walls) items.push({ ...w, draw: () => w.draw(ctx) });
+    const surfaces = this.deskSurfaces();
+    const lights: Array<{ x: number; y: number; color: string; radius: number }> = [];
     for (const f of this.compiled.layout.furniture) {
-      const it = this.furnitureItem(ctx, f.uid, f.type, f.col, f.row, floorIndex);
+      const it = this.furnitureItem(ctx, f.uid, f.type, f.col, f.row, floorIndex, surfaces.get(`${f.col},${f.row}`), lights);
       if (it) items.push(it);
     }
     for (const ch of office.characters.values()) {
@@ -135,6 +178,7 @@ export class WorldRenderer {
     }
     items.sort((a, b) => a.floor - b.floor || b.key - a.key || a.order - b.order);
     for (const it of items) it.draw();
+    this.drawLights(ctx, lights);
     ctx.drawImage(this.fg, 0, 0);
     if (opts.debug) this.drawDebug(ctx, office, opts);
   }
@@ -282,13 +326,21 @@ export class WorldRenderer {
     const fs = floorStyle(this.pack, cell.room?.surfaces?.floor?.material ?? kind?.floor);
     // Back wall (vertical plane at the room's depth).
     fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, H), ws.base);
-    const wallTex = this.texture(cell.room?.surfaces?.backWall?.textureId ?? kind?.wallTextureId, 'wall-texture');
-    const floorTex = this.texture(cell.room?.surfaces?.floor?.textureId ?? kind?.floorTextureId, 'floor-texture');
+    const wallId = cell.room?.surfaces?.backWall?.textureId ?? kind?.wallTextureId;
+    const floorId = cell.room?.surfaces?.floor?.textureId ?? kind?.floorTextureId;
+    const backdrop = this.roomArt(wallId, 'room-backdrop', cell, H);
+    const roomFloor = this.roomArt(floorId, 'room-floor', cell, H);
+    const wallTex = backdrop ? null : this.texture(wallId, 'wall-texture');
+    const floorTex = roomFloor ? null : this.texture(floorId, 'floor-texture');
     const wallPt = (x: number, h: number) => this.proj.project(id, x, D, h);
     ctx.fillStyle = ws.line;
     const hline = (h: number, color = ws.line) => { const a = wallPt(x0, h), b = wallPt(x1, h); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), Math.round(b.x - a.x), 1); };
     const vline = (x: number, h0: number, h1: number, color = ws.line) => { const a = wallPt(x, h1), b = wallPt(x, h0); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), 1, Math.round(b.y - a.y)); };
-    if (wallTex) {
+    if (backdrop) {
+      // Painted for this room: drawn 1:1 into the facade rectangle (no scaling).
+      const q = this.proj.projectFacade(id, x0, x1, D, 0, H);
+      ctx.drawImage(backdrop, Math.round(q[3].x), Math.round(q[3].y));
+    } else if (wallTex) {
       // Texture at native scale, anchored to the wall's top-left so it never swims.
       const q = this.proj.projectFacade(id, x0, x1, D, 0, H);
       const pat = ctx.createPattern(wallTex, 'repeat')!;
@@ -317,8 +369,11 @@ export class WorldRenderer {
       case 'blocks': for (let h = 0.5, i = 0; h < H; h += 0.5, i++) { hline(h); for (let x = x0 + (i % 2); x < x1; x += 2) vline(x, h - 0.5, h); } break;
       default: hline(1.1); hline(1.2, ws.shade);
     }
-    fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, 0.22), ws.shade);
-    fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, H - 0.18, H), ws.shade);
+    if (!backdrop) {
+      // A painted backdrop carries its own skirting, cornice and fixtures.
+      fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, 0.22), ws.shade);
+      fillQuad(ctx, this.proj.projectFacade(id, x0, x1, D, H - 0.18, H), ws.shade);
+    }
     // Soft ceiling-lamp pool on the back wall.
     const lamp = this.proj.project(id, (x0 + x1) / 2, D, H - 0.3);
     const rad = Math.min(cell.width, H * 1.6) * 8;
@@ -326,16 +381,19 @@ export class WorldRenderer {
     glow.addColorStop(0, hexA(this.pack.lamp, 0.22)); glow.addColorStop(1, hexA(this.pack.lamp, 0));
     ctx.save(); clipQuad(ctx, this.proj.projectFacade(id, x0, x1, D, 0, H)); ctx.fillStyle = glow;
     ctx.fillRect(lamp.x - rad, lamp.y - 4, rad * 2, rad * 2); ctx.restore();
-    ctx.fillStyle = '#2b2433'; ctx.fillRect(Math.round(lamp.x) - 5, Math.round(lamp.y) - 2, 10, 3);
-    ctx.fillStyle = this.pack.lamp; ctx.fillRect(Math.round(lamp.x) - 4, Math.round(lamp.y) + 1, 8, 1);
-    if (this.pack.features?.sconces && cell.width >= 6) this.drawSconces(ctx, cell, H, D);
+    if (!backdrop) {
+      ctx.fillStyle = '#2b2433'; ctx.fillRect(Math.round(lamp.x) - 5, Math.round(lamp.y) - 2, 10, 3);
+      ctx.fillStyle = this.pack.lamp; ctx.fillRect(Math.round(lamp.x) - 4, Math.round(lamp.y) + 1, 8, 1);
+      if (this.pack.features?.sconces && cell.width >= 6) this.drawSconces(ctx, cell, H, D);
+    }
 
     // Floor plane (z 0..D): the only visible walk plane.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, 0, D), fs.base);
-    if (floorTex) this.drawFloorTexture(ctx, floorTex, id, x0, x1, D);
+    if (roomFloor) this.drawRoomFloor(ctx, roomFloor, id, x0, x1, D);
+    else if (floorTex) this.drawFloorTexture(ctx, floorTex, id, x0, x1, D);
     const zl = (z: number, color: string) => { const a = this.proj.project(id, x0, z), b = this.proj.project(id, x1, z); ctx.fillStyle = color; ctx.fillRect(Math.round(a.x), Math.round(a.y), Math.round(b.x - a.x), 1); };
     const xl = (x: number, z0: number, z1: number, color: string) => line(ctx, this.proj.project(id, x, z0), this.proj.project(id, x, z1), color);
-    if (!floorTex) switch (fs.pattern) {
+    if (!floorTex && !roomFloor) switch (fs.pattern) {
       case 'planks': for (let z = 0.5, i = 0; z < D; z += 0.5, i++) { zl(z, fs.line); for (let x = x0 + (i % 3) + 1; x < x1; x += 3) xl(x, z - 0.5, z, fs.line); } break;
       case 'grid': for (let z = 1; z < D; z++) zl(z, fs.line); for (let x = x0 + 1; x < x1; x++) xl(x, 0, D, fs.line); break;
       case 'speckle': { const r = seeded(cell.x + 7); for (let i = 0; i < cell.width * D * 3; i++) { const p = this.proj.project(id, x0 + r() * cell.width, r() * D); ctx.fillStyle = fs.line; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); } break; }
@@ -343,6 +401,51 @@ export class WorldRenderer {
     }
     // Contact shadow where the floor meets the back wall.
     fillQuad(ctx, this.proj.projectFootprint(id, x0, x1, D - 0.18, D), hexA('#000000', 0.18));
+    this.drawOcclusion(ctx, cell, H);
+  }
+
+  /**
+   * Ambient occlusion: light falls off under the ceiling and into the room's
+   * side corners. Cheap, cached with the background, and it is most of what
+   * makes a flat shell read as an enclosed, lit space.
+   */
+  private drawOcclusion(ctx: Ctx, cell: CompiledCell, H: number) {
+    const k = this.pack.features?.occlusion ?? 0.5;
+    if (k <= 0) return;
+    const id = cell.floorId, D = cell.depth, x0 = cell.x, x1 = cell.x + cell.width;
+    const wall = this.proj.projectFacade(id, x0, x1, D, 0, H);
+    const floor = this.proj.projectFootprint(id, x0, x1, 0, D);
+    const top = wall[3].y, bottom = floor[0].y, left = Math.min(wall[3].x, floor[0].x), right = Math.max(wall[2].x, floor[1].x);
+    ctx.save();
+    ctx.beginPath();
+    for (const q of [wall, floor]) { ctx.moveTo(q[0].x, q[0].y); for (const p of q.slice(1)) ctx.lineTo(p.x, p.y); ctx.closePath(); }
+    ctx.clip();
+    const ceil = ctx.createLinearGradient(0, top, 0, top + (wall[0].y - top) * 0.5);
+    ceil.addColorStop(0, `rgba(6,3,14,${0.5 * k})`); ceil.addColorStop(1, 'rgba(6,3,14,0)');
+    ctx.fillStyle = ceil; ctx.fillRect(left, top, right - left, bottom - top);
+    const span = Math.min(28, (right - left) * 0.18);
+    for (const [from, to] of [[left, left + span], [right, right - span]]) {
+      const g = ctx.createLinearGradient(from, 0, to, 0);
+      g.addColorStop(0, `rgba(6,3,14,${0.42 * k})`); g.addColorStop(1, 'rgba(6,3,14,0)');
+      ctx.fillStyle = g; ctx.fillRect(Math.min(from, to), top, span, bottom - top);
+    }
+    ctx.restore();
+  }
+
+  /**
+   * Whole-room floor art, authored foreshortened: texel row v is screen row v
+   * from the back edge; each row is fitted to the projected room width there,
+   * so the slight perspective narrowing toward the back is preserved.
+   */
+  private drawRoomFloor(ctx: Ctx, tex: HTMLCanvasElement, id: string, x0: number, x1: number, D: number) {
+    const front = this.proj.project(id, x0, 0).y, back = this.proj.project(id, x0, D).y;
+    const top = Math.round(back), rows = Math.round(front) - top;
+    for (let y = top; y < top + rows; y++) {
+      const z = ((front - (y + 0.5)) / (front - back)) * D;
+      const v = Math.min(tex.height - 1, Math.floor(((y - top) / rows) * tex.height));
+      const a = this.proj.project(id, x0, z), b = this.proj.project(id, x1, z);
+      ctx.drawImage(tex, 0, v, tex.width, 1, Math.round(a.x), y, Math.round(b.x) - Math.round(a.x), 1);
+    }
   }
 
   /** Warm brass wall sconces with light pools on the wall and on the floor below. */
@@ -493,28 +596,74 @@ export class WorldRenderer {
     return out;
   }
 
-  private furnitureItem(ctx: Ctx, uid: string, type: string, col: number, row: number, floorIndex: Map<string, number>): Item | null {
+  /**
+   * Work surfaces of desks whose definition declares one, keyed by every tile
+   * of the desk footprint. Legacy desks (no surfaceY) keep their old behaviour.
+   */
+  private deskSurfaces(): Map<string, Surface> {
+    const out = new Map<string, Surface>();
+    for (const f of this.compiled.layout.furniture) {
+      const def = definitionById(f.type), entry = getCatalogEntry(f.type), floor = this.compiled.floorOfRow(f.row);
+      if (def?.surfaceY === undefined || !entry || !floor) continue;
+      const zFront = this.compiled.zOfRow(f.row + entry.footprintH);
+      const p = this.proj.project(floor.def.id, f.col, zFront);
+      const y = Math.round(p.y) - getCachedSprite(entry.sprite, 1).height + def.surfaceY;
+      for (let dc = 0; dc < entry.footprintW; dc++) for (let dr = 0; dr < entry.footprintH; dr++) {
+        out.set(`${f.col + dc},${f.row + dr}`, { floorId: floor.def.id, key: zFront, y });
+      }
+    }
+    return out;
+  }
+
+  private furnitureItem(ctx: Ctx, uid: string, type: string, col: number, row: number, floorIndex: Map<string, number>,
+    surface: Surface | undefined, lights: Array<{ x: number; y: number; color: string; radius: number }>): Item | null {
     const entry = getCatalogEntry(type);
     const floor = this.compiled.floorOfRow(row);
     if (!entry || !floor) return null;
+    const def = definitionById(type);
+    // A desk never rests on itself; anything else placed on a desk's tiles sits on its top.
+    const onDesk = surface && !entry.isDesk && entry.category !== 'chairs' ? surface : undefined;
     const zFront = this.compiled.zOfRow(row + entry.footprintH);
     const zBack = this.compiled.zOfRow(row);
     // Seated agents sit IN chairs: front/side chairs sort behind their sitter,
     // back-facing chairs (backrest toward the viewer) sort in front of them.
     let key = zFront;
     if (entry.category === 'chairs' && entry.orientation !== 'back') key = zBack - 0.01;
+    if (onDesk) key = onDesk.key - 0.001; // drawn just after its desk
     const sprite = getCachedSprite(entry.sprite, 1);
     const mirrored = !!entry.mirrorSide && entry.orientation === 'left';
+    const fid = floor.def.id;
+    const p = this.proj.project(fid, col, zFront);
+    // On a desk the lowest VISIBLE pixel rests on the surface, not the padded sprite edge.
+    const x = Math.round(p.x), y = onDesk ? onDesk.y - sprite.height + emptyRowsBelow(entry.sprite) : Math.round(p.y - sprite.height);
+    if (def?.light) lights.push({ x: x + sprite.width / 2, y: y + def.light.y, color: def.light.color, radius: def.light.radius });
     return {
-      floor: floorIndex.get(floor.def.id)!, key, order: 1,
+      floor: floorIndex.get(fid)!, key, order: 1,
       draw: () => {
-        const p = this.proj.project(floor.def.id, col, zFront);
-        const x = Math.round(p.x), y = Math.round(p.y - sprite.height);
+        if (!onDesk) {
+          // Contact shadow on the solid (non-overhang) rows of the footprint.
+          const solidBack = this.compiled.zOfRow(row + (entry.backgroundTiles ?? 0));
+          fillQuad(ctx, this.proj.projectFootprint(fid, col - 0.08, col + entry.footprintW + 0.08, zFront - 0.12, solidBack), 'rgba(8,4,16,0.26)');
+        }
         if (mirrored) { ctx.save(); ctx.translate(x + sprite.width, y); ctx.scale(-1, 1); ctx.drawImage(sprite, 0, 0); ctx.restore(); }
         else ctx.drawImage(sprite, x, y);
         this.hits.push({ kind: 'furniture', id: uid, x, y, w: sprite.width, h: sprite.height });
       },
     };
+  }
+
+  /** Additive light pools from emitting furniture (lamps), over furniture and agents. */
+  private drawLights(ctx: Ctx, lights: Array<{ x: number; y: number; color: string; radius: number }>) {
+    if (!lights.length) return;
+    const warm = this.pack.features?.warmth ?? 0.6;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (const l of lights) {
+      const g = ctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, l.radius);
+      g.addColorStop(0, hexA(l.color, 0.42 * warm)); g.addColorStop(0.35, hexA(l.color, 0.14 * warm)); g.addColorStop(1, hexA(l.color, 0));
+      ctx.fillStyle = g; ctx.fillRect(l.x - l.radius, l.y - l.radius, l.radius * 2, l.radius * 2);
+    }
+    ctx.restore();
   }
 
   private boardingPose(ch: Character, slot: { elevatorId: string; slot: number; boarding: number }) {

@@ -44,30 +44,28 @@ export function applyRoomKit(world: OfficeWorld, roomId: string, kit: RoomKitDre
   return w;
 }
 
-/** Nebula-night executive office for the campus sample's Lead (Main) room. */
+/**
+ * Nebula-night executive office for the campus sample's Lead (Main) room,
+ * room-first: the back wall (built-in bookcases, arched window, curtains,
+ * cabinet) and the floor (inlay, rug) are each ONE painted image for this
+ * room size, so only pieces agents use are furniture.
+ */
 export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
-  packId: 'nebula-exec-kit-v1',
-  wallTextureId: 'exec-wall-wood',
-  floorTextureId: 'exec-floor-parquet',
-  replaceFurniture: ['lead-desk', 'lead-library', 'lead-plant'],
+  packId: 'nebula-exec-room-v2',
+  wallTextureId: 'exec-room-wall',
+  floorTextureId: 'exec-room-floor',
+  replaceFurniture: ['lead-desk', 'lead-pc', 'lead-library', 'lead-plant'],
   replaceDecor: ['lead-art'],
   furniture: [
     { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
     // Beside the Lead's seat (col 5) so the monitor doesn't hide their face.
     { id: 'exec-pc', assetId: 'PC_BACK', col: 6, row: 2 },
-    { id: 'exec-shelf-1', assetId: 'exec-bookshelf', col: 0, row: 0 },
-    { id: 'exec-shelf-2', assetId: 'exec-bookshelf', col: 2, row: 0 },
     // The last column sits behind the right partition's front face; keep tall pieces clear of it.
-    { id: 'exec-lamp', assetId: 'exec-lamp', col: 8, row: 0 },
-    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 9, row: 0 },
+    { id: 'exec-lamp', assetId: 'exec-lamp', col: 8, row: 1 },
+    { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 10, row: 3 },
+    { id: 'exec-plant-2', assetId: 'LARGE_PLANT', col: 0, row: 3 },
   ],
-  decor: [
-    { id: 'exec-window', assetId: 'exec-window', attachment: 'back-wall', col: 5, y: 1.7 },
-    { id: 'exec-banner-l', assetId: 'exec-banner', attachment: 'back-wall', col: 4, y: 2.6 },
-    { id: 'exec-banner-r', assetId: 'exec-banner', attachment: 'back-wall', col: 8, y: 2.6 },
-    // Two rows deep: y 3 spans z 1..3, under the desk front and clear of the balcony edge.
-    { id: 'exec-rug', assetId: 'exec-rug', attachment: 'floor', col: 4, y: 3 },
-  ],
+  decor: [],
 };
 
 /** Every dressing we can offer, keyed by the room it was authored for. */

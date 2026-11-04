@@ -14,6 +14,14 @@ export interface FurnitureDefinition {
   category: FurnitureCategory;
   footprint: { w: number; h: number; backgroundRows: number };
   isDesk?: boolean;
+  /**
+   * Desks only: pixel row (from the sprite top) of the work surface. Items
+   * placed on the desk's tiles rest their base on this line instead of on the
+   * floor, so a monitor sits ON the desk rather than sinking into its front.
+   */
+  surfaceY?: number;
+  /** Light emitted by the piece (lamps): drawn as an additive pool each frame. */
+  light?: { color: string; radius: number; y: number };
   /** Sprite size in pixels (16 px per tile). */
   size: { w: number; h: number };
   fallback: (w: number, h: number) => SpriteData;
@@ -45,17 +53,17 @@ const table = (top: string, edge: string, apron: string, leg: string) => paint((
 export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
   {
     id: 'meeting-table', label: 'Meeting table (side-on)', category: 'desks', isDesk: true,
-    footprint: { w: 4, h: 2, backgroundRows: 0 }, size: { w: 64, h: 32 },
+    footprint: { w: 4, h: 2, backgroundRows: 0 }, size: { w: 64, h: 32 }, surfaceY: 12,
     fallback: table('#a87648', '#d0a06a', '#7a4e2e', '#5a3820'),
   },
   {
     id: 'low-table', label: 'Low table (side-on)', category: 'desks', isDesk: true,
-    footprint: { w: 2, h: 1, backgroundRows: 0 }, size: { w: 32, h: 24 },
+    footprint: { w: 2, h: 1, backgroundRows: 0 }, size: { w: 32, h: 24 }, surfaceY: 4,
     fallback: table('#8a6a50', '#b8936e', '#6a4a32', '#4a3020'),
   },
   {
     id: 'studio-console', label: 'Mixing console', category: 'desks', isDesk: true,
-    footprint: { w: 3, h: 2, backgroundRows: 1 }, size: { w: 48, h: 32 },
+    footprint: { w: 3, h: 2, backgroundRows: 1 }, size: { w: 48, h: 32 }, surfaceY: 15,
     fallback: paint((set, rect, w, h) => {
       rect(6, 4, w - 12, 12, '#2c2e3c');
       for (let x = 9; x < w - 9; x += 3) { set(x, 7, '#e0a050'); rect(x, 10, 1, 4, '#c8c8d0'); }
@@ -65,11 +73,12 @@ export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
   },
   {
     id: 'exec-desk', label: 'Executive desk (side-on)', category: 'desks', isDesk: true,
-    footprint: { w: 4, h: 2, backgroundRows: 1 }, size: { w: 64, h: 32 },
+    // Top face 16 px = 2 rows of depth at rise 0.5, the same foreshortening as the floor.
+    footprint: { w: 4, h: 2, backgroundRows: 1 }, size: { w: 64, h: 32 }, surfaceY: 9,
     fallback: paint((set, rect, w, h) => {
-      rect(0, 8, w, 4, '#8a5232'); rect(0, 8, w, 1, '#c88a5a');
-      rect(1, 12, w - 2, h - 13, '#5a3220'); rect(4, 15, w - 8, 1, '#d9a95b');
-      for (const x of [6, w - 18]) rect(x, 18, 12, 8, '#6a3c26');
+      rect(0, 0, w, 16, '#80492c'); rect(0, 0, w, 1, '#a8643c'); rect(0, 15, w, 1, '#d9a95b');
+      rect(0, 16, w, h - 16, '#56301c'); rect(4, 17, w - 8, 1, '#8c602c');
+      for (const x of [3, w - 21]) rect(x, 19, 18, 12, '#683a22');
     }),
   },
   {
@@ -84,6 +93,7 @@ export const FURNITURE_DEFINITIONS: FurnitureDefinition[] = [
   {
     id: 'exec-lamp', label: 'Floor lamp', category: 'misc',
     footprint: { w: 1, h: 1, backgroundRows: 0 }, size: { w: 16, h: 40 },
+    light: { color: '#ffc46b', radius: 40, y: 6 },
     fallback: paint((set, rect, w, h) => {
       rect(3, 2, 10, 8, '#ffc46b'); rect(7, 10, 2, h - 13, '#8a6a3a'); rect(4, h - 3, 8, 3, '#5a4022');
     }),

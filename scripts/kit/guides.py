@@ -352,8 +352,237 @@ def meeting_table(w, h, rnd):
     return img, mask
 
 
+# ── whole-room art (guides drawn in TEXEL units, scaled to the guide size) ──
+
+class Tex:
+    """Draw in texel coordinates on a canvas `scale` times larger."""
+
+    def __init__(self, img, scale, mask=None):
+        self.d, self.s = ImageDraw.Draw(img), scale
+        self.m = ImageDraw.Draw(mask) if mask is not None else None
+
+    def box(self, x0, y0, x1, y1):
+        s = self.s
+        return [round(x0 * s), round(y0 * s), round(x1 * s) - 1, round(y1 * s) - 1]
+
+    def pt(self, x, y):
+        return (round(x * self.s), round(y * self.s))
+
+    def rect(self, x0, y0, x1, y1, c, solid=True):
+        if x1 <= x0 or y1 <= y0:
+            return
+        self.d.rectangle(self.box(x0, y0, x1, y1), fill=c)
+        if self.m is not None and solid:
+            self.m.rectangle(self.box(x0, y0, x1, y1), fill=255)
+
+    def ellipse(self, x0, y0, x1, y1, c):
+        self.d.ellipse(self.box(x0, y0, x1, y1), fill=c)
+        if self.m is not None:
+            self.m.ellipse(self.box(x0, y0, x1, y1), fill=255)
+
+    def pie(self, x0, y0, x1, y1, a0, a1, c):
+        self.d.pieslice(self.box(x0, y0, x1, y1), a0, a1, fill=c)
+        if self.m is not None:
+            self.m.pieslice(self.box(x0, y0, x1, y1), a0, a1, fill=255)
+
+    def poly(self, pts, c):
+        self.d.polygon([self.pt(x, y) for x, y in pts], fill=c)
+        if self.m is not None:
+            self.m.polygon([self.pt(x, y) for x, y in pts], fill=255)
+
+
+WOOD = (70, 38, 26)
+WOOD_D = (46, 24, 16)
+WOOD_L = (112, 64, 38)
+GOLD = (217, 169, 91)
+GOLD_D = (140, 96, 44)
+NIGHT = (14, 14, 52)
+VIOLET = (74, 42, 134)
+BOOKS = [(168, 50, 58), (46, 90, 160), (217, 169, 91), (58, 138, 90), (106, 58, 138), (200, 120, 60), (120, 30, 40), (30, 60, 110)]
+
+
+def bookcase(t, rnd, x0, y0, x1, y1, shelves):
+    t.rect(x0, y0, x1, y1, WOOD_D)
+    t.rect(x0, y0, x1, y0 + 3, WOOD_L)
+    t.rect(x0, y0 + 3, x1, y0 + 4, GOLD)
+    sh = (y1 - y0 - 6) / shelves
+    for s_ in range(shelves):
+        top = y0 + 5 + s_ * sh
+        bottom = top + sh - 1.5
+        t.rect(x0 + 1.5, top, x1 - 1.5, bottom, (28, 16, 12))
+        x = x0 + 2
+        while x < x1 - 3:
+            if rnd.random() < 0.12:  # an object instead of books: globe, vase, box
+                w = rnd.choice([4, 5])
+                c = rnd.choice([(80, 150, 200), GOLD, (150, 70, 160), (200, 200, 220)])
+                t.ellipse(x, bottom - w, x + w, bottom, c)
+                x += w + 1
+                continue
+            bw = rnd.choice([1, 1.5, 2, 2])
+            bh = rnd.uniform(sh * 0.55, sh - 2.5)
+            col = rnd.choice(BOOKS)
+            t.rect(x, bottom - bh, x + bw, bottom, col)
+            t.rect(x, bottom - bh + 1.5, x + bw, bottom - bh + 2, GOLD)
+            x += bw + 0.25
+        t.rect(x0 + 1, bottom, x1 - 1, bottom + 1.5, WOOD_L)
+    t.rect(x0, y0, x0 + 1.5, y1, WOOD_L)
+    t.rect(x1 - 1.5, y0, x1, y1, WOOD_L)
+
+
+def sconce(t, x, y):
+    t.ellipse(x - 5, y - 5, x + 5, y + 5, (120, 82, 40))
+    t.rect(x - 1.5, y - 2, x + 1.5, y + 3, GOLD)
+    t.ellipse(x - 2, y - 5, x + 2, y - 1, (255, 241, 196))
+
+
+def room_backdrop_exec(w, h, rnd):
+    """Lead (Main) back wall, 184 x 92 texels: built-in bookcases, arched night
+    window with curtains, star chart, clock, lit display cabinet, moulding."""
+    W, H = 184, 92
+    img = Image.new('RGB', (w, h), WOOD)
+    t = Tex(img, w / W)
+    for x in range(0, W, 12):
+        t.rect(x, 8, x + 1, 68, WOOD_D)
+    # Crown moulding + dentils
+    t.rect(0, 0, W, 4, WOOD_D)
+    t.rect(0, 4, W, 5.5, GOLD)
+    for x in range(0, W, 3):
+        t.rect(x, 5.5, x + 1.5, 7.5, WOOD_L)
+    # Wainscot + chair rail
+    t.rect(0, 68, W, 70, GOLD)
+    t.rect(0, 70, W, H, (58, 30, 20))
+    for x in range(2, W, 14):
+        t.rect(x, 73, x + 11, 88, (78, 42, 28))
+        t.rect(x, 73, x + 11, 74, WOOD_L)
+    t.rect(0, 89, W, H, WOOD_D)
+    # Left: floor-to-ceiling built-in bookcases
+    bookcase(t, rnd, 2, 8, 29, 90, 5)
+    bookcase(t, rnd, 30, 8, 57, 90, 5)
+    # Pilasters with sconces
+    for px in (58, 120):
+        t.rect(px, 8, px + 6, 90, WOOD_L)
+        t.rect(px + 1, 8, px + 5, 90, (96, 54, 32))
+        sconce(t, px + 3, 40)
+    # Centre: arched window with violet curtains
+    cx = 92
+    t.rect(cx - 23, 22, cx + 23, 66, GOLD_D)
+    t.pie(cx - 23, 6, cx + 23, 40, 180, 360, GOLD_D)
+    t.rect(cx - 21, 23, cx + 21, 64, NIGHT)
+    t.pie(cx - 21, 8, cx + 21, 38, 180, 360, NIGHT)
+    for r in range(16, 2, -2):
+        t.d.arc(t.box(cx - r * 1.3, 36 - r * 0.7, cx + r * 1.3, 36 + r * 0.7), r * 25, r * 25 + 240,
+                fill=(130 + r * 6, 90, 210), width=max(1, round(t.s * 1.2)))
+    t.ellipse(cx - 2, 34, cx + 2, 38, (255, 240, 255))
+    for _ in range(46):
+        x, y = rnd.uniform(cx - 19, cx + 19), rnd.uniform(14, 63)
+        t.rect(x, y, x + 0.6, y + 0.6, (240, 236, 255))
+    t.rect(cx - 0.75, 8, cx + 0.75, 64, GOLD)
+    t.rect(cx - 21, 44, cx + 21, 45.5, GOLD)
+    t.rect(cx - 25, 64, cx + 25, 67, GOLD)
+    for side in (-1, 1):
+        x0 = cx + side * 21
+        for k in range(4):
+            xx = x0 + side * k * 1.6
+            t.rect(min(xx, xx + side * 4), 9, max(xx, xx + side * 4), 66 - k, shade(VIOLET, 0.8 + 0.12 * (k % 2)))
+        t.rect(min(x0, x0 + side * 8), 46, max(x0, x0 + side * 8), 48, GOLD)
+    t.rect(cx - 30, 7.5, cx + 30, 9, GOLD)
+    # Right: star chart, clock, display cabinet
+    t.rect(128, 12, 160, 38, GOLD)
+    t.rect(130, 14, 158, 36, (24, 22, 60))
+    for _ in range(14):
+        x, y = rnd.uniform(131, 157), rnd.uniform(15, 35)
+        t.rect(x, y, x + 0.8, y + 0.8, (220, 210, 255))
+    t.d.line([t.pt(133, 20), t.pt(141, 27), t.pt(150, 18), t.pt(155, 31)], fill=(185, 164, 255), width=max(1, round(t.s * 0.6)))
+    t.ellipse(165, 14, 181, 30, GOLD)
+    t.ellipse(167, 16, 179, 28, (236, 222, 190))
+    t.rect(172.5, 18, 173.5, 22.5, (40, 30, 20))
+    t.rect(173, 21.5, 176.5, 22.5, (40, 30, 20))
+    t.rect(127, 42, 182, 70, WOOD_D)
+    t.rect(127, 42, 182, 44, GOLD)
+    for k, x in enumerate(range(129, 180, 13)):
+        t.rect(x, 45, x + 11, 68, (40, 34, 70))
+        t.rect(x, 56, x + 11, 57, WOOD_L)
+        t.ellipse(x + 3, 47, x + 8, 52, [(185, 164, 255), (255, 196, 107), (90, 200, 220), GOLD][k % 4])
+        t.rect(x + 2, 60, x + 9, 63, GOLD)
+        t.rect(x + 4, 58, x + 7, 60, GOLD)
+    return img, None
+
+
+def room_floor_exec(w, h, rnd):
+    """Lead (Main) floor, 192 x 48 texels, foreshortened (8 texel rows per tile
+    of depth): parquet, gold border inlay, violet galaxy rug under the desk."""
+    W, H = 192, 48
+    img = Image.new('RGB', (w, h), (90, 52, 30))
+    t = Tex(img, w / W)
+    for gy in range(0, H, 4):
+        for gx in range(-8, W, 8):
+            off = 4 if (gy // 4) % 2 else 0
+            tone = rnd.uniform(0.85, 1.15)
+            t.rect(max(0, gx + off), gy, gx + off + 8, gy + 4, shade((112, 66, 38), tone))
+            t.rect(gx + off + 7.5, gy, gx + off + 8, gy + 4, (58, 32, 20))
+        t.rect(0, gy + 3.5, W, gy + 4, (58, 32, 20))
+    t.rect(3, 2, W - 3, 2.6, GOLD)
+    t.rect(3, H - 3, W - 3, H - 2.4, GOLD)
+    t.rect(3, 2, 4.2, H - 2.4, GOLD)
+    t.rect(W - 4.2, 2, W - 3, H - 2.4, GOLD)
+    # Rug: ~6 x 3 tiles centred under the desk front.
+    t.rect(50, 18, 142, 44, (58, 30, 100))
+    t.rect(52, 19.5, 140, 42.5, GOLD)
+    t.rect(53.5, 20.5, 138.5, 41.5, VIOLET)
+    t.ellipse(78, 23, 114, 39, (96, 60, 160))
+    for r in range(8, 1, -2):
+        t.d.arc(t.box(96 - r * 2.2, 31 - r, 96 + r * 2.2, 31 + r), r * 40, r * 40 + 230, fill=GOLD, width=max(1, round(t.s * 0.7)))
+    for x in range(50, 142, 3):
+        t.rect(x, 44, x + 1, 45.5, GOLD)
+    return img, None
+
+
+def box_furniture(t, x0, x1, base, front_h, top_rows, top_c, front_c, edge_c):
+    """A box in the engine's projection: front face `front_h` texels tall and a
+    top face `top_rows` tiles deep = top_rows * 8 texels (rise 0.5), exactly as
+    deep per row as the floor it stands on."""
+    top_px = top_rows * 8
+    t.rect(x0, base - front_h - top_px, x1, base - front_h, top_c)
+    t.rect(x0, base - front_h - top_px, x1, base - front_h - top_px + 1, shade(top_c, 1.25))
+    t.rect(x0, base - front_h - 1, x1, base - front_h, edge_c)
+    t.rect(x0, base - front_h, x1, base, front_c)
+
+
+def exec_desk_box(w, h, rnd):
+    """64 x 32 texel executive desk, 4 x 2 tiles: 16-texel top face (2 rows of
+    depth at rise 0.5) above a 16-texel carved front."""
+    img, mask, _, _ = sprite_canvas(w, h)
+    t = Tex(img, w / 64, mask)
+    box_furniture(t, 0, 64, 32, 16, 2, (128, 74, 44), (86, 46, 28), GOLD)
+    for x0 in (3, 43):
+        t.rect(x0, 19, x0 + 18, 31, (104, 58, 34))
+        for k in range(3):
+            t.rect(x0 + 7, 21 + k * 3.6, x0 + 11, 22 + k * 3.6, GOLD)
+    t.rect(23, 19, 41, 31, (62, 34, 20))
+    t.rect(4, 17.5, 60, 18.2, GOLD_D)
+    # Desk-top clutter painted into the surface: blotter, papers, inkwell.
+    t.rect(18, 5, 34, 12, (60, 90, 70))
+    t.rect(38, 6, 44, 10, (236, 226, 200))
+    t.rect(8, 7, 11, 10, (30, 30, 40))
+    return img, mask
+
+
+def floor_lamp_box(w, h, rnd):
+    """16 x 40 texel brass floor lamp with a pleated shade."""
+    img, mask, _, _ = sprite_canvas(w, h)
+    t = Tex(img, w / 16, mask)
+    t.poly([(4, 2), (12, 2), (14, 11), (2, 11)], (255, 196, 107))
+    for x in (5, 8, 11):
+        t.rect(x, 3, x + 0.6, 10.5, (230, 160, 80), solid=False)
+    t.rect(7.25, 11, 8.75, 35, GOLD)
+    t.rect(6.5, 22, 9.5, 23, GOLD_D)
+    t.ellipse(3, 34, 13, 39, GOLD_D)
+    return img, mask
+
+
 GUIDES = {f.__name__: f for f in (acoustic, planks, beam, skyline, diffuser, poster, speaker, console,
-                                  exec_wall, parquet, arch_window, banner, rug, bookshelf, exec_desk, floor_lamp, meeting_table)}
+                                  exec_wall, parquet, arch_window, banner, rug, bookshelf, exec_desk, floor_lamp, meeting_table,
+                                  room_backdrop_exec, room_floor_exec, exec_desk_box, floor_lamp_box)}
 
 
 def main():

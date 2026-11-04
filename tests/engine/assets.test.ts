@@ -41,6 +41,12 @@ describe('asset pack validation', () => {
     assert.ok(validateAssetPack(pack([rec({ class: 'decor-sprite', alphaMode: 'cutout', tileable: false, collision: 'solid' })])).some(m => m.includes('reclassify')));
     assert.ok(validateAssetPack(pack([rec({ class: 'furniture-sprite', alphaMode: 'cutout', tileable: false, collision: 'solid' })])).some(m => m.includes('footprint')));
   });
+  test('room art must name the room size it was painted for, and never collides', () => {
+    const room = { width: 12, wallHeight: 6, depth: 6 };
+    assert.deepEqual(validateAssetPack(pack([rec({ class: 'room-backdrop', tileable: false, room })])), []);
+    assert.ok(validateAssetPack(pack([rec({ class: 'room-floor', tileable: false })])).some(m => m.includes('room size')));
+    assert.ok(validateAssetPack(pack([rec({ class: 'room-backdrop', tileable: false, room, collision: 'solid' })])).some(m => m.includes('never collides')));
+  });
   test('surface textures must tile', () => {
     assert.ok(validateAssetPack(pack([rec({ tileable: false })])).some(m => m.includes('tileable')));
   });

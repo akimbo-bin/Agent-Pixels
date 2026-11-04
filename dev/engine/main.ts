@@ -528,6 +528,8 @@ window.__engine = {
   fit: () => scene.fit(),
   kit: () => kitPacks.size ? { id: [...kitPacks.keys()].join(','), loaded: [...kitAssets.images.keys()], problems: [...kitPacks.values()].flatMap(p => p.problems) } : null,
   stats: () => scene.stats(),
+  /** Exact pixel size to paint a room's backdrop and floor art at (kit authoring). */
+  roomArtSize: (roomId: string) => scene.renderer.roomArtSize(roomId),
   resetStats: () => { scene.frameTimes = []; },
   screenOf: (col: number, row: number) => {
     const f = scene.compiled.floorOfRow(row)!;

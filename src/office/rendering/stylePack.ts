@@ -54,6 +54,8 @@ export interface StyleFeatures {
   trim?: string;
   /** Strength of warm light pools (0..1). */
   warmth?: number;
+  /** Ambient occlusion in room corners and under the ceiling (0..1). */
+  occlusion?: number;
 }
 
 export const FALLBACK_STYLE: StylePack = {
@@ -152,7 +154,7 @@ export const NEBULA_STYLE: StylePack = {
     lounge: { wall: 'wood-panel', floor: 'carpet', subtitle: 'Lounge' },
   },
   features: {
-    sconces: true, railings: true, groundDecor: 'forest', trim: '#d9a95b', warmth: 0.85,
+    sconces: true, railings: true, groundDecor: 'forest', trim: '#d9a95b', warmth: 0.85, occlusion: 0.9,
     banners: { cloth: '#4a2a86', trim: '#d9a95b', emblem: '#b9a4ff' },
   },
 };
