@@ -53,16 +53,20 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
   replaceDecor: ['lead-art'],
   furniture: [
     { id: 'exec-desk', assetId: 'exec-desk', col: 4, row: 2 },
+    // Beside the Lead's seat (col 5) so the monitor doesn't hide their face.
+    { id: 'exec-pc', assetId: 'PC_BACK', col: 6, row: 2 },
     { id: 'exec-shelf-1', assetId: 'exec-bookshelf', col: 0, row: 0 },
     { id: 'exec-shelf-2', assetId: 'exec-bookshelf', col: 2, row: 0 },
-    { id: 'exec-lamp', assetId: 'exec-lamp', col: 11, row: 0 },
+    // The last column sits behind the right partition's front face; keep tall pieces clear of it.
+    { id: 'exec-lamp', assetId: 'exec-lamp', col: 8, row: 0 },
     { id: 'exec-plant', assetId: 'LARGE_PLANT', col: 9, row: 0 },
   ],
   decor: [
     { id: 'exec-window', assetId: 'exec-window', attachment: 'back-wall', col: 5, y: 1.7 },
     { id: 'exec-banner-l', assetId: 'exec-banner', attachment: 'back-wall', col: 4, y: 2.6 },
     { id: 'exec-banner-r', assetId: 'exec-banner', attachment: 'back-wall', col: 8, y: 2.6 },
-    { id: 'exec-rug', assetId: 'exec-rug', attachment: 'floor', col: 4, y: 4 },
+    // Two rows deep: y 3 spans z 1..3, under the desk front and clear of the balcony edge.
+    { id: 'exec-rug', assetId: 'exec-rug', attachment: 'floor', col: 4, y: 3 },
   ],
 };
 
