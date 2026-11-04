@@ -39,9 +39,9 @@
       "describe": "carved mahogany executive desk",
       "footprint": [
         4,
-        2
+        1
       ],
-      "backgroundRows": 1,
+      "backgroundRows": 0,
       "category": "desks",
       "isDesk": true
     },
@@ -108,25 +108,48 @@
     },
     {
       "assetId": "desk-monitor",
-      "describe": "desk computer monitor with a glowing screen",
+      "describe": "computer monitor turned to face left, its glowing screen seen at an angle on its left side, dark casing and stand",
       "footprint": [
         1,
         1
       ],
       "backgroundRows": 0,
       "category": "electronics"
+    },
+    {
+      "assetId": "office-desk",
+      "describe": "simple wooden office desk with a drawer and a sheet of paper on top",
+      "footprint": [
+        3,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "desks",
+      "isDesk": true
+    },
+    {
+      "assetId": "office-chair",
+      "describe": "padded office chair seen from the front with a tall dark backrest",
+      "footprint": [
+        1,
+        1
+      ],
+      "backgroundRows": 0,
+      "category": "chairs"
     }
   ],
   "pick": {
     "shell": 3,
-    "exec-desk": 2,
+    "exec-desk": 1,
     "velvet-sofa": 1,
     "velvet-armchair": 1,
     "coffee-table": 1,
     "brass-globe": 0,
     "exec-lamp": 1,
     "potted-fig": 0,
-    "desk-monitor": 2
+    "desk-monitor": 0,
+    "office-desk": 2,
+    "office-chair": 2
   },
   "shellColors": 64,
   "spriteColors": 20

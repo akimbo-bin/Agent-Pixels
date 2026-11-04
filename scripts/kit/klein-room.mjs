@@ -14,7 +14,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const [specPath, stage] = process.argv.slice(2);
+// Optional piece ids after the stage limit guides/render to those pieces (the shell is left alone).
+const [specPath, stage, ...onlyIds] = process.argv.slice(2);
 const spec = JSON.parse(readFileSync(specPath, 'utf8'));
 const work = path.join(root, 'dev/engine/packs-work', spec.packId);
 mkdirSync(work, { recursive: true });
@@ -33,15 +34,17 @@ const pieceType = f => f.type ?? f.assetId;
 
 if (stage === 'guides') {
   copyFileSync(path.resolve(root, spec.reference), path.join(work, ref));
-  run('node', ['scripts/kit/room-guide.mjs', spec.building, spec.roomId, path.join(work, 'shell.guide.png'), String(shellScale), 'shell']);
-  run('node', ['scripts/kit/sprite-guides.mjs', spec.building, work, String(spriteScale), '1024x1024', ...spec.furniture.map(pieceType)]);
+  if (!onlyIds.length) run('node', ['scripts/kit/room-guide.mjs', spec.building, spec.roomId, path.join(work, 'shell.guide.png'), String(shellScale), 'shell']);
+  const pieces = spec.furniture.filter(f => !onlyIds.length || onlyIds.includes(f.assetId));
+  run('node', ['scripts/kit/sprite-guides.mjs', spec.building, work, String(spriteScale), '1024x1024', ...pieces.map(pieceType)]);
 } else if (stage === 'render') {
   const jobs = [];
   const guide = JSON.parse(readFileSync(path.join(work, 'shell.guide.json'), 'utf8'));
   for (let c = 0; c < candidates; c++) {
-    jobs.push({ id: `shell.c${c}`, kind: 'klein-edit', guide: 'shell.guide.png', refs: [ref], prompt: shellPrompt,
+    if (!onlyIds.length) jobs.push({ id: `shell.c${c}`, kind: 'klein-edit', guide: 'shell.guide.png', refs: [ref], prompt: shellPrompt,
       seed: (spec.seed ?? 1000) + c, width: guide.size[0], height: guide.size[1] });
     for (const f of spec.furniture) {
+      if (onlyIds.length && !onlyIds.includes(f.assetId)) continue;
       jobs.push({ id: `${f.assetId}.c${c}`, kind: 'klein-edit', guide: `sprite-${pieceType(f)}.guide.png`, refs: [ref], prompt: piecePrompt(f),
         seed: (spec.seed ?? 1000) + 100 + c, width: 1024, height: 1024 });
     }
