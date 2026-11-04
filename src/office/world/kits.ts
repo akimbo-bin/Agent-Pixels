@@ -77,6 +77,16 @@ export const NEBULA_EXEC_DRESSING: RoomKitDressing = {
   decor: [{ id: 'exec-rug', assetId: 'galaxy-rug', attachment: 'floor', col: 3, y: 2 }],
 };
 
+/**
+ * A whole building's art: every room dressed for its kind (dress.ts), each room
+ * (except those with their own room kit) shown as a painted SHELL from `packId`
+ * named `<roomId>-shell`, and every furniture type skinned by the same pack.
+ */
+export interface BuildingKit { building: string; packId: string; skipRooms: string[] }
+export const BUILDING_KITS: BuildingKit[] = [
+  { building: 'nebula-campus', packId: 'nebula-campus-v1', skipRooms: ['lead'] },
+];
+
 /** Every dressing we can offer, keyed by the room it was authored for. */
 export const ROOM_KITS: Array<{ roomId: string; dressing: RoomKitDressing }> = [];
 

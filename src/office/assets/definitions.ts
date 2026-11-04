@@ -290,6 +290,46 @@ function boxToDefinition(b: BoxDefinition, rise: number): FurnitureDefinition {
 }
 
 /** Camera-aware decor (floor rugs): w x (rows * 16 * rise) px. */
+/**
+ * WALL FIXTURES: back-wall decor that belongs to the room shell. With `bake`,
+ * the fixture is drawn into the shell's guide (so the painting keeps it in
+ * place) and painted into the shell; `glass` marks pixels that end up
+ * transparent so one shared sky shows through every window in the building.
+ */
+export interface WallFixture {
+  id: string; label: string; w: number; h: number; bake: boolean;
+  /** Painted guide art and (optional) glass mask at 16 px/tile. */
+  paint: (set: Pen, rect: Box, w: number, h: number) => void;
+  glass?: (x: number, y: number, w: number, h: number) => boolean;
+  light?: { color: string; radius: number; y: number };
+}
+
+const archGlass = (x: number, y: number, w: number, h: number) => {
+  const inset = 3, r = (w - 2 * inset) / 2, cx = w / 2, top = inset + r;
+  if (x < inset || x >= w - inset || y < inset || y >= h - 4) return false;
+  return y >= top || (x + 0.5 - cx) ** 2 + (y + 0.5 - top) ** 2 <= r * r;
+};
+
+export const WALL_FIXTURES: WallFixture[] = [
+  {
+    id: 'arched-window', label: 'Arched window', w: 3, h: 4, bake: true, glass: archGlass,
+    light: { color: '#9ab4ff', radius: 30, y: 30 },
+    paint: (set, rect, w, h) => {
+      const r = (w - 2) / 2, cx = w / 2, top = 1 + r;
+      for (let y = 0; y < h - 1; y++) for (let x = 0; x < w; x++) {
+        const inArch = y >= top || (x + 0.5 - cx) ** 2 + (y + 0.5 - top) ** 2 <= (r + 1) ** 2;
+        if (!inArch) continue;
+        set(x, y, archGlass(x, y, w, h) ? ((x * 7 + y * 13) % 29 === 0 ? '#e8e0ff' : '#141a44') : '#8a5a2e');
+      }
+      rect(cx - 1, top - r + 2, 2, h - top + r - 6, '#c89a52'); rect(3, Math.round(h * 0.55), w - 6, 2, '#c89a52');
+      rect(0, h - 4, w, 4, '#d9a95b'); rect(1, h - 2, w - 2, 1, '#8a5a2e');
+    },
+  },
+];
+
+const wallFixtureById = (id: string) => WALL_FIXTURES.find(x => x.id === id);
+export { wallFixtureById };
+
 export const RUG_DEFINITIONS = [
   { id: 'galaxy-rug', label: 'Galaxy rug', w: 6, rows: 3 },
 ];
@@ -336,6 +376,10 @@ export function registerFurnitureDefinitions(rise = 0.5) {
     ...(fixedRegistered ? [] : FURNITURE_DEFINITIONS.map(d => definitionEntry(d))),
     // Re-cut camera-aware shapes for the new rise, but never over art an asset pack supplied.
     ...BOX_DEFINITIONS.filter(b => ours(b.id)).map(b => { const e = definitionEntry(boxToDefinition(b, rise)); fallbackSprites.add(e.sprite); return e; }),
+    ...WALL_FIXTURES.map(x => ({
+      type: x.id, label: x.label, footprintW: x.w, footprintH: x.h, isDesk: false, category: 'wall' as const, canPlaceOnWalls: true,
+      sprite: paint(x.paint, '#2a1810')(x.w * 16, x.h * 16),
+    })),
     ...RUG_DEFINITIONS.map(r => ({
       type: r.id, label: r.label, footprintW: r.w, footprintH: r.rows, isDesk: false, category: 'decor' as const,
       sprite: rugSprite(r.w * 16, Math.round(r.rows * 16 * rise)),

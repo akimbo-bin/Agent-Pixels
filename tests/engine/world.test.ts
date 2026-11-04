@@ -135,3 +135,19 @@ function rows(c: ReturnType<typeof compileWorld>) {
   for (let r = 0; r < c.rows; r++) out.push(c.layout.tiles.slice(r * c.cols, (r + 1) * c.cols));
   return out;
 }
+
+describe('building dressing', () => {
+  test('dresses every room for its kind and keeps the building valid and connected', async () => {
+    const { dressBuilding } = await import('../../src/office/world/dress.js');
+    const { nebulaCampusSample } = await import('../../src/office/world/templates.js');
+    const base = nebulaCampusSample();
+    const w = dressBuilding(base, ['lead']);
+    const c = compileWorld(w);
+    assert.deepEqual(checkConnectivity(c), []);
+    assert.deepEqual(c.layout.tiles, compileWorld(base).layout.tiles, 'dressing never changes topology');
+    for (const r of w.rooms.filter(r => r.id !== 'lead')) {
+      assert.ok(w.decor.some(d => d.roomId === r.id && d.assetId === 'arched-window'), `${r.id} has a window`);
+    }
+    assert.ok(w.furniture.length > base.furniture.length + 12, 'rooms gained furniture');
+  });
+});

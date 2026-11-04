@@ -1,0 +1,43 @@
+{
+  "building": "nebula-campus",
+  "packId": "nebula-campus-v1",
+  "name": "Nebula Research campus: every room and piece (FLUX.2-klein)",
+  "stylePackId": "nebula-night",
+  "tilePx": 32,
+  "rise": 1,
+  "reference": "dev/engine/packs-work/bakeoff/reference-full.png",
+  "skipRooms": ["lead"],
+  "reusePacks": ["nebula-lead-room"],
+  "candidates": 3,
+  "shellScale": 3,
+  "spriteScale": 12,
+  "seed": 5000,
+  "paletteColors": 160,
+  "shellColors": 64,
+  "spriteColors": 20,
+  "paletteAnchors": ["#0a0820", "#241d3c", "#3a2266", "#4a2a86", "#b9a4ff", "#d9a95b", "#ffc46b", "#fff1c4"],
+  "kindWalls": {
+    "office": "mahogany panelling, built-in bookshelves, framed star charts and a brass wall clock",
+    "reception": "a wooden reception wall with framed certificates, a notice board and a company emblem",
+    "observatory": "star charts, telescope blueprints, glowing constellation maps and brass instruments",
+    "studio": "acoustic panels, framed vinyl records, shelves of audio gear and warm sconces",
+    "workshop": "pegboards of tools, rocket blueprints, shelves of parts and caution-striped trim",
+    "lab": "chalkboards covered in equations, shelves of binders and glowing data screens",
+    "operations": "wall-mounted monitors showing pipelines and charts, status lights and cable trays",
+    "clinic": "a clean pale wall with medical cabinets, an x-ray light box and wellness posters",
+    "review": "corkboards pinned with documents, filing shelves and checklist posters",
+    "default": "shelves, framed pictures and warm wall lamps"
+  },
+  "describe": {
+    "SOFA_FRONT": "comfortable lounge sofa",
+    "ARCADE_MACHINE": "retro arcade cabinet with a glowing screen",
+    "DOUBLE_BOOKSHELF": "wide wooden bookshelf full of books",
+    "PLANT": "small potted plant",
+    "PLANT_2": "potted leafy plant",
+    "meeting-table": "long wooden meeting table",
+    "LARGE_PAINTING": "large framed painting of a galaxy",
+    "WHITEBOARD": "whiteboard with diagrams",
+    "CLOCK": "round brass wall clock",
+    "SMALL_PAINTING_2": "small framed painting"
+  }
+}

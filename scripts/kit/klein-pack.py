@@ -99,11 +99,20 @@ def main():
     # Art density: 16 = one cell per classic engine pixel; 32 = double density (cells half the size).
     tile = spec.get('tilePx', 16)
     d = tile // 16
-    sh = spec['shell']
-    g = json.loads((work / f"{sh['guide']}.json").read_text())
-    k, (W, H) = g['scale'], (g['rect']['w'], g['rect']['h'])
-    shell_rgb = np.asarray(Image.open(work / sh['render']).convert('RGB').resize((W * k, H * k), Image.LANCZOS)).astype(np.float32)
-    shell_native = cell_median(shell_rgb, k, W, H)
+    # One shell (a room kit) or many (a building kit).
+    shells = []
+    for sh in spec.get('shells') or [spec['shell']]:
+        g = json.loads((work / f"{sh['guide']}.json").read_text())
+        k, (W, H) = g['scale'], (g['rect']['w'], g['rect']['h'])
+        rgb = np.asarray(Image.open(work / sh['render']).convert('RGB').resize((W * k, H * k), Image.LANCZOS)).astype(np.float32)
+        native = cell_median(rgb, k, W, H)
+        # Window glass from the engine's mask: those cells become transparent (the engine's sky shows through).
+        gp = work / f"{sh['guide']}.glass.png"
+        glass = np.zeros((H, W), bool)
+        if gp.exists():
+            gm = np.asarray(Image.open(gp).convert('L').resize((W * k, H * k), Image.NEAREST)) > 127
+            glass = gm[: H * k, : W * k].reshape(H, k, W, k).mean(axis=(1, 3)) > 0.5
+        shells.append((sh, native, glass, W, H))
 
     pieces = []
     for f in spec['furniture']:
@@ -129,7 +138,7 @@ def main():
     # Equal say per asset: the shell has ~50x the pixels of a small piece, and a
     # pixel-weighted palette would leave the fig's greens no colours of their own.
     rs = np.random.default_rng(7)
-    pool = [p[rs.integers(0, len(p), 12000)] for p in [shell_native.reshape(-1, 3)] + [n[o] for _, n, o, *_ in pieces]]
+    pool = [p[rs.integers(0, len(p), 12000)] for p in [n[~gl] for _, n, gl, *_ in shells] + [n[o] for _, n, o, *_ in pieces]]
     palette = palette_from(np.concatenate(pool).astype(np.uint8), spec.get('paletteAnchors', []), spec['paletteColors'])
 
     records = []
@@ -144,14 +153,20 @@ def main():
                         'licenseStatus': 'review-required', 'reviewStatus': 'candidate', 'sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
                         'provenance': {**receipt, 'postProcess': {'script': 'scripts/kit/klein-pack.py', 'cells': 'median', 'paletteColors': spec['paletteColors']}}})
 
-    idx = pixelize(shell_native, np.ones((H, W), bool), palette, spec.get('shellColors', 40))
-    rgba = np.dstack([palette[idx].astype(np.uint8), np.full((H, W), 255, np.uint8)])
-    r = sh['room']
-    write(sh['assetId'], rgba, {'class': 'room-plate', 'alphaMode': 'opaque', 'collision': 'none', 'projection': 'dollhouse-cutaway',
-                                'room': {'width': r[0], 'wallHeight': r[1], 'depth': r[2], 'rise': sh['rise'], 'withFurniture': False}}, sh['render'])
+    for sh, native, glass, W, H in shells:
+        idx = pixelize(native, ~glass, palette, spec.get('shellColors', 40))
+        rgba = np.dstack([palette[idx].astype(np.uint8), np.where(glass, 0, 255).astype(np.uint8)])
+        r = sh['room']
+        write(sh['assetId'], rgba, {'class': 'room-plate', 'alphaMode': 'cutout' if glass.any() else 'opaque', 'collision': 'none',
+                                    'projection': 'dollhouse-cutaway',
+                                    'room': {'width': r[0], 'wallHeight': r[1], 'depth': r[2], 'rise': sh['rise'], 'withFurniture': False}}, sh['render'])
     for f, native, opaque, fw, fh in pieces:
         idx = pixelize(native, opaque, palette, spec.get('spriteColors', 16))
         rgba = np.dstack([palette[idx].astype(np.uint8), np.where(opaque, 255, 0).astype(np.uint8)])
+        if f.get('decor'):
+            write(f['assetId'], rgba, {'class': 'decor-sprite', 'alphaMode': 'cutout', 'collision': 'none', 'projection': 'dollhouse-cutaway',
+                                       'attachment': f.get('attachment', 'back-wall')}, f['render'])
+            continue
         write(f['assetId'], rgba, {'class': 'furniture-sprite', 'alphaMode': 'cutout', 'collision': 'solid', 'projection': 'dollhouse-cutaway',
                                    'footprint': {'w': f['footprint'][0], 'h': f['footprint'][1], 'backgroundRows': f['backgroundRows']},
                                    'category': f['category'], 'isDesk': bool(f.get('isDesk')), 'anchor': {'x': 0, 'y': fh}}, f['render'])

@@ -18,8 +18,9 @@ import { getCatalogEntry } from '../../src/office/layout/furnitureCatalog.js';
 import { getCachedSprite } from '../../src/office/sprites/spriteCache.js';
 import { CharacterState } from '../../src/office/types.js';
 import { loadAssetPack, type LoadedAssetPack } from '../../src/office/assets/loader.js';
-import { registerFurnitureDefinitions } from '../../src/office/assets/definitions.js';
-import { applyRoomKit, ROOM_KITS } from '../../src/office/world/kits.js';
+import { registerFurnitureDefinitions, wallFixtureById } from '../../src/office/assets/definitions.js';
+import { applyRoomKit, BUILDING_KITS, ROOM_KITS } from '../../src/office/world/kits.js';
+import { dressBuilding } from '../../src/office/world/dress.js';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const canvas = $<HTMLCanvasElement>('view');
@@ -267,7 +268,7 @@ const kitAssets = { images: new Map<string, HTMLCanvasElement>(), records: new M
 
 async function loadKitPacks() {
   const problems: string[] = [];
-  for (const id of new Set(ROOM_KITS.map(k => k.dressing.packId))) {
+  for (const id of new Set([...ROOM_KITS.map(k => k.dressing.packId), ...BUILDING_KITS.map(b => b.packId)])) {
     if (kitPacks.has(id)) continue;
     try {
       const p = await loadAssetPack(`/packs/${id}/`);
@@ -287,6 +288,15 @@ function makeWorld(name: string): OfficeWorld {
   for (const { roomId, dressing } of ROOM_KITS) {
     // Layout applies even before the pack's art exists; missing art falls back to engine drawings.
     if (w.rooms.some(r => r.id === roomId)) w = applyRoomKit(w, roomId, dressing);
+  }
+  const bk = BUILDING_KITS.find(b => b.building === name);
+  if (bk) {
+    w = dressBuilding(w, bk.skipRooms);
+    for (const room of w.rooms) {
+      if (bk.skipRooms.includes(room.id)) continue;
+      room.surfaces = { ...room.surfaces, plate: { material: 'plate', textureId: `${room.id}-shell` } };
+    }
+    w.assetPacks = [...new Set([...(w.assetPacks ?? []), bk.packId])];
   }
   return w;
 }
@@ -607,6 +617,12 @@ window.__engine = {
   stats: () => scene.stats(),
   /** Exact pixel size to paint a room's backdrop and floor art at (kit authoring). */
   roomArtSize: (roomId: string) => scene.renderer.roomArtSize(roomId),
+  isBakedFixture: (id: string) => !!wallFixtureById(id)?.bake,
+  /** Physical facts of a catalog type (for kit packing). */
+  footprintOf: (id: string) => {
+    const e = getCatalogEntry(id);
+    return e ? { w: e.footprintW, h: e.footprintH, backgroundRows: e.backgroundTiles ?? 0, category: e.category, isDesk: !!e.isDesk, label: e.label } : null;
+  },
   /** A furniture type's current sprite (camera-aware shapes at this world's rise) as PNG: a sprite guide. */
   spritePng: (type: string) => {
     const entry = getCatalogEntry(type);
@@ -626,12 +642,15 @@ window.__engine = {
       const keep = [...live.records].filter(([, rec]) => rec.class !== 'room-plate');
       scene.renderer.setAssets({ records: new Map(keep), images: new Map(keep.map(([id]) => [id, live.images.get(id)!])) });
     }
+    if (shell) { scene.renderer.guideShell = true; scene.renderer.setAssets(scene.renderer['assets']); }
     scene.renderer.render(scene.office, scene.travel, { debug: false, selectedId: null, hoverTile: null, time: 0, hideAgents: true, hideFurniture: shell });
     const c = document.createElement('canvas');
     c.width = r.w; c.height = r.h;
     c.getContext('2d')!.drawImage(scene.renderer.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
-    if (live) scene.renderer.setAssets(live);
-    return { rect: r, rise: scene.proj.params.rise, png: c.toDataURL('image/png') };
+    const glass = shell ? scene.renderer.glassMask(cell).toDataURL('image/png') : null;
+    scene.renderer.guideShell = false;
+    scene.renderer.setAssets(live);
+    return { glass, rect: r, rise: scene.proj.params.rise, png: c.toDataURL('image/png') };
   },
   resetStats: () => { scene.frameTimes = []; },
   screenOf: (col: number, row: number) => {

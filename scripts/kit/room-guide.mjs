@@ -24,11 +24,23 @@ const g = await page.evaluate(([room, k, shell]) => new Promise(res => {
     const ctx = c.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, 0, 0, c.width, c.height);
-    res({ ...info, png: c.toDataURL('image/png'), scale: k, size: [c.width, c.height] });
+    let glass = null;
+    if (info.glass) {
+      const gi = new Image();
+      gi.onload = () => {
+        const gc = document.createElement('canvas'); gc.width = gi.width * k; gc.height = gi.height * k;
+        const gx = gc.getContext('2d'); gx.imageSmoothingEnabled = false; gx.drawImage(gi, 0, 0, gc.width, gc.height);
+        res({ ...info, png: c.toDataURL('image/png'), glass: gc.toDataURL('image/png'), scale: k, size: [c.width, c.height] });
+      };
+      gi.src = info.glass;
+      return;
+    }
+    res({ ...info, png: c.toDataURL('image/png'), glass, scale: k, size: [c.width, c.height] });
   };
   img.src = info.png;
 }), [roomId, Number(scale), mode === 'shell']);
 await browser.close();
 await writeFile(out, Buffer.from(g.png.split(',')[1], 'base64'));
+if (g.glass) await writeFile(out.replace(/\.png$/, '.glass.png'), Buffer.from(g.glass.split(',')[1], 'base64'));
 await writeFile(out.replace(/\.png$/, '.json'), JSON.stringify({ building, roomId, rect: g.rect, rise: g.rise, scale: g.scale, size: g.size }, null, 2));
 console.log('guide', out, g.size.join('x'), 'native', `${g.rect.w}x${g.rect.h}`, 'rise', g.rise);

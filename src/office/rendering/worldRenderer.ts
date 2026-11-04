@@ -11,7 +11,7 @@ import { characterWorld, type ProjectedPoint, type Projection } from '../geometr
 import type { TravelSystem } from '../navigation/elevator.js';
 import { FALLBACK_STYLE, type StylePack, floorStyle, wallStyle } from './stylePack.js';
 import type { AssetRecord } from '../assets/manifest.js';
-import { definitionById } from '../assets/definitions.js';
+import { definitionById, wallFixtureById } from '../assets/definitions.js';
 
 /** Decoded asset-pack images the renderer may use for surfaces (visual only). */
 export interface RenderAssets { images: Map<string, HTMLCanvasElement>; records: Map<string, AssetRecord> }
@@ -208,6 +208,10 @@ export class WorldRenderer {
     const top = this.proj.project(id, cell.x, cell.depth, H);
     const x = Math.round(fl.x), y = Math.round(top.y);
     return { x, y, w: Math.round(fr.x) - x, h: Math.round(fl.y) - y };
+  }
+
+  private plateRecord(cell: CompiledCell) {
+    return this.plate(cell) ? this.assets!.records.get(cell.room!.surfaces!.plate!.textureId!) ?? null : null;
   }
 
   /** The room's plate, if one is loaded for exactly this room size AND camera. */
@@ -432,7 +436,10 @@ export class WorldRenderer {
     for (const e of this.compiled.elevators) this.drawShaft(ctx, e);
     for (const d of this.compiled.world.decor) {
       const cell = this.compiled.cells.find(c => c.id === d.roomId);
-      if (cell && this.plate(cell)) continue; // painted into the plate
+      const baked = !!wallFixtureById(d.assetId)?.bake;
+      const plateRec = cell ? this.plateRecord(cell) : null;
+      if (plateRec && (plateRec.room?.withFurniture !== false || baked)) continue; // painted into the plate
+      if (this.guideShell && !baked) continue;
       const hit = this.drawDecor(ctx, d.roomId, d.assetId, d.attachment, d.col, d.y);
       if (hit) this.decorHits.push({ ...hit, kind: 'decor', id: d.id });
     }
@@ -451,6 +458,15 @@ export class WorldRenderer {
     if (plate) {
       // The painted room replaces shell, surfaces, fixtures and lighting alike.
       const r = this.plateRect(cell);
+      if (this.plateRecord(cell)?.room?.withFurniture === false) {
+        // Shells have transparent window glass: one shared night sky shows through every window.
+        const sky = this.backdrop();
+        ctx.save(); ctx.beginPath(); ctx.rect(r.x, r.y, r.w, r.h); ctx.clip();
+        ctx.fillStyle = sky.top; ctx.fillRect(r.x, r.y, r.w, r.h);
+        const pat = ctx.createPattern(sky.stars, 'repeat');
+        if (pat) { ctx.fillStyle = pat; ctx.fillRect(r.x, r.y, r.w, r.h); }
+        ctx.restore();
+      }
       ctx.drawImage(plate, r.x, r.y);
       return;
     }
@@ -847,12 +863,39 @@ export class WorldRenderer {
         out.push({ x: p.x, y: p.y, color: this.pack.lamp, radius: this.T * 1.3, clip });
       }
     }
+    // Wall fixtures that emit (windows: cool moonlight).
+    for (const d of this.compiled.world.decor) {
+      const fx = wallFixtureById(d.assetId), cell = this.compiled.cells.find(c => c.id === d.roomId);
+      if (!fx?.light || !cell) continue;
+      const p = this.proj.project(cell.floorId, cell.x + d.col + fx.w / 2, cell.depth, d.y + fx.h * 0.45);
+      out.push({ x: p.x, y: p.y, color: fx.light.color, radius: fx.light.radius * this.k, clip: this.plateRect(cell) });
+    }
     // Balcony lamp posts at the wall columns of every cut floor edge.
     if (this.pack.features?.railings) for (const f of this.compiled.floors) for (const col of this.compiled.walls.get(f.def.id)?.keys() ?? []) {
       const p = this.proj.project(f.def.id, col + 0.5, 0, 1.25);
       out.push({ x: p.x, y: p.y - 3 * this.k, color: this.pack.lamp, radius: this.T * 1.1 });
     }
     return out;
+  }
+
+  /** Authoring a room-shell guide: only baked wall fixtures are drawn (no movable decor). */
+  guideShell = false;
+
+  /** White where baked fixtures have glass, in the room's plate rectangle (shell packing cuts these out). */
+  glassMask(cell: CompiledCell): HTMLCanvasElement {
+    const r = this.plateRect(cell), k = this.k;
+    const c = document.createElement('canvas'); c.width = r.w; c.height = r.h;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#000'; g.fillRect(0, 0, r.w, r.h); g.fillStyle = '#fff';
+    for (const d of this.compiled.world.decor) {
+      const fx = wallFixtureById(d.assetId);
+      if (d.roomId !== cell.id || !fx?.glass) continue;
+      const W = fx.w * 16, H = fx.h * 16;
+      const p = this.decorAnchor(cell.floorId, cell.x + d.col, cell.depth, d.attachment, d.y, H * k);
+      const ox = Math.round(p.x) - r.x, oy = Math.round(p.y - H * k) - r.y;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (fx.glass(x, y, W, H)) g.fillRect(ox + x * k, oy + y * k, k, k);
+    }
+    return c;
   }
 
   private lightmap: HTMLCanvasElement | null = null;
