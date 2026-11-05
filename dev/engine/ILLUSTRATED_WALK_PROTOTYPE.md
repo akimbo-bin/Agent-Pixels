@@ -62,3 +62,13 @@ and returns to the front corridor; ceiling/seating blocks and all four chair
 bases were checked. Other rooms' navigation data was retained.
 
 Direct review link: ?start=review&grid=1&zoom=3
+
+
+## Doctor desk correction
+
+Traced the desk's angled left corner, cabinet front, right side and monitor from
+the original scene to replace the old rectangular cutout. Its collision polygon
+now includes the marked left/front edge and actual base. The feet marker is
+redrawn before foreground layers so it cannot show through a desk. Verified the
+marked corner is blocked, the back/left/front approaches remain walkable, and
+walking forward from behind stops at the desk. Direct view: ?start=clinic&grid=1&zoom=3.
