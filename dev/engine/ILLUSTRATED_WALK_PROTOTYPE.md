@@ -47,3 +47,18 @@ Its SHA-256 is embedded in map export. Original art/source remains unchanged.
 Character source: existing project `public/assets/characters/char_0.png`.
 
 This branch is an isolated throwaway prototype, not the production world renderer.
+
+
+## Review-room correction
+
+The original mapping wrongly used the ceiling's vanishing point as the floor's
+rear boundary and guessed six repeated seat columns. It has been replaced with
+the owner's annotated center aisle and front walking strip, plus four traced
+front chair bases. No ceiling or rear desk rows are walkable. Character scale
+now changes from 45% at the rear aisle to full size at the front, continuously.
+Review grid cells are clipped to the actual floor outline. Matching chair masks
+preserve depth overlap. Browser walking reaches the rear floor limit at y≈730
+and returns to the front corridor; ceiling/seating blocks and all four chair
+bases were checked. Other rooms' navigation data was retained.
+
+Direct review link: ?start=review&grid=1&zoom=3
