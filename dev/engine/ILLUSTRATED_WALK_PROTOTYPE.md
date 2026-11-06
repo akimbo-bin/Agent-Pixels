@@ -1,5 +1,40 @@
 # Illustrated world walking prototype
 
+## Approved owner map and working elevator
+
+The latest Downloads export, nebula-expanded-grid-and-masks (1).json, is preserved
+byte-for-byte as dev/engine/approved-map.json. It contains 599 painted cells and
+18 masks. SHA-256: 1966f3ed390921477871a55a3b5887e018dc293f969fe8744abb94b07448f259.
+The build embeds it as the default. A newer browser save/draft still takes
+precedence; older browser saves cannot replace the approved export by accident.
+
+The single cabin starts at the middle floor, matching the open-door artwork.
+The middle open interior supplies the cabin texture on all floors. Upper and
+ground closed doors use their own source pixels; each is split into left/right
+leaves that slide behind the stationary golden frame. Middle closed leaves use
+the matching upper pair fitted to that opening. Rectangles are documented in
+elevator-slices.json; extract-elevator-slices.py saves the actual pixel crops.
+
+illustrated-elevator.js owns calls, boarding, closing, travel, opening and exit.
+Press E or click the local wall button to call; choose 1 Upper, 2 Middle or
+3 Ground when ready. The character walks into the cabin, rides with doors shut,
+then walks out. Empty calls also move the cabin. The camera follows a passenger
+smoothly during travel. Only the landing containing the cabin may open.
+
+Runtime collision gates the opening regardless of painted cells. Doors stay
+open while the character occupies the cabin/threshold and reverse if the
+threshold is occupied during an empty close. Lights above each landing show
+amber calls, violet directional travel and green cabin presence. The idle doors
+close after the landing clears. Editing, Reset and start jumps cannot interrupt
+an occupied trip. Elevator state is runtime-only; map geometry is unchanged.
+
+Browser checks exercised all six directed floor pairs, intermediate door states,
+closed-door blocking, manual cabin entry, threshold hold, automatic clear close,
+reopening and riding, and no page errors. Moving-state samples always had all
+landing doors closed, and never more than one landing was open. The approved
+599-cell/18-mask data compared identical after six trips. Reports/screenshots
+are in review/illustrated-walk in the running engine. No image generation ran.
+
 ## Current version: expanded AI-upscaled map and furniture masks
 
 The current prototype uses the expanded owner master
