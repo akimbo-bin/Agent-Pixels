@@ -224,3 +224,24 @@ and seats survive save/reload; ordinary Walk reload remains locked; export
 contains version 3 seat data; no browser page errors.
 
 Direct editor: /review/illustrated-walk/index.html?mode=seats&seat=review-front&zoom=3
+
+
+## Observatory portal motion (2026-11-06)
+
+The existing vortex artwork rotates inside a perspective-matched elliptical
+aperture; the bezel, housing and foreground brace remain original static
+pixels. A feathered edge, subtle purple light pulse and nine tiny drifting
+sparks keep the animation inside the illustrated style. The 128px offscreen
+frame updates at 12 fps and composites before characters and furniture masks.
+No generation services, GPU inference or image/map replacement are involved.
+
+Motion has its own browser preference, respects reduced-motion on first use,
+and pauses during grid, mask and seat editing. It does not enter exported map
+data or mark owner edits dirty. Seat save/draft keys remain unchanged.
+
+Browser QA verified animation time advances, freezes in Seats, pauses via
+Motion and retains that preference after reload; approved 599 cells remain
+intact and no page errors occurred. Screenshots were inspected for aperture
+alignment and retaining the fixed ring/foreground brace.
+
+Direct preview: /review/illustrated-walk/index.html?start=portal&zoom=4&rev=portal-motion

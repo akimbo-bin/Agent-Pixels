@@ -10,6 +10,8 @@ for name,file in [('ART',art),('SPRITE',sprite)]:
 text=text.replace('@@APPROVED_MAP@@',(root/'dev/engine/approved-map.json').read_text(encoding='utf-8')).replace('@@ELEVATOR_SLICES@@',(root/'dev/engine/elevator-slices.json').read_text(encoding='utf-8')).replace('@@ELEVATOR@@',(root/'dev/engine/illustrated-elevator.js').read_text(encoding='utf-8'))
 text=text.replace('@@SEATS@@',(root/'dev/engine/illustrated-seats.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@PORTAL@@',(root/'dev/engine/illustrated-portal.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:
