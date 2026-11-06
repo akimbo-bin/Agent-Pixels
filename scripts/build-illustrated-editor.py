@@ -1,6 +1,6 @@
 """Rebuild the self-contained editor from its readable template and local art."""
 from pathlib import Path
-import base64,sys
+import base64,sys,json
 root=Path(__file__).resolve().parent.parent
 art=root/'artifacts/illustrated-map/nebula-full-building-ai-2x.png'
 sprite=root/'public/assets/characters/char_0.png'
@@ -21,6 +21,9 @@ text=text.replace('@@SCREENS@@',(root/'dev/engine/illustrated-screens.js').read_
 text=text.replace('@@STARS@@',(root/'dev/engine/illustrated-stars.js').read_text(encoding='utf-8'))
 
 text=text.replace('@@HUD@@',(root/'dev/engine/illustrated-hud.js').read_text(encoding='utf-8')).replace('@@HUD_CSS@@',(root/'dev/engine/illustrated-hud.css').read_text(encoding='utf-8'))
+
+sprites=[{'src':'data:image/png;base64,'+base64.b64encode(file.read_bytes()).decode()} for file in sorted((root/'public/assets/characters').glob('char_*.png'),key=lambda p:int(p.stem.split('_')[-1]))]
+text=text.replace('@@CHARACTERS@@',(root/'dev/engine/illustrated-characters.js').read_text(encoding='utf-8')).replace('@@CHARACTER_SPRITES@@',json.dumps(sprites))
 
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')

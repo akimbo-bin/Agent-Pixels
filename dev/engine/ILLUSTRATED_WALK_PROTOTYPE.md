@@ -376,3 +376,29 @@ at 1600, 997, 620 or 390px widths. No page errors. Wide, owner-size, directory
 and editing screenshots visually inspected.
 
 Preview: /review/illustrated-walk/index.html?rev=command-hud
+
+
+## Live Nebula roster and Characters editor (2026-11-06)
+
+Restored all 14 real organization members via the existing read-only /live
+feed, including paused members, with live presence, issue context and room
+activity. The Characters editor supports 82 embedded built-ins, per-agent
+assignment/placement/scale/facing, PNG upload, individual-frame pixel editing,
+animation previews, sprite export, seat binding and control/walk tests.
+Version 5 saves character overrides with the existing owner map data.
+See CHARACTERS.md for layout, feed semantics, channels and persistence.
+
+The actor renderer sorts NPCs/player and reapplies foreground/screen masks,
+while preserving the working elevator clipping and calibrated sitting poses.
+The status strip now reports live organization agent count; stale feed state
+is explicit. No writes to Paperclip/Nebula, no agent execution, no GPU art work.
+
+Browser QA used the real 14-member roster and browser-local response fixtures
+for status/failure/membership changes. Verified swap, PNG upload, pixel paint,
+undo/redo, save/reload, custom-sprite walking and sitting, room state updates,
+new/removed/paused agents, stale retention, screen channels and legacy imports.
+An elevator trip passed with the multi-agent renderer. Owner 599 grid cells,
+18 masks and four initial seat configurations remained intact. No page errors;
+1500px and 997px previews inspected. Fixtures never changed the actual org.
+
+Preview: /review/illustrated-walk/index.html?mode=characters&zoom=3&rev=live-agents
