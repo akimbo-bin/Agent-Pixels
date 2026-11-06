@@ -1,5 +1,40 @@
 # Illustrated world walking prototype
 
+## Current version: expanded AI-upscaled map and furniture masks
+
+The current prototype uses the expanded owner master
+8a8c2bde-8bc6-4103-91c2-5f257de3e645.png (1448 × 1086), with a 2896 × 2172
+RealESRGAN_x2plus display texture. Upscaling ran on CPU, two threads,
+below-normal priority, tiled with 32px context. ComfyUI stayed disabled.
+Logical geometry uses native coordinates; canvas backing and cropped cutout
+textures use 2× resolution. Walking areas were recalibrated for the expanded art.
+
+Use Furniture masks for Brush, Polygon, Erase, brush-size control and Undo/Redo.
+Click polygon corners, then Finish, Enter or double-click. Pick line sets the
+furniture's floor baseline; Try behind and Try in front preview actual walkable
+positions. Masks cover agents on the same floor only when their feet are behind
+the baseline. Masks sample exact image pixels; Walking grid handles collision
+separately. This is a first geometry/mask pass for owner refinement.
+
+Save & lock persists BOTH walking cells and foreground layers in this browser.
+Export/Load map use version-2 JSON with mask operations and base lines. Draft
+recovery remains available. This is not an automatic server/project write.
+
+The old map and its browser storage remain available at previous.html, backed by
+artifacts/illustrated-map/map-editor-backup/previous-map.html and commit 7708d8f.
+Old-map coordinates are not silently applied to the changed composition.
+
+The readable source is illustrated-editor.template.html. Rebuild the embedded
+standalone HTML with scripts/build-illustrated-editor.py --serve-copy using the
+portable Python. AI output and receipt are in artifacts/illustrated-map.
+
+Browser checks passed for brush/polygon/eraser alpha, Undo/Redo, base-line setting,
+mask-plus-grid save/reload and export/import, valid character preview, every
+named starting location, sampled same-floor connectivity and all elevator floors.
+No page errors occurred. Nebula remained unpaused; ComfyUI remained disabled.
+
+The notes below describe the previous map and earlier prototype iterations.
+
 Question: can the owner's finished illustration support continuous character movement,
 floor connections and depth overlap without regenerating its furnishings separately?
 
