@@ -565,3 +565,37 @@ WebP crop. Headless star-draw mean was about 4 ms in a targeted sample; verified
 Motion/editor pause, preview setup, 599 unchanged overrides and no page errors.
 
 Preview: /review/illustrated-walk/index.html?rev=vivid-starfield&twinkle=preview
+
+
+## Unified effects preview and visible vent steam (2026-11-06)
+
+Owner reported Working preview had no blinking machines and no visible rocket
+steam. Reproduced the actual UI failure: after disabling Ambient motion,
+opening ?hardware=working set every preview to Working but left the hardware
+clock paused and puff count at zero. A second architectural issue was the
+separate room-power and hardware controls; live polling could overwrite the
+visible power control while a different hardware override remained active.
+
+Data now has one authoritative effects control per room: Follow live / Idle
+preview / Working preview. It drives room rails, machine lamps and rocket
+steam together. Preview state is separate from live agent state and polling
+cannot overwrite it. Selecting Working or opening the Working preview starts
+Ambient motion and exits editing when no shape is pending. A visible paused
+status and Resume effects button support deliberate pauses. View buttons focus
+the matching room. API/live actual states and saved map data are unchanged.
+
+Kept the clean, softly blended quantized lamp footprints and colored standby
+palette, but restored a distinct brighter ordered row chase instead of the
+overly sparse activity pattern. Only one lamp group cycles at a time; no
+random busy flicker or black cutouts. Steam now vents farther outside the
+bright rocket fins, with larger pale wisps and narrow curling vapor trails.
+Agent tag placement reserves the vent area so names cannot hide the effect.
+
+Regression: node scripts/check-effects-preview.cjs. It failed before the fix
+(paused true, steam 0) and now verifies Working activation after a paused
+preference, unified Idle/Working controls, persistence across a live poll,
+Resume, visible renderer pixel changes (114 steam / 415 Training / 149
+Observatory / 153 Operations in a sample), no tags over vents, no dirty edits
+and 599 preserved grid overrides. Rocket screenshot inspected.
+
+Preview: /review/illustrated-walk/index.html?start=engine&zoom=3&hardware=working&rev=effects-preview-fixed

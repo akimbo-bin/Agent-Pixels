@@ -21,8 +21,8 @@ const RoomLighting=(()=>{
    const halo=document.createElement('canvas');halo.width=c.width+32;halo.height=c.height+32;const hc=halo.getContext('2d');hc.filter='blur(6px)';hc.drawImage(c,16,16);source.halo=halo;
   }prepared=true;
  }
- function setRoomState(id,state){if(!rooms[id]||!['idle','working'].includes(state))return false;rooms[id].state=state;const field=$('#power-'+id);if(field)field.value=state;try{localStorage.setItem('nebula-room-lighting',JSON.stringify(Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,r.state]))));}catch{}return true;}
- function tick(dt){const moving=Portal.info().enabled&&mode==='walk'&&!document.hidden;if(!moving)return;time+=dt;for(const r of Object.values(rooms)){const target=r.state==='working'?1:0;r.power+=(target-r.power)*Math.min(1,dt*2.5);}}
+ function setRoomState(id,state){if(!rooms[id]||!['idle','working'].includes(state))return false;rooms[id].state=state;try{localStorage.setItem('nebula-room-lighting',JSON.stringify(Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,r.state]))));}catch{}return true;}
+ function tick(dt){const moving=Portal.info().enabled&&mode==='walk'&&!document.hidden;if(!moving)return;time+=dt;for(const[id,r]of Object.entries(rooms)){const target=HardwareActivity.roomState(id)==='working'?1:0;r.power+=(target-r.power)*Math.min(1,dt*2.5);}}
  function level(r){const t=time+r.phase,p=1;
   const breathe=.5+.5*Math.sin(t*(.85+p*1.2));
   // Independent channels, softened dips and brief bright surges; never a
@@ -41,7 +41,7 @@ const RoomLighting=(()=>{
    for(const[x,y,rx,ry]of r.spills){ctx.save();ctx.translate(x,y);ctx.scale(rx,ry);const g=ctx.createRadialGradient(0,0,0,0,0,1);g.addColorStop(0,`rgba(162,62,255,${gain*(.13+.15*power)})`);g.addColorStop(1,'rgba(162,62,255,0)');ctx.globalAlpha=1;ctx.fillStyle=g;ctx.fillRect(-1,-1,2,2);ctx.restore();}
   }ctx.restore();drawBars();
  }
- function segments(id,r){const n=r.bar.count;if(!Portal.info().enabled)return Array(n).fill(r.state==='working'?.65:0);if(r.power<.005)return Array(n).fill(0);
+ function segments(id,r){const n=r.bar.count;if(!Portal.info().enabled)return Array(n).fill(HardwareActivity.roomState(id)==='working'?.65:0);if(r.power<.005)return Array(n).fill(0);
   const step=Math.floor(time*10);
   if(id==='data'){const head=step%n;return Array.from({length:n},(_,i)=>{const behind=(head-i+n)%n;return behind<9?(1-behind/9)*r.power:0;});}
   const half=(n-1)/2,cycle=(time/3.4)%2,position=(cycle<1?cycle:2-cycle)*half;
@@ -56,6 +56,6 @@ const RoomLighting=(()=>{
    }
   }ctx.restore();
  }
- function init(){for(const[id,r]of Object.entries(rooms)){$('#power-'+id).value=r.state;$('#power-'+id).onchange=e=>setRoomState(id,e.target.value);}$('#lighting-toggle').onclick=()=>{const panel=$('#lighting-panel');panel.hidden=!panel.hidden;$('#lighting-toggle').setAttribute('aria-expanded',String(!panel.hidden));};$('#lighting-close').onclick=()=>{$('#lighting-panel').hidden=true;$('#lighting-toggle').setAttribute('aria-expanded','false');canvas.focus();};document.querySelectorAll('[data-light-view]').forEach(b=>b.onclick=()=>{if(Lift.hasPassenger()){message('Finish the elevator ride first.');return;}setMode('walk');spawn(b.dataset.lightView);setZoom(3);});}
- return{init,tick,draw,setRoomState,stateOf:id=>rooms[id]?.state,info:()=>({time,paused:mode!=='walk'||!Portal.info().enabled,rooms:Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,{state:r.state,power:r.power,brightness:level(r),bar:segments(id,r)}]))})};
+ function init(){$('#lighting-toggle').onclick=()=>{const panel=$('#lighting-panel');panel.hidden=!panel.hidden;$('#lighting-toggle').setAttribute('aria-expanded',String(!panel.hidden));};$('#lighting-close').onclick=()=>{$('#lighting-panel').hidden=true;$('#lighting-toggle').setAttribute('aria-expanded','false');canvas.focus();};document.querySelectorAll('[data-light-view]').forEach(b=>b.onclick=()=>{if(Lift.hasPassenger()){message('Finish the elevator ride first.');return;}setMode('walk');spawn(b.dataset.lightView);setZoom(3);});}
+ return{init,tick,draw,setRoomState,stateOf:id=>rooms[id]?.state,info:()=>({time,paused:mode!=='walk'||!Portal.info().enabled,rooms:Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,{state:r.state,power:r.power,effectState:HardwareActivity.roomState(id),brightness:level(r),bar:segments(id,r)}]))})};
 })();
