@@ -193,3 +193,34 @@ version, then Load map and Save & lock.
 Browser QA verified paint -> save -> reload -> locked identical cells; Reset
 retains edits; importing a prior-format export and saving survives reload.
 No page errors were observed. No existing office/world/live data was written.
+
+
+## Seat calibration editor (2026-11-06)
+
+The Seats tab adds reusable typing, reading and still poses using the existing
+character sheet. Four starter chairs cover Review, Data, Training and Music;
+these are calibration starting points for the owner, not approved final fits.
+Each seat has floor, facing, pose anchor, size, offset, optional perspective
+scale, walking approach, exit, chair depth and linked foreground masks.
+
+Select a chair, enable live preview, drag the colored markers or use Pick,
+and adjust the pose. Draw a chair-back mask opens the existing brush/polygon
+editor and links the new layer to that seat. Return to Seats to preview it.
+Duplicate copies the pose fit but requires its own absolute-position mask.
+Walk up & sit tests a collision-checked route followed by a short docking
+transition; E or movement stands up at the configured walkable exit. E near
+a chair approach sits during normal walking. Chair docking does not change
+the public walking grid.
+
+Version 3 saves/export JSON include seats alongside grid and masks. Old version
+2 files still load; existing seat configurations are retained when that file
+has no seats. Save & lock uses the same browser-local storage and returns to
+Walk. Entering an editor unlocks editing; Export map remains the portable backup.
+The approved 599 overrides and 18 owner masks are unchanged. No ComfyUI used.
+
+Browser QA: all four default chairs sit/stand; walking from 41 pixels away
+reaches the Data approach; duplicate/undo/redo work; a new linked polygon mask
+and seats survive save/reload; ordinary Walk reload remains locked; export
+contains version 3 seat data; no browser page errors.
+
+Direct editor: /review/illustrated-walk/index.html?mode=seats&seat=review-front&zoom=3

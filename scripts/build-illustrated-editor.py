@@ -8,6 +8,8 @@ text=(root/'dev/engine/illustrated-editor.template.html').read_text(encoding='ut
 for name,file in [('ART',art),('SPRITE',sprite)]:
     text=text.replace('@@'+name+'@@','data:image/png;base64,'+base64.b64encode(file.read_bytes()).decode())
 text=text.replace('@@APPROVED_MAP@@',(root/'dev/engine/approved-map.json').read_text(encoding='utf-8')).replace('@@ELEVATOR_SLICES@@',(root/'dev/engine/elevator-slices.json').read_text(encoding='utf-8')).replace('@@ELEVATOR@@',(root/'dev/engine/illustrated-elevator.js').read_text(encoding='utf-8'))
+text=text.replace('@@SEATS@@',(root/'dev/engine/illustrated-seats.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:
