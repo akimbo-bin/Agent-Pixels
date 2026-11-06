@@ -306,3 +306,26 @@ room states, editor pause, clean dirty flag and 599 untouched grid overrides.
 No browser errors; preview screenshot checked against the existing rails.
 
 Preview: /review/illustrated-walk/index.html?start=data&zoom=2.75&rev=work-indicators
+
+
+## Screens editor (2026-11-06)
+
+Screens supports room-assigned rectangles and four-corner perspective surfaces,
+click selection, corner dragging, moving, redraw, duplicate/delete, color and
+brightness, visibility, plus independent preview controls. Small indicators
+follow room state; large displays accept preview JSON, named live data channels
+and optional polled JSON addresses. See SCREEN_DATA.md for the payload and
+integration hook. Existing lighting hooks now accept all mapped room IDs.
+
+Version 4 persists screens with owner grid/masks/seats. Older maps remain
+compatible and keep current screens when the screens section is absent.
+Screen content respects original foreground masks without covering agents
+incorrectly. The renderer uses seam-free inverse perspective sampling.
+
+Browser QA covered rectangle/four-corner creation, corner drag and movement,
+duplicate, undo/redo, JSON preview and push, mocked JSON feed success/failure,
+save/reload/export, legacy imports, rejection of crossed corners, foreground
+mask rendering, all 599 grid cells and 18 masks retained, and four existing
+seat defaults retained. No page errors; preview screenshots inspected.
+
+Preview: /review/illustrated-walk/index.html?start=data&zoom=3&mode=screens&rev=screens-editor
