@@ -513,3 +513,29 @@ screenshots visually inspected for removal of punched-out dark holes and
 consistent lamp geometry.
 
 Preview: /review/illustrated-walk/index.html?start=training&zoom=3&hardware=working&rev=smooth-indicators
+
+
+## Agent life, nametags and state badges (2026-11-06)
+
+Added bounded, grid-safe idle errands with walking sprites, occasional reading
+poses, staggered pauses and actual-work return-to-desk behavior. Waiting agents
+have longer pauses; Paused/Error/Unknown agents remain still. NPC motion uses
+separate runtime positions, physical grid checks, room bounds and avoidance
+of agents/player. It never changes saved character anchors or organization
+state. Existing seat calibration and foreground masks remain in use.
+
+Names/state now use readable screen-space DOM badges rather than tiny world
+text. All 14 are enabled by default; label packing, leader lines, actual live
+state colors and optional local activity keep identity clear at normal zoom.
+Click a label to select the agent in Characters. World exposes Agent names
+and Agent idle activity; Characters adds per-agent idle movement control.
+
+Browser QA sampled nine moving agents, valid walking feet at every sampled
+position, zero Paused displacement and no overlap among all 14 visible tags
+at 997px fit view. Verified global/per-agent toggles, click-to-edit, editor
+pause, save/reload, unchanged runtime placement JSON while roaming, a Working
+interrupt returning a roaming agent home, stationary Working pose, and stale
+feed stopping wandering/marking all labels Unknown. Owner 599 grid cells and
+18 masks remained intact. No page errors; fit screenshot visually inspected.
+
+Preview: /review/illustrated-walk/index.html?rev=agent-life

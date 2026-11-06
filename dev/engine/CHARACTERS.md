@@ -35,8 +35,10 @@ uses columns 0–2, typing 3–4 and reading 5–6. Uploads must be PNG under 2 
 more than 2048 px on either axis. Set the frame dimensions before uploading.
 
 The renderer sorts agents and the player by depth and reapplies appropriate
-foreground furniture/screen masks per actor. Names are visible on hover, for
-the selected agent, or through World > Agent names.
+foreground furniture/screen masks per actor. Readable two-line name/live-state tags are enabled by default and stay the
+same screen size while zooming. They avoid one another and use leader lines
+when displaced. Click a tag to edit its agent. World > Agent names can hide
+them; hover/selected-agent labels remain available when names are hidden.
 
 ## Presence and freshness
 
@@ -68,3 +70,29 @@ custom PNG, room/placement and seat binding alongside grid, masks, seats and
 screens. Runtime roster, task text, work status and control state are not saved.
 Older map files remain loadable and retain current character overrides when
 the characters field is absent. Existing image-scoped save/draft keys remain.
+
+
+## Idle life and movement
+
+Idle agents take occasional short walks near their saved standing positions;
+Waiting agents take less frequent walks and occasionally read. Activity appears
+separately from live state (Idle · Walking, Waiting · Reading). Walking never
+changes the organization status or starts work. Paused, Error and Unknown
+agents do not roam. Actual Working cancels errands, returns an agent to its
+configured standing/seat approach when reachable, and then types/sits.
+
+Routes use the painted walking grid with swept-foot collision checks, room
+bounds and avoidance of other agents and the player. The existing A* planner
+is available for obstacles. Invalid/blocked anchor positions remain in place;
+movement never opens blocked cells or teleports an agent through furniture.
+Autonomous movement is in-room only; it does not schedule NPC elevator trips.
+
+World > Agent idle activity is the global movement preference. Characters >
+Idle movement near assigned spot is the per-agent choice. Global Ambient
+motion, editing and a hidden page pause the simulation.
+
+Runtime positions/routes are separate from the saved placement anchors and
+never dirty the map. The optional per-agent wander flag saves with version 5
+character overrides; old files without it default to allowing idle activity.
+Names are enabled once for the new two-line label UI, then the user's World
+preference is respected across reloads.

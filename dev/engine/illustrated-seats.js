@@ -51,5 +51,5 @@ const Seating=(()=>{
   $('#seat-test').onclick=()=>start();$('#seat-stop').onclick=()=>{stop();refresh();};$('#seat-find-approach').onclick=()=>{const s=current(),p=s&&nearestOpen(s);if(p)mutate(s=>{s.approach=p;s.exit=[...p];});else message('No open point nearby. Paint an approach in Walking grid.');};
   $('#seat-create-mask').onclick=()=>{const s=current();if(!s)return;player.floor=s.floor;const m=addMask();m.name=s.name+' · chair back';m.depth=s.depth;s.maskIds.push(m.id);selected=m.id;dirtyNow();setMode('mask');view.x=s.x;view.y=s.y;view.follow=false;refreshMasks();message('Paint the chair back/arms, then return to Seats.');};refresh();
  }
- return{init,refresh,choose,current,markers,pointer,drag,tick,onMode,stop,interact,drawActor,subject,forceMask,visual,validate,hint,walking:()=>phase==='approaching',controlsLocked:()=>phase!=='idle',showingPose:()=>!!poseSeat(),escape:()=>pick=null,info:()=>({selected:selectedSeat,phase,activeId,preview,picking:pick,remaining:route.length})};
+ return{findPath:pathTo,init,refresh,choose,current,markers,pointer,drag,tick,onMode,stop,interact,drawActor,subject,forceMask,visual,validate,hint,walking:()=>phase==='approaching',controlsLocked:()=>phase!=='idle',showingPose:()=>!!poseSeat(),escape:()=>pick=null,info:()=>({selected:selectedSeat,phase,activeId,preview,picking:pick,remaining:route.length})};
 })();
