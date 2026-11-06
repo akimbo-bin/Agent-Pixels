@@ -2,6 +2,13 @@
 
 ## Approved owner map and working elevator
 
+Elevator indicators were restyled as narrower beveled brass-and-violet plaques,
+centered on each door aperture. Call buttons use matching recessed brass plates
+with faceted glass, smaller muted glows and jamb-aligned placement. Functional
+state colors and hit regions remain coupled to the same fixture coordinates.
+Browser inspection verified clicking the new plate registers a call, the cabin
+arrives and a subsequent ride completes with no page errors.
+
 The latest Downloads export, nebula-expanded-grid-and-masks (1).json, is preserved
 byte-for-byte as dev/engine/approved-map.json. It contains 599 painted cells and
 18 masks. SHA-256: 1966f3ed390921477871a55a3b5887e018dc293f969fe8744abb94b07448f259.

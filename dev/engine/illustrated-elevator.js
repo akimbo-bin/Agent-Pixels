@@ -34,9 +34,34 @@ const Lift=(()=>{
  }
  function drawCabins(){const s=ELEVATOR_SLICES.cabinSource;for(const f of ids){const a=ap(f);ctx.save();ctx.beginPath();ctx.rect(...a);ctx.clip();ctx.drawImage(art,s[0]*P,s[1]*P,s[2]*P,s[3]*P,...a);ctx.restore();}}
  function drawDoors(stage='back'){for(const f of ids){if(stage==='front'&&(f!==player.floor||player.y>bottom(f)+1))continue;const a=ap(f),s=ELEVATOR_SLICES[f].closedSource,o=doors[f],half=a[2]/2,shift=(half+1)*o;ctx.save();ctx.beginPath();ctx.rect(...a);ctx.clip();ctx.drawImage(art,s[0]*P,s[1]*P,s[2]*P/2,s[3]*P,a[0]-shift,a[1],half+.12,a[3]);ctx.drawImage(art,(s[0]+s[2]/2)*P,s[1]*P,s[2]*P/2,s[3]*P,a[0]+half+shift,a[1],half+.12,a[3]);ctx.restore();drawLights(f);}}
- function drawLights(f){const spec=ELEVATOR_SLICES[f],r=spec.light,b=spec.button,called=pending.has(f),moving=phase==='moving',present=car===f&&!moving,pulse=.5+.5*Math.sin(elapsed*7),color=called?'#ffc15e':present?'#7dffc0':moving?'#bd8cff':'#534861';ctx.fillStyle='#171329';ctx.fillRect(...r);ctx.strokeStyle='#ad8255';ctx.lineWidth=.6;ctx.strokeRect(...r);ctx.save();ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=(called||moving)?3+3*pulse:present?4:0;ctx.fillRect(r[0]+16,r[1]+3,7,3);ctx.restore();
-  const up=moving&&ids.indexOf(target)>ids.indexOf(from),down=moving&&!up;for(const[x,on,sign]of[[r[0]+7,up,-1],[r[0]+30,down,1]]){ctx.strokeStyle=on?'#e4c2ff':'#51425d';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x-2,r[1]+4-sign);ctx.lineTo(x,r[1]+4+sign);ctx.lineTo(x+2,r[1]+4-sign);ctx.stroke();}
-  ctx.fillStyle='#20172d';ctx.fillRect(...b);ctx.strokeStyle='#a88450';ctx.strokeRect(...b);ctx.fillStyle=called?'#ffc15e':present?'#80f6c8':'#79628f';ctx.fillRect(b[0]+1,b[1]+2,b[2]-2,3);
+ function drawLights(f){
+  const spec=ELEVATOR_SLICES[f],r=spec.light,b=spec.button,called=pending.has(f),moving=phase==='moving',present=car===f&&!moving,pulse=.5+.5*Math.sin(elapsed*5.5);
+  const glow=called?'#ffd18a':present?'#b7e7ca':moving?'#c9a1f5':'#6a4f80';
+  // A small beveled brass cartouche, centered on the actual door aperture.
+  // All details use restrained native-pixel steps rather than a flat HUD box.
+  const [x,y,w,h]=r,cx=x+w/2,cy=y+h/2;
+  const plate=(px,py,pw,ph)=>{ctx.beginPath();ctx.moveTo(px+3,py);ctx.lineTo(px+pw-3,py);ctx.lineTo(px+pw,py+3);ctx.lineTo(px+pw,py+ph-3);ctx.lineTo(px+pw-3,py+ph);ctx.lineTo(px+3,py+ph);ctx.lineTo(px,py+ph-3);ctx.lineTo(px,py+3);ctx.closePath();};
+  ctx.save();plate(x+.7,y+1,w,h);ctx.fillStyle='#25172bc0';ctx.fill();plate(x,y,w,h);ctx.fillStyle='#98623e';ctx.fill();
+  plate(x+.8,y+.8,w-1.6,h-1.6);ctx.fillStyle='#e3b775';ctx.fill();plate(x+1.6,y+1.6,w-3.2,h-3.2);ctx.fillStyle='#30213f';ctx.fill();
+  ctx.strokeStyle='#ffdfa2';ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(x+3,y+.6);ctx.lineTo(x+w-3,y+.6);ctx.stroke();
+  ctx.strokeStyle='#79503e';ctx.beginPath();ctx.moveTo(x+3,y+h-.5);ctx.lineTo(x+w-3,y+h-.5);ctx.stroke();
+  const up=moving&&ids.indexOf(target)>ids.indexOf(from),down=moving&&!up;
+  for(const[ax,on,sign]of[[cx-8,up,-1],[cx+8,down,1]]){
+   ctx.strokeStyle=on?'#e6c9ff':'#86708f';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ax-1.8,cy-sign);ctx.lineTo(ax,cy+sign);ctx.lineTo(ax+1.8,cy-sign);ctx.stroke();
+  }
+  // Faceted indicator glass, with a small warm reflected highlight.
+  ctx.shadowColor=glow;ctx.shadowBlur=(called||moving)?2+2*pulse:present?2:0;
+  ctx.beginPath();ctx.moveTo(cx-2.8,cy);ctx.lineTo(cx-1.8,cy-1.8);ctx.lineTo(cx+1.8,cy-1.8);ctx.lineTo(cx+2.8,cy);ctx.lineTo(cx+1.8,cy+1.8);ctx.lineTo(cx-1.8,cy+1.8);ctx.closePath();ctx.fillStyle=glow;ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle=present||called?'#fff1d2':'#dbc4f4';ctx.fillRect(cx-1.5,cy-1.2,2,.65);
+  // Matching recessed call plate, aligned to the right jamb under its lantern.
+  const [bx,by,bw,bh]=b,bcx=bx+bw/2,bcy=by+bh/2;
+  ctx.fillStyle='#25182bb0';ctx.fillRect(bx+.8,by+1,bw,bh);
+  ctx.beginPath();ctx.moveTo(bx,by+2);ctx.lineTo(bx+2,by);ctx.lineTo(bx+bw-2,by);ctx.lineTo(bx+bw,by+2);ctx.lineTo(bx+bw,by+bh-1);ctx.lineTo(bx+bw-1,by+bh);ctx.lineTo(bx+1,by+bh);ctx.lineTo(bx,by+bh-1);ctx.closePath();ctx.fillStyle='#b1804f';ctx.fill();
+  ctx.fillStyle='#f0cc8b';ctx.fillRect(bx+1,by+2,1,bh-3);ctx.fillRect(bx+2,by+1,bw-4,.75);ctx.fillStyle='#644132';ctx.fillRect(bx+bw-1,by+2,.8,bh-2);
+  ctx.fillStyle='#34233e';ctx.fillRect(bx+2,by+3,bw-4,bh-6);
+  const buttonGlow=called?'#ffd18a':present?'#b7e7ca':'#a17cc3';ctx.fillStyle=buttonGlow;ctx.shadowColor=buttonGlow;ctx.shadowBlur=called?3+2*pulse:1;
+  ctx.beginPath();ctx.moveTo(bcx,bcy-2.1);ctx.lineTo(bcx+1.7,bcy);ctx.lineTo(bcx,bcy+2.1);ctx.lineTo(bcx-1.7,bcy);ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#f7d79b';ctx.fillRect(bcx-.5,by+1.7,1,.7);ctx.fillRect(bcx-.5,by+bh-2.3,1,.7);ctx.restore();
  }
  function drawCharacter(){if(passenger&&phase==='moving')return;if(inCabin()){const a=ap(player.floor);ctx.save();ctx.beginPath();ctx.rect(...a);ctx.clip();actor();ctx.restore();}else actor();}
  function hitButton(x,y){const r=ELEVATOR_SLICES[player.floor].button;return x>=r[0]-5&&x<=r[0]+r[2]+5&&y>=r[1]-5&&y<=r[1]+r[3]+5;}

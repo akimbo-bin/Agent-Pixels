@@ -1,6 +1,6 @@
 {
-  "upper": {"aperture": [1281,379,36,65], "closedSource": [1281,379,36,65], "light": [1280,360,39,9], "button": [1324,426,5,8]},
-  "middle": {"aperture": [1282,535,36,69], "closedSource": [1281,379,36,65], "light": [1280,507,39,9], "button": [1325,585,5,8]},
-  "ground": {"aperture": [1280,696,38,71], "closedSource": [1280,696,38,71], "light": [1279,676,39,9], "button": [1324,749,5,8]},
+  "upper": {"aperture": [1281,379,36,65], "closedSource": [1281,379,36,65], "light": [1285,360,28,9], "button": [1321,422,8,12]},
+  "middle": {"aperture": [1282,535,36,69], "closedSource": [1281,379,36,65], "light": [1286,507,28,9], "button": [1322,582,8,12]},
+  "ground": {"aperture": [1280,696,38,71], "closedSource": [1280,696,38,71], "light": [1285,676,28,9], "button": [1322,745,8,12]},
   "cabinSource": [1283,536,34,67]
 }
