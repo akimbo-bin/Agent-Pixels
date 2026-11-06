@@ -20,7 +20,7 @@ not modify its world, renderer, editing session, live bindings or asset packs.
 - Mouse wheel or +/-: zoom around the character. Fit map shows the whole building.
 - Scenario buttons: start behind the Lead desk, by the stairs, or at the elevator.
 - Adjust grid: paint walkable/blocked cells, undo a stroke, export the map JSON.
-- Reset: return to the entrance and clear temporary grid changes.
+- Reset: return the character to the entrance; grid changes are retained.
 - Shift-click: place the character on a valid point of the current floor.
 
 ## Evidence and current answer
@@ -96,3 +96,23 @@ access; that background edit has not been performed. Keep the same canvas and
 unchanged surrounding architecture when updating the image.
 
 Direct view: ?start=stairs&grid=1&zoom=3; mask check: ?start=doorway&grid=1&zoom=3.
+
+
+## Saving and locking owner-painted cells
+
+The owner requested persistent grid saves. Adjust grid now includes Save & lock,
+Load map and Export map. Save & lock stores image-scoped overrides in browser
+localStorage, closes painting mode and changes the edit button to Unlock grid.
+Saved overrides reload automatically. In-progress strokes also have local draft
+recovery; unsaved changes trigger a leave-page warning. Reset moves only the
+character. Loading checks image SHA-256, grid dimensions and boolean cell keys,
+and imports overrides without replacing the newer authored floor geometry.
+
+This is a same-browser save, not a server/project write. Export JSON is the
+portable backup and the handoff artifact for adopting painted cells as the
+project default. Existing open tabs must export before refreshing into this
+version, then Load map and Save & lock.
+
+Browser QA verified paint -> save -> reload -> locked identical cells; Reset
+retains edits; importing a prior-format export and saving survives reload.
+No page errors were observed. No existing office/world/live data was written.
