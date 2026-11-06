@@ -402,3 +402,28 @@ An elevator trip passed with the multi-agent renderer. Owner 599 grid cells,
 1500px and 997px previews inspected. Fixtures never changed the actual org.
 
 Preview: /review/illustrated-walk/index.html?mode=characters&zoom=3&rev=live-agents
+
+
+## Twinkle visibility correction (2026-11-06)
+
+The first twinkle was present and its clock advanced, but was too subtle at
+normal owner-size fit view. A renderer-level pixel comparison reproduced this:
+in a two-second sample at 997px viewport width, only 6 observatory and 3 Lead
+window pixels changed by at least 28 intensity levels. The earlier timer-only
+check did not catch the perceptual shortfall.
+
+Probes isolated halo footprint as the main cause: increasing brightness alone
+still failed the visibility thresholds, while widening the halo passed. Widened
+the shimmer from 3.3 to 6.5 logical pixels per size unit, raised window gain,
+and added 10 prominent existing sky stars with larger staggered glints. There
+are now 55 sky, 25 observatory and 12 Lead-window stars. Original architecture,
+frames, nebula emblem, phase staggering and Motion/editor pauses are retained.
+
+Regression: node scripts/check-star-visibility.cjs. It exercises the actual
+renderer, downsamples to the canvas's CSS size and compares star-only changes
+over two seconds across all three regions. Corrected readings: 193 sky, 38
+observatory and 14 Lead-window pixels meet the visibility threshold. Screenshot
+pairs at window zoom were inspected; the World > Ambient motion toggle still
+pauses the effect. No map/save changes.
+
+Preview: /review/illustrated-walk/index.html?rev=visible-star-twinkle
