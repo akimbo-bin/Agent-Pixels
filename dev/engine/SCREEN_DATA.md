@@ -5,9 +5,11 @@ in clockwise order (top left first). Drag corners to fit the display surface;
 drag inside the selected screen to move it. Duplicate copies the display setup.
 
 Small Working indicators follow their room state and offer chase, symmetric
-sweep or pulse animations. Room state is a runtime preview, shared with the
-existing Data/Training room lighting. Large data displays use named channels.
-No Nebula job service is connected automatically.
+sweep or pulse animations. They share live room state with power effects,
+hardware and HUD labels: any Working agent makes the room Working. The room
+preview selector overrides all these surfaces together until Follow live.
+Large data displays use named channels. The existing Nebula roster is connected;
+independent job metrics still require a configured feed. See ROOM_STATES.md.
 
 ## Live payload
 
@@ -40,6 +42,10 @@ For an application integration, push updates directly:
 window.__worldEffects.setScreenData('training', payload);
 window.__worldEffects.setRoomState('training', 'working'); // or 'idle'
 ```
+
+The room signal expires after 30 seconds unless refreshed, and Idle cannot
+cancel an independently Working agent. For cosmetic testing use
+setRoomPreview('training', 'working'), then 'live' to return to live aggregation.
 
 Or dispatch a same-page event:
 

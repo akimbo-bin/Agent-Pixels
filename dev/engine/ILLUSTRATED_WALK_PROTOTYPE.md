@@ -599,3 +599,25 @@ Observatory / 153 Operations in a sample), no tags over vents, no dirty edits
 and 599 preserved grid overrides. Rocket screenshot inspected.
 
 Preview: /review/illustrated-walk/index.html?start=engine&zoom=3&hardware=working&rev=effects-preview-fixed
+
+## Single room activity model (2026-11-06)
+
+Added RoomStates as the shared authority for all 12 rooms. Any assigned
+Working agent activates its room; it returns to Idle only after the final
+worker stops or moves. Characters publishes the read-only roster and applies
+local assignment changes immediately. Fresh independent pipeline signals can
+also activate a room; stale inputs expire instead of leaving Working latched.
+
+Power, overhead rails, hardware, steam, small screens, room plaques, directory
+labels and HUD Working counts now read the same effective state. Plaques show
+explicit Working/Idle and mark previews or stale sources. Replaced duplicate
+controls with a room selector and one Follow live / Idle / Working selector.
+Screen editor previews share that override; polling cannot overwrite it.
+Runtime APIs and integration details are documented in ROOM_STATES.md.
+
+Validated model tests, browser live-feed fixtures with two workers in one room,
+last-worker transitions, reassignment, preview/live isolation and actual
+renderer pixel changes. Training Working HUD screenshot inspected. No browser
+errors or dirty map changes; all 599 saved grid overrides retained.
+
+Preview: /review/illustrated-walk/index.html?start=training&zoom=3&rev=unified-room-state

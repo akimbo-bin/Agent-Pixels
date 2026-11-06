@@ -31,6 +31,8 @@ text=text.replace('@@AMBIENT@@',(root/'dev/engine/illustrated-ambient.js').read_
 
 text=text.replace('@@AGENT_MOTION@@',(root/'dev/engine/illustrated-agent-motion.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@ROOM_STATES@@',(root/'dev/engine/illustrated-room-states.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

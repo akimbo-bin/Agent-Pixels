@@ -46,8 +46,10 @@ Presence follows the earlier engine's semantics: actual issue.running is Working
 an assigned issue without an active run is Waiting; paused/terminated stays
 Paused; error/failed stays Failed. An idle or active agent without work is Idle.
 Assignment alone does not imply running work. Assigned room indicators follow
-this actual running-work state. Room preview overrides may be replaced by the
-next live poll.
+this actual running-work state. Any Working agent makes its assigned room
+Working; the room stays Working until its last worker stops. Shared room
+preview overrides remain separate and survive live polls until Follow live.
+See ROOM_STATES.md for the shared effects/HUD model and integration API.
 
 A failed request, a reading older than 30 seconds or an org export older than
 90 seconds is stale. The last roster stays visible, but agent presence becomes
