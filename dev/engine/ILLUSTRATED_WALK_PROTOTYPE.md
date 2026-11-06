@@ -287,3 +287,22 @@ editing/Motion pauses, no page errors, clean dirty flag, and preservation of
 599 owner grid cells and 18 masks. Preview screenshot inspected for alignment.
 
 Preview: /review/illustrated-walk/index.html?start=engine&zoom=3&rev=turbine-idle
+
+
+## Revised Idle / Working distinction (2026-11-06)
+
+Owner feedback supersedes the original softer idle behavior above. Both Idle
+and Working now retain the former Working purple shimmer, pulse and equipment
+flicker. Activity is communicated by LEDs along the existing overhead rails:
+Data has a short green chase moving left to right (not completion progress);
+Training has symmetric red groups sweeping from center outward and back.
+Idle leaves these work LEDs off. State transitions fade the rail activity.
+Motion off renders steady work indicators. Editing pauses/hides all effects.
+The independent room preview controls and integration hook are unchanged.
+
+Browser QA checked changing green and red LED patterns, bounded green chase,
+red symmetry, idle LEDs off with strong purple shimmer retained, independent
+room states, editor pause, clean dirty flag and 599 untouched grid overrides.
+No browser errors; preview screenshot checked against the existing rails.
+
+Preview: /review/illustrated-walk/index.html?start=data&zoom=2.75&rev=work-indicators
