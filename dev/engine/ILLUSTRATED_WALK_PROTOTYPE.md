@@ -349,3 +349,30 @@ regions, Motion/editor pause, 599 overrides and 18 owner masks preserved, clean
 dirty flag, and no page errors. Fit and Lead-window screenshots inspected.
 
 Preview: /review/illustrated-walk/index.html?rev=star-twinkle
+
+
+## Reference-inspired command HUD (2026-11-06)
+
+Replaced the editor-first header with a navy command bar, orbital brand mark,
+gold selection trim, line icons, campus directory and UTC clock. Primary
+actions are Rooms, Data (existing power previews), Displays (Screens editor),
+World settings and Edit. Edit reveals the full tool strip and existing editor
+sidebar; Save & lock returns to the uncluttered world view. Camera controls
+remain in a floating dock. World settings expose ambient motion, nameplates,
+grid, foreground, entrance reset and the previous-map link.
+
+Twelve optional world-space navy/brass room nameplates mirror the reference
+while preserving the source image. Working rooms have a small green marker.
+Footer counters use actual local room states, seats and visible displays; no
+render/model/queue totals are invented. Nameplate preference has its own key.
+Grid, masks, seats, screens, saved image identity and save/draft keys remain
+unchanged. The directory focuses each room and positions the character on
+its floor so movement stays in the chosen area.
+
+Browser QA: room navigation and subsequent WASD movement, independent power
+controls, Motion/nameplate toggles, all four editors, screen drawing, save and
+reload, original 599 cells/18 masks/4 seats retained. No horizontal overflow
+at 1600, 997, 620 or 390px widths. No page errors. Wide, owner-size, directory
+and editing screenshots visually inspected.
+
+Preview: /review/illustrated-walk/index.html?rev=command-hud

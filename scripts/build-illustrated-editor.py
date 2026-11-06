@@ -20,6 +20,8 @@ text=text.replace('@@SCREENS@@',(root/'dev/engine/illustrated-screens.js').read_
 
 text=text.replace('@@STARS@@',(root/'dev/engine/illustrated-stars.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@HUD@@',(root/'dev/engine/illustrated-hud.js').read_text(encoding='utf-8')).replace('@@HUD_CSS@@',(root/'dev/engine/illustrated-hud.css').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:
