@@ -245,3 +245,29 @@ intact and no page errors occurred. Screenshots were inspected for aperture
 alignment and retaining the fixed ring/foreground brace.
 
 Direct preview: /review/illustrated-walk/index.html?start=portal&zoom=4&rev=portal-motion
+
+
+## Data and Training power lighting (2026-11-06)
+
+Room lighting opens independent Idle / Working previews for Data and Training.
+Idle adds a slow soft violet shimmer; Working ramps up over about a second
+with a stronger breathing glow, independent equipment flicker and occasional
+short surges. Cached violet-emission masks sample the actual illustrated
+hypercube, Training server banks and central machine, excluding dark panels,
+cyan monitors and warm fixtures. Soft local bloom and shallow floor light
+spills follow the sources. The source artwork, seats, saved grid and masks
+are unchanged. Effects composite before characters and foreground masks.
+
+Motion switches temporal animation off while retaining steady state lighting.
+Editors show the untouched art and pause the effect clock. Preview states use
+a separate browser preference; they do not dirty or modify exported map data.
+Future work status can call window.__worldEffects.setRoomState('data' or
+ 'training', 'idle' or 'working'); this is a prepared hook, not a connection
+to live job data. View buttons center the corresponding room.
+
+Browser QA: independent states, Working brightness above Idle, gradual ramp,
+editor pause, persisted room preferences, valid/invalid status hook inputs,
+no dirty flag changes, all 599 approved grid overrides retained, no page
+errors. Idle/Working and Training close-up screenshots were visually checked.
+
+Preview: /review/illustrated-walk/index.html?start=data&zoom=3&rev=room-power
