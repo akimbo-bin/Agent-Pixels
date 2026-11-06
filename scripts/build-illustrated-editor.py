@@ -18,6 +18,8 @@ text=text.replace('@@TURBINES@@',(root/'dev/engine/illustrated-turbines.js').rea
 
 text=text.replace('@@SCREENS@@',(root/'dev/engine/illustrated-screens.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@STARS@@',(root/'dev/engine/illustrated-stars.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

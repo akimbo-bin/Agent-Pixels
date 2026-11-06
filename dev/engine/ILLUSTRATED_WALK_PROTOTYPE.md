@@ -329,3 +329,23 @@ mask rendering, all 599 grid cells and 18 masks retained, and four existing
 seat defaults retained. No page errors; preview screenshots inspected.
 
 Preview: /review/illustrated-walk/index.html?start=data&zoom=3&mode=screens&rev=screens-editor
+
+
+## Star twinkle (2026-11-06)
+
+82 selected existing stars now brighten on independent 3.2–8.8 second cycles:
+45 across the open sky, 25 in the observatory glazing and 12 in the Lead
+windows. Positions were sampled from bright stellar points in the approved
+artwork with spatial separation, then visually inspected. Polygon clips keep
+glow off the frames, trees/architecture, telescope and central nebula emblem.
+Small blue-white pixel sparkles and a cached violet-blue glow composite before
+characters and foreground layers. Most stars remain still; phases are seeded
+and independent rather than synchronized or randomly changing each frame.
+
+Motion off, editing and hidden-page status pause the twinkle clock. Map
+image, geometry, seats, screens and local save/draft keys remain unchanged.
+Browser QA verified time-varying brightness and partial activity in all three
+regions, Motion/editor pause, 599 overrides and 18 owner masks preserved, clean
+dirty flag, and no page errors. Fit and Lead-window screenshots inspected.
+
+Preview: /review/illustrated-walk/index.html?rev=star-twinkle
