@@ -621,3 +621,17 @@ renderer pixel changes. Training Working HUD screenshot inspected. No browser
 errors or dirty map changes; all 599 saved grid overrides retained.
 
 Preview: /review/illustrated-walk/index.html?start=training&zoom=3&rev=unified-room-state
+
+## Engine Working power-up (2026-11-06)
+
+Engine room now reads the shared room state for a smooth fourfold turbine
+speed ramp while Working, preserving rotation phase through state changes.
+Working steam increases from eight to fourteen larger, denser puffs with
+faster flow. Two amber-red gantry beacons rotate paired soft light sweeps
+within the engine bay. Idle returns fans to their gentle speed and removes
+the beacons and steam. Ambient motion and editor pauses remain respected.
+
+Verified node scripts/check-engine-working.cjs: speed ramp and recovery,
+fourteen steam particles, two rotating sirens, actual beacon pixel changes,
+no browser errors, no dirty edits and 599 preserved grid overrides. Engine
+Working screenshot visually inspected.
