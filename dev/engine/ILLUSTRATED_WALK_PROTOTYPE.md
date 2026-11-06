@@ -539,3 +539,29 @@ feed stopping wandering/marking all labels Unknown. Owner 599 grid cells and
 18 masks remained intact. No page errors; fit screenshot visually inspected.
 
 Preview: /review/illustrated-walk/index.html?rev=agent-life
+
+
+## Vivid dense starfield (2026-11-06)
+
+The owner still could not see the earlier effect and explicitly requested many
+more, much stronger twinkles. Supersedes the earlier subtle settings: 487
+existing-star anchors (337 sky, 120 observatory, 30 Lead), over five times
+the previous 92. Spatial separation is lower, periods are 1.5–3.8 seconds,
+glows/glints are larger, and the underlying baked star cores now dim as well
+as brighten. This creates visible brightness contrast instead of just adding
+light to pixels already near white. All phases remain staggered.
+
+Shade and light passes are batched per region to avoid hundreds of blend-mode
+switches. Existing architecture/exclusion masks and Motion/editor pause remain.
+The ?twinkle=preview link explicitly enables Ambient motion and resets to full
+fit view, with a toast, so a paused preference or off-sky camera cannot hide
+the effect during this preview. It does not alter map geometry or saved edits.
+
+Strengthened scripts/check-star-visibility.cjs thresholds before the change:
+old output failed (207 sky / 48 observatory / 12 Lead pixels above 28 levels).
+New actual CSS-size renderer output passes at about 3944 / 1169 / 271 changed
+pixels. Inspected the fit screenshot and captured a 24-frame lossless animated
+WebP crop. Headless star-draw mean was about 4 ms in a targeted sample; verified
+Motion/editor pause, preview setup, 599 unchanged overrides and no page errors.
+
+Preview: /review/illustrated-walk/index.html?rev=vivid-starfield&twinkle=preview
