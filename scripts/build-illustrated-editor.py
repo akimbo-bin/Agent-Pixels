@@ -25,6 +25,8 @@ text=text.replace('@@HUD@@',(root/'dev/engine/illustrated-hud.js').read_text(enc
 sprites=[{'src':'data:image/png;base64,'+base64.b64encode(file.read_bytes()).decode()} for file in sorted((root/'public/assets/characters').glob('char_*.png'),key=lambda p:int(p.stem.split('_')[-1]))]
 text=text.replace('@@CHARACTERS@@',(root/'dev/engine/illustrated-characters.js').read_text(encoding='utf-8')).replace('@@CHARACTER_SPRITES@@',json.dumps(sprites))
 
+text=text.replace('@@HARDWARE@@',(root/'dev/engine/illustrated-hardware.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

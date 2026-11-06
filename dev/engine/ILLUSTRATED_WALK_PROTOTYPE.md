@@ -427,3 +427,34 @@ pairs at window zoom were inspected; the World > Ambient motion toggle still
 pauses the effect. No map/save changes.
 
 Preview: /review/illustrated-walk/index.html?rev=visible-star-twinkle
+
+
+## Working hardware LEDs (2026-11-06)
+
+Added exact-pixel lamp animation to the owner's marked Observatory towers,
+Training server banks/core and all four Operations control panels. Sixteen
+devices contain 305 sampled lamp clusters. Working cycles individual lamps
+through actual dim/off and lit states, with independent bank scanning, activity
+bursts and Operations chases. Idle is steady at half lamp intensity, retaining
+the room's existing purple shimmer. Monitor faces remain unchanged.
+
+HardwareActivity reads the existing room state from Screens; live agent work
+therefore drives assigned rooms, and integrations can use the existing
+setRoomState API. Data > Hardware indicators exposes Follow room / Idle preview /
+Working preview for all three areas. Overrides are session-only and explicitly
+labeled by a stage badge. ?hardware=working previews all groups without
+changing live room status or saved map data. Motion off makes lamps steady;
+editors show the original art. Cached frames update at 12 fps while Working;
+Idle caches a static frame. Foreground masks reapply animated hardware pixels
+per actor, alongside screen content. A direct room-state accessor avoids
+rebuilding room-light preview arrays for each lamp-bank read.
+
+Browser QA: all 16 devices and all four Operations units change independently;
+Idle stays steady; Follow room responds to state; Motion/editing pause; 997px
+fit renderer shows changes in all three groups (33 Observatory, 228+ Training,
+145 Operations pixels over 28 intensity levels in a sample). Separate checks
+confirmed zero changes inside monitor faces when only the hardware clock
+advanced. Original 599 cells and 18 masks remained intact, no dirty edits or
+page errors. Observatory/Training previews visually inspected.
+
+Preview: /review/illustrated-walk/index.html?start=training&zoom=3&hardware=working&rev=hardware-activity

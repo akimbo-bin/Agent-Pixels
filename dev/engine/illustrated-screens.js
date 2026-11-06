@@ -6,7 +6,7 @@ const Screens=(()=>{
  const states={},channels=new Map(),surfaces=new Map(),requests=new Map();
  const current=()=>screens.find(s=>s.id===selectedId);
  const floor=s=>rooms[s.room][1];
- const roomState=id=>RoomLighting.info().rooms[id]?.state||states[id]||'idle';
+ const roomState=id=>RoomLighting.stateOf(id)||states[id]||'idle';
  function setRoomState(id,state){if(!rooms[id]||!['idle','working'].includes(state))return false;if(!RoomLighting.setRoomState(id,state))states[id]=state;refreshState();return true;}
  function setData(key,payload){if(typeof key!=='string'||!key.trim()||!payload||typeof payload!=='object'||Array.isArray(payload))return false;let copy;try{copy=clone(payload);}catch{return false;}if(!copy||typeof copy!=='object'||Array.isArray(copy))return false;channels.set(key,{payload:copy,updated:Date.now(),error:null});surfaces.clear();refreshFeed();return true;}
  function bbox(points){return{x:Math.min(...points.map(p=>p[0])),y:Math.min(...points.map(p=>p[1])),w:Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0])),h:Math.max(...points.map(p=>p[1]))-Math.min(...points.map(p=>p[1]))};}

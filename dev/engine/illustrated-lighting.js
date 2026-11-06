@@ -57,5 +57,5 @@ const RoomLighting=(()=>{
   }ctx.restore();
  }
  function init(){for(const[id,r]of Object.entries(rooms)){$('#power-'+id).value=r.state;$('#power-'+id).onchange=e=>setRoomState(id,e.target.value);}$('#lighting-toggle').onclick=()=>{const panel=$('#lighting-panel');panel.hidden=!panel.hidden;$('#lighting-toggle').setAttribute('aria-expanded',String(!panel.hidden));};$('#lighting-close').onclick=()=>{$('#lighting-panel').hidden=true;$('#lighting-toggle').setAttribute('aria-expanded','false');canvas.focus();};document.querySelectorAll('[data-light-view]').forEach(b=>b.onclick=()=>{if(Lift.hasPassenger()){message('Finish the elevator ride first.');return;}setMode('walk');spawn(b.dataset.lightView);setZoom(3);});}
- return{init,tick,draw,setRoomState,info:()=>({time,paused:mode!=='walk'||!Portal.info().enabled,rooms:Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,{state:r.state,power:r.power,brightness:level(r),bar:segments(id,r)}]))})};
+ return{init,tick,draw,setRoomState,stateOf:id=>rooms[id]?.state,info:()=>({time,paused:mode!=='walk'||!Portal.info().enabled,rooms:Object.fromEntries(Object.entries(rooms).map(([id,r])=>[id,{state:r.state,power:r.power,brightness:level(r),bar:segments(id,r)}]))})};
 })();
