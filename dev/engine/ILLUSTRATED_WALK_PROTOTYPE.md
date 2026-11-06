@@ -487,3 +487,29 @@ intensity threshold in a sample). Screenshots inspected. Editor/Motion pause,
 599 retained owner grid overrides, clean dirty flag and no page errors.
 
 Preview: /review/illustrated-walk/index.html?hardware=working&rev=ambient-details
+
+
+## Hardware lamp polish (2026-11-06)
+
+Owner feedback supersedes the hard cutout/off implementation above. Removed
+the near-black threshold-pixel replacement and six-Hz pseudo-random noise.
+Fragments of one lamp are merged and tiny fragments discarded. Each lamp now
+uses a fitted footprint snapped to the logical pixel grid, with four stepped
+soft-mask weights blended into the original housing pixels. Overlapping masks
+use strongest coverage rather than cutting seams through adjacent lights.
+
+Standby is dim blue/violet or a device-appropriate warm tint. Working uses
+slower, softly transitioning row activity, six quantized intensity levels and
+16-step RGB palette channels. Colors drift between compatible cool tones
+(or amber tones on the amber Operations unit); no black off state. Only one
+third of lamps participate in the wave and only a small subset changes in
+each interval. Phase offsets keep devices from pulsing together. Preview,
+room-state binding, Motion/editor pause and foreground-mask support remain.
+
+Browser QA verified per-device changed lamps never exceed the eligible third,
+six-step Working intensities, steady Idle, Motion pause, clean dirty flag and
+599 unchanged grid overrides. No page errors. Training and Operations close-up
+screenshots visually inspected for removal of punched-out dark holes and
+consistent lamp geometry.
+
+Preview: /review/illustrated-walk/index.html?start=training&zoom=3&hardware=working&rev=smooth-indicators
