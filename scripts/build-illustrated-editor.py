@@ -14,6 +14,8 @@ text=text.replace('@@PORTAL@@',(root/'dev/engine/illustrated-portal.js').read_te
 
 text=text.replace('@@LIGHTING@@',(root/'dev/engine/illustrated-lighting.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@TURBINES@@',(root/'dev/engine/illustrated-turbines.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

@@ -271,3 +271,19 @@ no dirty flag changes, all 599 approved grid overrides retained, no page
 errors. Idle/Working and Training close-up screenshots were visually checked.
 
 Preview: /review/illustrated-walk/index.html?start=data&zoom=3&rev=room-power
+
+
+## Engine room idle turbines (2026-11-06)
+
+Both illustrated turbine interiors rotate at slightly different idle speeds
+and opposite directions. The circular source artwork rotates in normalized
+ellipse space before being projected back into each fan's perspective.
+Original housings, rims and stationary lit hubs remain fixed. Small cached
+96px frames update at 24 fps before characters and foreground masks.
+Motion off and grid/mask/seat editing pause animation and show original art.
+
+Browser QA checked advancing angles for both fans, opposite directions,
+editing/Motion pauses, no page errors, clean dirty flag, and preservation of
+599 owner grid cells and 18 masks. Preview screenshot inspected for alignment.
+
+Preview: /review/illustrated-walk/index.html?start=engine&zoom=3&rev=turbine-idle
