@@ -72,3 +72,13 @@ now includes the marked left/front edge and actual base. The feet marker is
 redrawn before foreground layers so it cannot show through a desk. Verified the
 marked corner is blocked, the back/left/front approaches remain walkable, and
 walking forward from behind stops at the desk. Direct view: ?start=clinic&grid=1&zoom=3.
+
+
+## Lead lounge correction
+
+Replaced four rough rectangular collision regions with traced polygons for the
+sofa, coffee table and both armchairs. Foreground silhouettes now include the
+missing sofa corner, sloping tabletop and wider armchair sides. Their depth
+thresholds match their actual bases. Verified that the marked corners/tabletop
+are blocked while the front walkway, center rug, table-side approach and Lead
+desk approach remain open. Direct view: ?start=lounge&grid=1&zoom=3.
