@@ -82,3 +82,17 @@ missing sofa corner, sloping tabletop and wider armchair sides. Their depth
 thresholds match their actual bases. Verified that the marked corners/tabletop
 are blocked while the front walkway, center rug, table-side approach and Lead
 desk approach remain open. Direct view: ?start=lounge&grid=1&zoom=3.
+
+
+## Raised-office stairs and doorway
+
+Replaced the narrow straight stair quadrilateral with the curved/widening path
+traced from the owner's annotation. Added exact-image foreground masks for the
+entrance pillar and three sections of the right parapet. The pillar base and the
+actual planter footprint remain blocked. Browser WASD traversal reaches the top
+landing continuously; a character at (600,226) is correctly hidden by the pillar.
+The owner intends to relocate the baked plant/adjacent ornament to clear desk
+access; that background edit has not been performed. Keep the same canvas and
+unchanged surrounding architecture when updating the image.
+
+Direct view: ?start=stairs&grid=1&zoom=3; mask check: ?start=doorway&grid=1&zoom=3.
