@@ -458,3 +458,32 @@ advanced. Original 599 cells and 18 masks remained intact, no dirty edits or
 page errors. Observatory/Training previews visually inspected.
 
 Preview: /review/illustrated-walk/index.html?start=training&zoom=3&hardware=working&rev=hardware-activity
+
+
+## Rocket vent, desk lamp and shooting stars (2026-11-06)
+
+Implemented the three owner annotations as AmbientDetails:
+- Two small pale vent-steam streams at the rocket's lower flanks while Engine
+  room is Working. Eight low-opacity drifting/fading puffs are clipped away
+  from the rocket body; this is vent steam, not a launch/flame effect.
+- A gentle independent warm flicker on the Ticket Queue desk-lamp aperture
+  and a little nearby light spill. It has no room/work binding.
+- Five short shooting-star trajectories per 128-second cycle, with 20–30
+  second gaps (first at 4.5 seconds). Thin blue-white fading tails use the
+  existing open-sky clip, excluding the building, trees and window interiors.
+
+The existing effects previews now include Engine rocket steam under Data >
+Hardware & room effects. Follow room uses the live room-state integration;
+Working preview is explicitly labeled and does not change live state or map
+data. ?hardware=working previews the Engine effect alongside hardware lights.
+Motion/editor/hidden-page pauses remain consistent. Motion off removes steam
+and meteors and leaves the lamp steady. No source image or save-key changes.
+
+Browser QA: no steam while Idle, eight puffs while Working, lamp varies
+independently, meteor appears in its brief interval and is absent between
+intervals. Actual 997px fit renderer checks found visible changes in all
+three areas (21 steam, 30 lamp, 63 shooting-star pixels above an 8-level
+intensity threshold in a sample). Screenshots inspected. Editor/Motion pause,
+599 retained owner grid overrides, clean dirty flag and no page errors.
+
+Preview: /review/illustrated-walk/index.html?hardware=working&rev=ambient-details

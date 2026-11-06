@@ -27,6 +27,8 @@ text=text.replace('@@CHARACTERS@@',(root/'dev/engine/illustrated-characters.js')
 
 text=text.replace('@@HARDWARE@@',(root/'dev/engine/illustrated-hardware.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@AMBIENT@@',(root/'dev/engine/illustrated-ambient.js').read_text(encoding='utf-8'))
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

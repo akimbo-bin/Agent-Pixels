@@ -16,5 +16,5 @@ const StarTwinkle=(()=>{
    }ctx.restore();
   }
  }
- return{tick,draw,info:()=>({time,paused:!Portal.info().enabled||mode!=='walk',regions:regions.map(r=>({id:r.id,count:r.stars.length,active:r.stars.filter(s=>strength(s)>.25).length,brightness:r.stars.map(strength)}))})};
+ return{tick,draw,clipSky:()=>clip(regions.find(r=>r.id==='sky')),info:()=>({time,paused:!Portal.info().enabled||mode!=='walk',regions:regions.map(r=>({id:r.id,count:r.stars.length,active:r.stars.filter(s=>strength(s)>.25).length,brightness:r.stars.map(strength)}))})};
 })();
