@@ -27,3 +27,7 @@
 .agent-tag-name,.agent-tag-state{font-family:NebulaPixel,monospace;font-size:8px;font-weight:400;line-height:10px}
 .agent-tag-state[hidden]{display:none}
 #agent-label-lines line{stroke-opacity:.24}
+
+.room-grid button{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:5px;align-items:center}
+.room-grid .office-symbol{width:17px;height:17px;grid-column:1;grid-row:1 / span 3;image-rendering:pixelated}
+.room-grid button>[data-room-title],.room-grid button>small{grid-column:2;min-width:0;overflow-wrap:anywhere}

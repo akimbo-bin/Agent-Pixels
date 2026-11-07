@@ -827,3 +827,16 @@ Collision placement accounts for variable tag heights and width. Label-only
 inspection never changes map/backend data. check-compact-agent-tags.cjs tests
 font loading, dimensions/transparency, hidden Paused, hover, pin/dismiss and
 visible Working in an isolated browser; screenshot visually inspected.
+
+## Reference-inspired office emblems (2026-11-07)
+
+Replaced the generic plaque diamonds with 12 canvas-path emblems in the
+reference's brass/ivory treatment: executive star, director bishop, reception
+spark, observatory reticle, engineering wrench, mathematical sigma, neural
+processor, music notes, medical cross, review layers, operations pipeline and
+queue tickets. Room directory entries use matching icons. Symbols follow
+stable room IDs and retain custom names, Statistical status and plaque opacity.
+
+Inspected a 12-emblem contact sheet; checked all icons are distinct and present
+in the directory, no page errors or map mutations. Existing office name
+editing/save/import regression passed.

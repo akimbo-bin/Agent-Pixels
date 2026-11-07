@@ -23,6 +23,7 @@ text=text.replace('@@SCREEN_PROGRAMS@@',(root/'dev/engine/illustrated-screen-pro
 
 text=text.replace('@@STARS@@',(root/'dev/engine/illustrated-stars.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@OFFICE_SYMBOLS@@',(root/'dev/engine/illustrated-office-symbols.js').read_text(encoding='utf-8'))
 text=text.replace('@@HUD@@',(root/'dev/engine/illustrated-hud.js').read_text(encoding='utf-8')).replace('@@HUD_CSS@@',(root/'dev/engine/illustrated-hud.css').read_text(encoding='utf-8'))
 
 sprites=[{'src':'data:image/png;base64,'+base64.b64encode(file.read_bytes()).decode()} for file in sorted((root/'public/assets/characters').glob('char_*.png'),key=lambda p:int(p.stem.split('_')[-1]))]
