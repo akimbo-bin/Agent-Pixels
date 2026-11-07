@@ -8442,11 +8442,11 @@ const HardwareActivity=(()=>{
  let time=0,prepared=false;
  const phase=id=>[...id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
  const state=RoomStates.state;
- // Low duty-cycle row activity, softened over time and quantized to six levels.
- function activity(d,i,step){const groups=Math.min(6,Math.max(2,Math.ceil(d.lights.length/3))),row=Math.min(groups-1,Math.floor(i/Math.ceil(d.lights.length/groups))),head=((step+phase(d.id))%groups+groups)%groups;return row===head?1:.1;}
- function levels(d){if(state(d.room)!=='working')return d.lights.map(()=>.1);if(!Portal.info().enabled)return d.lights.map(()=>.55);const clock=time*1.15+(phase(d.id)%17)*.31,step=Math.floor(clock),u=clock-step,t=Math.min(1,u/.24),fade=t*t*(3-2*t);return d.lights.map((l,i)=>Math.round((activity(d,i,step-1)*(1-fade)+activity(d,i,step)*fade)*6)/6);}
+ // Overlapping row chases and staggered data bursts, with soft quantized fades.
+ function activity(d,i,step){const groups=Math.min(6,Math.max(2,Math.ceil(d.lights.length/3))),row=Math.min(groups-1,Math.floor(i/Math.ceil(d.lights.length/groups))),head=((step+phase(d.id))%groups+groups)%groups,trail=(head-row+groups)%groups,burst=((i*7+phase(d.id)+Math.floor(step/2)*3)%11+11)%11;return trail===0?1:trail===1?.65:burst<3?.8:.18;}
+ function levels(d){if(state(d.room)!=='working')return d.lights.map(()=>.1);if(!Portal.info().enabled)return d.lights.map(()=>.55);const clock=time*(d.room==='operations'?2.8:3.2)+(phase(d.id)%17)*.31,step=Math.floor(clock),u=clock-step,t=Math.min(1,u/.6),fade=t*t*(3-2*t);return d.lights.map((l,i)=>Math.round((activity(d,i,step-1)*(1-fade)+activity(d,i,step)*fade)*6)/6);}
  function palette(d){if(d.id.includes('amber'))return[[139,101,84],[236,177,98],[255,226,158]];if(d.id.includes('purple')||d.room==='training')return[[102,91,160],[124,205,245],[191,233,255]];return[[78,112,166],[95,209,244],[159,246,221]];}
- function lampColor(d,i,level){const colors=palette(d),clock=(state(d.room)==='working'&&Portal.info().enabled?time/4:0)+(phase(d.id)%11)*.21+i*.07,step=Math.floor(clock),u=clock-step,fade=u*u*(3-2*u),a=colors[1+step%2],b=colors[1+(step+1)%2];return colors[0].map((v,k)=>{const lit=a[k]*(1-fade)+b[k]*fade;return Math.round((v+(lit-v)*level)/16)*16;});}
+ function lampColor(d,i,level){const colors=palette(d),clock=(state(d.room)==='working'&&Portal.info().enabled?time/2.2:0)+(phase(d.id)%11)*.21+i*.07,step=Math.floor(clock),u=clock-step,fade=u*u*(3-2*u),a=colors[1+step%2],b=colors[1+(step+1)%2];return colors[0].map((v,k)=>{const lit=a[k]*(1-fade)+b[k]*fade;return Math.round((v+(lit-v)*level)/16)*16;});}
  function prepare(){for(const d of devices){
   // Merge fragments of the same lamp before fitting a regular local footprint.
   const groups=[];for(const light of d.lights){const near=groups.find(g=>Math.hypot(g.x-light.x,g.y-light.y)<3);if(near){near.pixels.push(...light.pixels);near.x=near.pixels.reduce((n,p)=>n+p[0],0)/near.pixels.length;near.y=near.pixels.reduce((n,p)=>n+p[1],0)/near.pixels.length;}else groups.push({x:light.x,y:light.y,pixels:[...light.pixels]});}d.lights=groups.filter(l=>l.pixels.length>=3).sort((a,b)=>a.y-b.y||a.x-b.x);

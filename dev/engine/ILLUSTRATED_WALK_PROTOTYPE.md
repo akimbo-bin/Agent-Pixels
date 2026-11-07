@@ -635,3 +635,15 @@ Verified node scripts/check-engine-working.cjs: speed ramp and recovery,
 fourteen steam particles, two rotating sirens, actual beacon pixel changes,
 no browser errors, no dirty edits and 599 preserved grid overrides. Engine
 Working screenshot visually inspected.
+
+## Busier Working hardware (2026-11-07)
+
+Training, Observatory and Operations hardware now runs overlapping row chases,
+fading trails and staggered data bursts instead of a single sparse active row.
+Training/Observatory advance at 3.2 steps per second and Operations at 2.8,
+up from 1.15. Color cycling is faster, retaining soft transitions, six-level
+brightness quantization, existing lamp footprints and colored Idle standby.
+
+Extended check-effects-preview.cjs to measure simultaneous active lights and
+cycling for all three rooms. Samples exceed 40% active lamps and verify
+visible rendered animation, state controls, motion resume, steam and map edits.

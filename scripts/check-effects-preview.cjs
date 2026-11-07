@@ -15,6 +15,13 @@ const assert=require('node:assert/strict');
  console.log(state);
  assert.equal(state.paused,false,'Working preview must start motion after a paused preference');
  assert.ok(state.steam>0,'Working Engine preview must emit steam');
+ const activity=await p.evaluate(()=>{
+  const result={};for(const room of ['training','observatory','operations']){let lit=0,total=0,changes=0,last=[];
+   for(let n=0;n<30;n++){HardwareActivity.tick(.1);const lamps=HardwareActivity.info().devices.filter(d=>d.room===room).flatMap(d=>d.levels);lit+=lamps.filter(v=>v>=.5).length;total+=lamps.length;changes+=lamps.filter((v,i)=>last[i]!==undefined&&Math.abs(v-last[i])>=1/6).length;last=lamps;}
+   result[room]={litFraction:lit/total,changes};}return result;
+ });
+ console.log('Working lamp activity',activity);
+ for(const [room,a]of Object.entries(activity)){assert.ok(a.litFraction>.4,room+' needs overlapping active lamps');assert.ok(a.changes>50,room+' needs lively cycling');}
  await p.click('#lighting-toggle');
  await p.selectOption('#room-preview-room','training');await p.selectOption('#room-preview-state','idle');
  assert.equal(await p.evaluate(()=>__walk.hardware.devices.find(d=>d.room==='training').state),'idle');
