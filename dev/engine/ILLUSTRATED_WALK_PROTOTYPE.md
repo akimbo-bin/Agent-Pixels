@@ -796,3 +796,18 @@ Lowered plaque background alpha from 93% to 75% while retaining fully opaque
 text and borders. check-office-labels.cjs passes rename/subtitle, directory and
 shared-room label sync, undo/redo, save/reload, import compatibility and reset,
 with the grid and 42 screens unchanged.
+
+## Statistical office type (2026-11-07)
+
+Operations and Ticket Queue now default to Statistical. Rooms > Edit office
+settings includes a Statistical checkbox for any room, saved as optional
+roomTypes data alongside office names. Import, save/reload and undo/redo retain
+the type; older maps inherit the requested two defaults.
+
+Separated displayed state from animationState in RoomStates. Statistical
+plaques/directory/location show Statistical, exclude the rooms from Working
+counts, and use Working intensity for hardware, screens, room power and other
+effects. Actual agents/metrics/liveState remain unchanged. Statistical rooms
+cannot preview Idle; type changes clear older previews. Global Motion pause
+is still respected. Statistical defaults and editing/save/reload/import,
+label/count semantics and active animation paths pass browser/core checks.

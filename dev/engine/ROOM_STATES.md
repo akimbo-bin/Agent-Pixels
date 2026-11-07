@@ -1,5 +1,22 @@
 # Shared room activity
 
+## Statistical offices
+
+Operations and Ticket Queue default to Statistical. Any office can be changed
+under Rooms > Edit office settings > Statistical office, then Save office.
+The optional roomTypes map is included in saves, export/import and undo/redo.
+Older saves retain the Operations/Queue defaults. Explicit activity settings
+allow either default room to return to normal live Working/Idle behavior.
+
+A statistical room's displayed state is statistical, while animationState is
+always working. RoomStates.state/states return the display state; animation
+consumers use RoomStates.animationState. Statistical rooms are excluded from
+the HUD Working count and are not labeled Working, Idle, Preview or Stale.
+Actual agent counts, pipeline liveState and source availability remain real;
+no workers or metrics are fabricated. Data-screen freshness remains separate.
+Idle preview is disabled for Statistical offices; changing the room type clears
+its previous cosmetic preview. Global Motion/editor pauses still apply.
+
 RoomStates is the single source for room Working/Idle status. Room power,
 overhead bars, hardware lamps, rocket steam, small screen indicators, room
 plaques, directory labels and HUD counts read the same effective state.
