@@ -17,6 +17,7 @@ text=text.replace('@@LIGHTING@@',(root/'dev/engine/illustrated-lighting.js').rea
 text=text.replace('@@TURBINES@@',(root/'dev/engine/illustrated-turbines.js').read_text(encoding='utf-8'))
 
 text=text.replace('@@SCREENS@@',(root/'dev/engine/illustrated-screens.js').read_text(encoding='utf-8'))
+text=text.replace('@@SCREEN_ART@@',(root/'dev/engine/illustrated-screen-art.js').read_text(encoding='utf-8'))
 text=text.replace('@@SCREEN_PROGRAMS@@',(root/'dev/engine/illustrated-screen-programs.js').read_text(encoding='utf-8'))
 
 text=text.replace('@@STARS@@',(root/'dev/engine/illustrated-stars.js').read_text(encoding='utf-8'))

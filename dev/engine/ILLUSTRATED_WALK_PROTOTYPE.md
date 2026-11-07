@@ -694,3 +694,25 @@ Verified all 42 exact owner outlines and 599 overrides, room-specific Idle
 movement/Working intensity, real /live training readings, synthetic board/audio
 contracts, freshness handling and no page errors. Shared multi-agent state
 regression also passed. Training and room screenshots inspected.
+
+## Screen aesthetic polish (2026-11-07)
+
+Replaced the initial sparse screen painter with a dedicated ScreenArtwork
+module, retaining ScreenPrograms as the telemetry/profile authority. All 42
+screens now use coordinated two-accent room palettes, layered gradients,
+corner details, stronger graphic hierarchy and softly animated activity rails.
+
+Corporate screens have radial charts and dashboard panels; Clerk has navigation
+and calendar/workbook layouts; Observatory has radar, orbital and quantum
+plots; Engine has cutaway rocket schematics; Data has a split Fourier board
+and spectral/code views; Training has a real-progress radial dial plus neural
+compute graph and matrix rain; Music has a framed spectrum/waveform display;
+Doctor has scanned diagnostic imagery. Operations matches physical red/cyan/
+amber/violet housings, with clear counters, icons and machine/ticket cards.
+Long lists rotate slowly. Numerical readings remain exclusively live telemetry;
+missing-source and illustrative-audio labels are retained.
+
+Expanded browser verification to paint a contact sheet and test narrow/short
+screens. All original 42 outlines and 599 overrides retained; Idle/Working
+animation, live/stale readings and audio/board contracts pass. Representative
+actual-room screenshots and the full profile contact sheet visually inspected.

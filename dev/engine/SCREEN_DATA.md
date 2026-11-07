@@ -15,6 +15,14 @@ training, or the Music render station. Profiles can be changed individually;
 Generic retains the previous channel/indicator behavior. Explicit custom URLs
 or channel names use Generic unless another program is selected.
 
+ScreenArtwork handles the themed painter separately from live models. Displays
+use room-specific two-accent palettes, glass shading, larger diagrams and
+instrument cards. Training uses actual completion for its radial gauge;
+neural activity is illustrative. Music uses a measured waveform/spectrum when
+available and a labeled illustrative spectrum otherwise. Operations accents
+match its red/cyan/amber/violet cases. Short screens scale a minimum-height
+layout so every program can render without invalid geometry.
+
 Room programs have their own palettes. Existing color and indicator animation
 fields apply to Generic. Idle programs alternate slowly; Working programs run
 busier traces, scans and activity rails. Animation is decorative and does not
