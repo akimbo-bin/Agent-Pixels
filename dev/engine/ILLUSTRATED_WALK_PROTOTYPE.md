@@ -782,3 +782,17 @@ rewrite, Working state continuity, no large-screen gradient, preserved small
 sheen, and distinct small-screen fingerprints after 24×18 downsampling.
 Existing screen/live-data and 5× resolution regressions pass. Material contact
 sheet and actual Operations at 200% inspected.
+
+## Editable office names (2026-11-07)
+
+Rooms > Edit office names now lets the owner select any office, edit its name
+and subtitle, save with the map, or restore the original label. Changes update
+plaques, campus directory, location label and room selectors without changing
+room IDs, routing or live-data bindings. Optional roomLabels data is validated
+and included in version-5 saves/exports, undo/redo and import; older maps remain
+compatible. Save name explicitly saves current map edits too, as stated in UI.
+
+Lowered plaque background alpha from 93% to 75% while retaining fully opaque
+text and borders. check-office-labels.cjs passes rename/subtitle, directory and
+shared-room label sync, undo/redo, save/reload, import compatibility and reset,
+with the grid and 42 screens unchanged.
