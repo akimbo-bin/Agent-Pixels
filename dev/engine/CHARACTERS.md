@@ -35,10 +35,20 @@ uses columns 0–2, typing 3–4 and reading 5–6. Uploads must be PNG under 2 
 more than 2048 px on either axis. Set the frame dimensions before uploading.
 
 The renderer sorts agents and the player by depth and reapplies appropriate
-foreground furniture/screen masks per actor. Readable two-line name/live-state tags are enabled by default and stay the
-same screen size while zooming. They avoid one another and use leader lines
-when displaced. Click a tag to edit its agent. World > Agent names can hide
-them; hover/selected-agent labels remain available when names are hidden.
+foreground furniture/screen masks per actor. Compact pixel name tags stay the
+same screen size while zooming, avoid one another and use faint leader lines
+when displaced. Default tags show a name and only Working or actual activity
+(Walking, Reading, To desk); Idle, Paused and other presence details appear
+only on hover or inspection. Name-only tags are 16 px high, activity/detail
+tags 26 px, with a 53% opaque background and 8 px locally bundled Silkscreen.
+The font's SIL Open Font License is stored beside the TTF and included in the
+self-contained HTML. No external font requests are needed at runtime.
+
+Hover an agent or tag to reveal full presence. Click either to pin details;
+click empty map space or Escape to dismiss. Double-click a tag to open its
+Characters editor. World > Agent names can hide default labels; hovered,
+pinned and editor-selected labels remain available. Inspection does not edit
+the saved map or backend agent status.
 
 ## Presence and freshness
 

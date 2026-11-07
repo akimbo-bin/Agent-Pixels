@@ -20,3 +20,10 @@
 #agent-label-layer{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden}#agent-label-lines{position:absolute;inset:0;pointer-events:none}#agent-label-lines line{stroke-width:1;stroke-opacity:.38}.agent-tag{position:absolute;left:0;top:0;pointer-events:auto;padding:3px 6px 3px 7px;height:32px;text-align:left;border:1px solid #686482;border-left:2px solid var(--agent-color);border-radius:3px;background:linear-gradient(110deg,#111a31f5,#0c1229ed);box-shadow:0 2px 5px #0005;cursor:pointer;line-height:12px;overflow:hidden}.agent-tag:hover{border-color:var(--agent-color);background:#20223b}.agent-tag[hidden]{display:none}.agent-tag-name{display:block;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f5eeff}.agent-tag-state{display:block;font-size:9px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--agent-color)}
 
 #effects-resume[hidden]{display:none}
+
+@font-face{font-family:NebulaPixel;src:url("@@PIXEL_FONT@@") format("truetype");font-style:normal;font-weight:400;font-display:block}
+.agent-tag{padding:2px 4px;height:auto;border-color:#77718c80;border-left-width:1px;border-radius:1px;background:rgba(10,16,32,.53);box-shadow:none;line-height:10px;font-family:NebulaPixel,monospace;text-shadow:1px 1px #0009}
+.agent-tag:hover,.agent-tag[data-expanded=true]{background:rgba(10,16,32,.76);border-color:#a09ab7aa}
+.agent-tag-name,.agent-tag-state{font-family:NebulaPixel,monospace;font-size:8px;font-weight:400;line-height:10px}
+.agent-tag-state[hidden]{display:none}
+#agent-label-lines line{stroke-opacity:.24}

@@ -811,3 +811,19 @@ effects. Actual agents/metrics/liveState remain unchanged. Statistical rooms
 cannot preview Idle; type changes clear older previews. Global Motion pause
 is still respected. Statistical defaults and editing/save/reload/import,
 label/count semantics and active animation paths pass browser/core checks.
+
+## Compact pixel agent tags (2026-11-07)
+
+Reduced tags from fixed 32 px boxes to 16 px name-only / 26 px activity boxes,
+lowered background alpha to 53%, softened leader lines and bundled the locally
+embedded Silkscreen font at 8 px. Font license is retained with the asset and
+in self-contained HTML. Resting tags no longer print Idle or Paused. Default
+second lines show actual activity or Working; hover/inspection reveals full
+presence and native tooltips retain issue details.
+
+Click a tag or sprite to pin details without opening an editor; empty map or
+Escape dismisses. Double-click tags retains the character-editing shortcut.
+Collision placement accounts for variable tag heights and width. Label-only
+inspection never changes map/backend data. check-compact-agent-tags.cjs tests
+font loading, dimensions/transparency, hidden Paused, hover, pin/dismiss and
+visible Working in an isolated browser; screenshot visually inspected.
