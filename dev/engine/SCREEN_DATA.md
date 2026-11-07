@@ -2,6 +2,20 @@
 
 ## Room programs and connected readings
 
+RoomDisplays supplies distinct materials and layouts: Engineering drafting
+sheets, Data slate/chalk, Music DAW, and enlarged Operations instrumentation.
+The shared fallback preserves Doctor and the main Training program. Glass
+sheen is limited to indicator/small screens; data/large screens are matte.
+
+The chalkboard holds its equations and plots perfectly still, then erases them
+in strips and writes the next page. Its per-screen clock advances twice as
+fast while Working and preserves phase across room state changes. Small Data
+monitors still have electronic DSP, code, notebook, matrix and filter views.
+Small Engineering monitors have four print views; Data has eight layouts and
+Training six, with bold geometry suitable for their tiny projected sizes.
+Music's arrangement/piano roll is a labeled demo session; incoming measured
+waveform/spectrum and actual progress/sample readings remain distinct.
+
 Screen textures and their source artwork are rendered at the current zoom
 pixel density instead of enlarging a fixed 2× texture. Perspective sampling
 and foreground masks use that same density, including short-screen layouts.
@@ -22,8 +36,8 @@ training, or the Music render station. Profiles can be changed individually;
 Generic retains the previous channel/indicator behavior. Explicit custom URLs
 or channel names use Generic unless another program is selected.
 
-ScreenArtwork handles the themed painter separately from live models. Displays
-use room-specific two-accent palettes, glass shading, larger diagrams and
+RoomDisplays and ScreenArtwork handle themed painting separately from live models. Displays
+use room-specific materials, small-screen glass shading, larger diagrams and
 instrument cards. Training uses actual completion for its radial gauge;
 neural activity is illustrative. Music uses a measured waveform/spectrum when
 available and a labeled illustrative spectrum otherwise. Operations accents

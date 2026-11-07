@@ -754,3 +754,31 @@ check-screen-resolution.cjs reproduces the old bug and now passes at actual
 5× draw density 10. The 42-screen/live-data regression passes, preserving saved
 outlines and 599 overrides. The maximum-zoom Training screenshot was visually
 inspected for crisp text and diagram strokes.
+
+## Distinct room display materials (2026-11-07)
+
+Added RoomDisplays before the shared fallback painter. Engineering uses a
+textured cyanotype drafting sheet with sections, orthographic views, dimension
+lines and title blocks. Data's large board uses slate grain, chalk handwriting
+and fixed drawings; a four-strip eraser clears the board before the next page
+is progressively written. Its per-screen clock keeps page continuity when
+Working/Idle changes; Working speeds the same process up instead of swapping
+pages instantly. No scrolling traces remain on the chalkboard.
+
+Music now has a DAW arrangement, colored clips, piano roll, mixer strips and
+frequency analyzer. Measured waveform/spectrum and numerical render telemetry
+remain supported; illustrative session graphics retain demo labels. Operations
+headers/counters/detail type are substantially larger inside the saved bezels.
+Doctor's designs and Training's main display are preserved.
+
+Small displays have different layouts within each room: corporate dashboard,
+mail/calendar, four celestial plots, four blueprint views, eight DSP/math/code
+layouts, six neural/tensor/embedding layouts, and existing medical diagnostics.
+Only small screens receive glass sheen; all large screens are matte. All 42
+saved outlines and live-data contracts are unchanged.
+
+check-room-display-styles.cjs verifies static chalk holds, visible erase and
+rewrite, Working state continuity, no large-screen gradient, preserved small
+sheen, and distinct small-screen fingerprints after 24×18 downsampling.
+Existing screen/live-data and 5× resolution regressions pass. Material contact
+sheet and actual Operations at 200% inspected.

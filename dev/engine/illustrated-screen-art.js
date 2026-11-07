@@ -1,13 +1,13 @@
 // Canvas-native screen artwork. Diagrams are illustrative; live values are supplied by the model.
 const ScreenArtwork=(()=>{
- function paint({profile,variant,room,theme,model:m},g,w,h,time,active){
+ function paint({profile,variant,room,theme,model:m,kind='indicator'},g,w,h,time,active){
   if(profile==='generic')return false;
-  if(h<136){const scale=Math.max(1,g.getTransform().a),c=document.createElement('canvas');c.width=Math.ceil(w*scale);c.height=Math.ceil(136*scale);const cg=c.getContext('2d');cg.scale(scale,scale);const painted=paint({profile,variant,room,theme,model:m},cg,w,136,time,active);if(painted)g.drawImage(c,0,0,w,h);return painted;}
+  if(h<136){const scale=Math.max(1,g.getTransform().a),c=document.createElement('canvas');c.width=Math.ceil(w*scale);c.height=Math.ceil(136*scale);const cg=c.getContext('2d');cg.scale(scale,scale);const painted=paint({profile,variant,room,theme,model:m,kind},cg,w,136,time,active);if(painted)g.drawImage(c,0,0,w,h);return painted;}
   let [bg,ink]=theme,accent={lead:'#f3d18d',second:'#e0c29a',clerk:'#ffd997',observatory:'#83edff',engine:'#ffbd73',data:'#f1dc96',training:'#82f3df',music:'#83e8ff',doctor:'#96cfff',operations:'#e0b9ff',queue:'#ecb5dc'}[room]||'#a8e7ff';
   if(['work','health','blockers','reviews','ready','progress','review'].includes(profile)){ink={work:'#ff9eac',health:'#75e2f6',blockers:'#ffc27d',reviews:'#cda0ff',ready:'#ffd69b',progress:'#acb7ff',review:'#f1a1da'}[profile];bg='#101525';}
   const t=time*(active?1:.17)+variant*.91,cx=w/2,body=h-41;
   g.save();g.fillStyle=bg;g.fillRect(0,0,w,h);
-  const wash=g.createLinearGradient(0,0,w,h);wash.addColorStop(0,ink+'0d');wash.addColorStop(.5,bg);wash.addColorStop(1,accent+'09');g.fillStyle=wash;g.fillRect(0,0,w,h);
+  if(kind==='indicator'){const wash=g.createLinearGradient(0,0,w,h);wash.addColorStop(0,ink+'0d');wash.addColorStop(.5,bg);wash.addColorStop(1,accent+'09');g.fillStyle=wash;g.fillRect(0,0,w,h);}
   const rect=(x,y,W,H,c=ink,a=1)=>{g.globalAlpha=a;g.fillStyle=c;g.fillRect(x,y,W,H);g.globalAlpha=1;};
   const line=(x,y,X,Y,c=ink,a=1,width=1)=>{g.strokeStyle=c;g.lineWidth=width;g.globalAlpha=a;g.beginPath();g.moveTo(x,y);g.lineTo(X,Y);g.stroke();g.globalAlpha=1;};
   const text=(value,x,y,size=13,c=ink,max=w-x-10)=>{g.fillStyle=c;g.font=`${size>=22?'bold ':''}${size}px monospace`;let s=String(value??'').replace(/[\r\n\t]/g,' ');while(s.length&&g.measureText(s).width>max)s=s.slice(0,-1);g.fillText(s,x,y);};
