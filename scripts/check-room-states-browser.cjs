@@ -33,6 +33,13 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  work(training);await refresh();await assertRoom('working',2);
  data.issue=null;await refresh();await assertRoom('working',1);
  training.issue=null;await refresh();await assertRoom('idle',0);
+ // A running heartbeat need not have a linked Paperclip issue.
+ training.status='running';await refresh();await assertRoom('working',1);
+ training.status='idle';await refresh();await assertRoom('idle',0);
+ // Independent compute jobs energize the room even when the agent is idle.
+ live.tasks['nebula.training']={id:'nebula.training',state:'running',updatedAt:Date.now()};
+ await refresh();await assertRoom('working',0);
+ live.tasks['nebula.training'].state='idle';await refresh();await assertRoom('idle',0);
  await p.click('#lighting-toggle');
  assert.equal(await p.locator('#lighting-panel select').count(),2,'One room selector and one shared state selector only');
  await p.selectOption('#room-preview-room','training');

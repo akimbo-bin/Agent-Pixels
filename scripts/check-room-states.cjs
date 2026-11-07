@@ -33,6 +33,8 @@ assert.equal(rooms.state('training'),'idle','Moving an agent must update both ro
 now+=31000;
 assert.equal(rooms.state('data'),'idle');
 assert.equal(rooms.get('data').available,false,'Stale agent readings must not hold rooms Working');
+assert.equal(rooms.setRoomState('training','running'),true);
+assert.equal(rooms.animationState('training'),'working','Running room feeds must animate as Working');
 rooms.setRoomState('training','working');
 assert.equal(rooms.state('training'),'working','Fresh pipeline work can drive an unstaffed room');
 assert.equal(rooms.updateAgents([agent('bad','idle','missing')]),false);

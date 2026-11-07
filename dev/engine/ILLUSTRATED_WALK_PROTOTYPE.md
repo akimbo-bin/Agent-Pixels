@@ -847,3 +847,8 @@ editing/save/import regression passed.
 Camera zoom, right/Space dragging, room navigation, editor selection, reset, character following and elevator following share an exponential easing destination. Wheel input accumulates against the intended zoom and keeps the world point under the pointer fixed through the transition. Fit also eases; initial URL framing starts settled. Rendering and hit testing continue to use the same actual camera position. Saved map content is unchanged.
 
 Validation: `node scripts/check-smooth-camera.cjs` checks intermediate and settled positions, pointer anchoring, real drag input, 30/120 Hz equivalence and preserved 599 cells / 18 masks / 4 seats / 42 screens. Screen-resolution and office-label regressions pass.
+
+
+### Running uses Working animations — 2026-11-07
+
+Fixed character presence dropping a running heartbeat to Idle when no issue was linked. Running/Working heartbeats now contribute to the shared room Working state; direct room feeds also normalize running to working. Existing training job telemetry remains an independent source of room activity. Regression checks cover running agents without tickets and running Training jobs with idle agents, including lighting, machine hardware, screens and room labels. Paused/error precedence, previews and saved map data are unchanged.
