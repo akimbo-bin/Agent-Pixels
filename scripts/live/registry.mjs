@@ -33,6 +33,9 @@ export function normalize(id, title, raw) {
     id, title: raw?.title ?? title ?? id, state,
     detail: typeof raw?.detail === 'string' ? raw.detail : '',
     progress, metrics,
+    ...(raw?.coverage?{coverage:raw.coverage}:{}),
+    ...(raw?.activity?{activity:{job:raw.activity.job,kind:raw.activity.kind,label:raw.activity.label,progress:null,reason:raw.activity.reason,attempt:raw.activity.attempt}}:{}),
+    ...(raw?.queue?{queue:{counts:raw.queue.counts,admissionHours:raw.queue.admissionHours,hardStopHours:raw.queue.hardStopHours,recordedHours:raw.queue.recordedHours}}:{}),
     updatedAt: num(raw?.updatedAt),
     ...(state === 'unknown' ? { why: typeof raw?.why === 'string' ? raw.why : 'source reported no state' } : {}),
   };

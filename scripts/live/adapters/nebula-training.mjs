@@ -1,22 +1,15 @@
-// Live adapter: the Nebula training queue on this PC (read-only files).
-// options: { base: "C:/NebulaResearch/train", queue: "neb318" }
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import path from 'node:path';
-
-const lines = (p, n) => readFileSync(p, 'utf8').trim().split('\n').slice(-n).map(l => JSON.parse(l));
-
-export async function read({ base = 'C:/NebulaResearch/train', queue = 'neb318' }) {
-  const q = path.join(base, queue), statusPath = path.join(q, 'status.json');
-  if (!existsSync(statusPath)) return { state: 'unknown', why: `${statusPath} missing` };
-  const status = JSON.parse(readFileSync(statusPath, 'utf8'));
-  const jobs = JSON.parse(readFileSync(path.join(q, 'queue.json'), 'utf8'));
-  const total = (Array.isArray(jobs) ? jobs : jobs.jobs ?? []).length;
-  const done = new Set(lines(path.join(q, 'gpu_ledger.jsonl'), 5000).filter(r => r.outcome === 'done').map(r => r.job)).size;
-  const last = existsSync(path.join(q, 'smoke.jsonl')) ? lines(path.join(q, 'smoke.jsonl'), 1)[0] : null;
-  const paused = existsSync(path.join(base, 'PAUSE'));
-  let state = status.state === 'done' ? 'done' : status.state === 'failed' ? 'failed' : status.state === 'running' ? 'running' : 'unknown';
-  let detail = status.step ?? '';
-  if (state === 'running' && paused) state = 'paused';
-  else if (state === 'running' && last?.event === 'blocked') { state = 'waiting'; detail = `${detail} (${(last.held ?? []).map(h => h.reason).join(', ')})`; }
-  return { state, detail, progress: total ? { done, total } : null, updatedAt: statSync(statusPath).mtimeMs };
+// Authoritative queue state, with current workload separated from whole-queue completion.
+import {existsSync,readFileSync,statSync} from 'node:fs';import path from 'node:path';
+export async function read({base='C:/NebulaResearch/train',queue='neb318'}){
+ const q=path.join(base,queue),file=path.join(q,'status.json');if(!existsSync(file))return{state:'unknown',why:'Queue status unavailable'};
+ const status=JSON.parse(readFileSync(file,'utf8')),config=JSON.parse(readFileSync(path.join(q,'queue.json'),'utf8')),jobs=Array.isArray(config)?config:config.jobs??[];
+ const saved=JSON.parse(readFileSync(path.join(q,'state.json'),'utf8')),counts={};for(const j of jobs){const s=saved[j.name]?.status??'pending';counts[s]=(counts[s]||0)+1;}
+ const child=saved._child,job=jobs.find(j=>j.name===(child?.job||status.step)),paused=existsSync(path.join(base,'PAUSE'))||existsSync(path.join(base,'../HOLD'));
+ let state=['done','failed'].includes(status.state)?status.state:paused?'paused':status.waiting||status.step==='waiting_for_window'||status.step==='yield_wait'?'waiting':status.state==='running'&&child?'running':'unknown';
+ if(state==='done'&&(counts.done||0)<jobs.length)state='waiting';
+ const reason=status.state==='done'&&(counts.done||0)<jobs.length?'Queue driver stopped with unfinished jobs':status.waiting?.held?.map(h=>h.reason+': '+h.detail).join('; ')||(status.waiting?'Waiting for resource cooldown':status.step==='waiting_for_window'?'Waiting for allowed window':'');
+ const kind=job?.kind||'queue',label={eval:'Evaluating',train:'Training',oracle:'Fitting',baselines:'Evaluating baselines'}[kind]||'Queue';
+ let used=0;try{for(const line of readFileSync(path.join(q,'gpu_ledger.jsonl'),'utf8').trim().split('\n')){try{used+=JSON.parse(line).s||0;}catch{}}}catch{}
+ return{state,detail:(state==='running'?label+' · ':'')+(job?.name||status.step||'Queue complete')+(reason?' · '+reason:''),progress:{done:counts.done||0,total:jobs.length},updatedAt:statSync(file).mtimeMs,
+ activity:{job:job?.name||null,kind,label,progress:null,reason,attempt:child?.attempt||null},queue:{counts,admissionHours:config.admission_gpu_h??50,hardStopHours:config.ceiling_gpu_h??52,recordedHours:Math.round(used/360)/10}};
 }

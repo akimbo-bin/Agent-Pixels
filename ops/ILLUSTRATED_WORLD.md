@@ -31,8 +31,9 @@ synchronization are not implemented.
 
 CT125: nebula-world.service runs at boot as unprivileged nebula-world, with
 read-only application files. It binds the private 192.168.8.113:8791 address.
-Only GET/HEAD release files and /live are exposed. Private config, dev write APIs
-and generation tools are excluded. HTML uses gzip/ETag. /health and /release.json
+Release files and /live are read-only. The only write API is a validated same-origin
+listening-review submission; it cannot change Paperclip. Private config, dev write
+APIs and generation tools are excluded. HTML uses gzip/ETag. /health and /release.json
 report the active release.
 
 Proxmox: nebula-world-proxy.socket listens only on 127.0.0.1:13126 and
@@ -66,3 +67,47 @@ release, pinch, pan, follow/Fit, elevator calls and editing.
 
 The standalone host remains portable: world:release builds a directory for another
 host, whose local live data configuration must be set before moving it.
+
+
+## Dashboard data and listening reviews
+
+The status exporter on CT125 now reads a paginated, allowlisted Nebula issue board,
+actual live runs, attention items, inbox badges, daily run summaries and recent
+activity. Financial fields, runtime credentials and comment/tool snippets are
+excluded. Attention totals are not unread-notification counts. The source exporter
+remains read-only against Paperclip.
+
+Training completion uses the current queue's authoritative per-job state, excluding
+smoke-only ledger entries. The active workload and whole-queue progress are separate;
+no per-evaluation percentage is invented. Waiting/cooldown/window holds and a stopped
+driver with unfinished work are not labeled Running. Display Running maps to Working
+room animations while assigned-agent presence remains independent.
+
+The workstation publisher also collects verified dataset QA cohorts and audio from
+completed NEB-318 evaluation folders. Stable cohort/run IDs avoid duplicate counting;
+reference copies and unsuccessful jobs are excluded. A local cache retains known
+counts through NAS outages/cleanup. The UI explicitly labels historical coverage
+partial instead of presenting this as a fully reconciled lifetime total.
+
+`scripts/build-listening-catalog.py` imports only blinded audio and curated trial
+metadata from the five existing private listening packets. It never packages guide
+HTML, answer keys, original filenames, or unblinded archival receipts. Media is
+content-addressed and sent separately on deploy only when the catalog changes.
+Historical completed reviews are flagged without exposing their answer mappings.
+
+CT125 serves GET /api/listening and byte-range audio requests. POST
+/api/listening/reviews validates the origin, custom header, packet revision, all
+trial IDs, picks, confidence and note limits. Conflicting receipt revisions return
+409 without dropping the client's choices. Reviews append atomically in
+/var/lib/nebula-world/listening-state/reviews.json, owned by the unprivileged app
+user; the systemd sandbox permits writes only there. Releases/rollbacks preserve
+that state. Demo reviews only use localStorage and never call this write API.
+
+Dashboard checks: `world:check-data`, `world:check-dashboard`, and
+`world:check-dashboard-mobile`. The browser dashboard tests default to an isolated
+QA host on 127.0.0.1:8792. Set DASHBOARD_URL to the official URL for production
+read-only checks; automated real review writes are enabled only on that local QA
+host. Existing map geometry, masks, seats, screens and character customization
+remain browser-save/export data and are not overwritten by deployment.
+
+Deployment preflight requires at least 512 MiB free on CT125 before writing a release. On 7 November the container root disk was expanded online from 100 GiB to 110 GiB using available local-lvm capacity after only 11 MiB free remained. Existing data and services were preserved.

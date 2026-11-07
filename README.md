@@ -6,6 +6,12 @@ The illustrated campus is now the official Nebula world. The original plugin and
 
 **Update:** `npm run world:deploy` builds and promotes a versioned release to CT125. The running host picks it up without restarting. **Undo a release:** `npm run world:rollback`.
 
+The dashboard now centers on live Paperclip work: **Rooms · Operations · Editor · Listening · Queue**, with Inbox/Attention and Settings. Rooms show assigned agents and tickets, Operations separates agent runs from external jobs, and Queue uses the full issue board. Room browsing moves the camera without teleporting your character.
+
+The footer has Live/Demo selection, operational totals and **Renders Generated**. The render count covers verified datasets and completed research evaluations, with partial historical coverage labeled explicitly. Training shows the actual workload state plus queue completion, and uses Working animations while Running.
+
+**Listening** serves five blinded packets. Choices, confidence and notes save centrally on CT125; private answer keys are never included. Demo activity and review receipts stay separate from live data and server reviews. Paperclip edits and approvals open in Paperclip rather than mutating it from the map.
+
 Phone controls: hold/drag the direction pad to walk (diagonals supported), **A / USE** interacts with seats/elevators, **ME** follows your character. Drag the world to look around; pinch or use ± to zoom. Both portrait and landscape are supported.
 
 See [the deployment guide](ops/ILLUSTRATED_WORLD.md) for installation, moving to a Linux server, live feeds, and preserving editor saves.

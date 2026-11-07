@@ -42,6 +42,6 @@ export async function read(options = {}) {
     ...(fresh ? {} : { why: `snapshot is ${Math.round(age / 1000)} s old` }),
     ...(snap.errors?.length ? { why: snap.errors.join('; ') } : {}),
     tasks,
-    org: { company: snap.company ?? null, exportedAt: snap.exportedAt, agents: snap.agents ?? [] },
+    org: { company: snap.company ?? null, exportedAt: snap.exportedAt, agents: snap.agents ?? [], workboard:snap.workboard??null, liveRuns:snap.liveRuns??null, attention:snap.attention??null, inbox:snap.inbox??null, dashboard:snap.dashboard??null, activity:snap.activity??[], errors:snap.errors??[] },
   };
 }

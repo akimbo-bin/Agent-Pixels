@@ -21,7 +21,10 @@
     "world:check-mobile": "node scripts/check-mobile-world.cjs",
     "world:rollback": "node scripts/rollback-world-ct125.mjs",
     "world:deploy-local": "node scripts/deploy-illustrated-world.mjs --root C:/NebulaWorld",
-    "world:rollback-local": "node scripts/rollback-illustrated-world.mjs --root C:/NebulaWorld"
+    "world:rollback-local": "node scripts/rollback-illustrated-world.mjs --root C:/NebulaWorld",
+    "world:check-dashboard": "node scripts/check-dashboard.cjs",
+    "world:check-dashboard-mobile": "node scripts/check-dashboard-mobile.cjs",
+    "world:check-data": "node scripts/check-training-dashboard.cjs && node scripts/check-render-counts.cjs && node scripts/check-listening-api.cjs"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

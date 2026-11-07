@@ -873,3 +873,12 @@ Checks: actual emulated touch input, press/release, pinch, pan, Fit, follow, ele
 ### Official host moved to CT125 — 2026-11-07
 
 Owner selected Paperclip CT125. Official URL: https://rehoboam-proxmox.sphinx-scylla.ts.net:8444/. The actual map runs in a Node systemd service on CT125 and reads Paperclip status locally. Proxmox forwards its existing Tailscale connection through a loopback socket proxy, preserving port 8443. Workstation Training/GPU observations are published once per minute and become stale after three minutes offline. `npm run world:deploy` and `world:rollback` now target CT125. Local hosting is retained as `world:deploy-local`. Tailscale hosting and phone checks pass with 14 live agents and real Training telemetry.
+
+
+### Paperclip dashboard and reference chrome — 2026-11-07
+
+Replaced editor-led navigation with Rooms, Operations, Editor, Listening and Queue, plus Inbox/Attention and Settings. Chamfered, layered violet/gold frames and a cyan render counter follow the original reference. The footer separates agent work, external jobs, open issues, blockers and attention. Room selection now previews with the camera and preserves the player position. Old map/screen/character/seat/office-type editors remain under Editor. Phone portrait/landscape layouts keep all five tabs, the render counter and game controls.
+
+Extended the read-only exporter to the complete Nebula board, real live runs, attention, inbox badges and recent work. Training excludes 14 unrelated smoke ledger completions, separates queue progress from current evaluation, and displays Running while animating Working. A stopped driver with incomplete work remains Waiting. Render totals are deduplicated tracked datasets plus completed evaluation outputs, explicitly partial historical coverage.
+
+Five existing listening packets are served as blinded audio/trial metadata, with historical completion acknowledged. No answer keys, private source paths or unblinded receipts are served. New picks/confidence/notes append centrally on CT125 with validation, same-origin protection and revision-conflict handling. Live/Demo are whole-feed alternatives; Demo submissions stay local. Production dashboard checks never submit artificial listening reviews. See ops/ILLUSTRATED_WORLD.md for contracts and deployment.

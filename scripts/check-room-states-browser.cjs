@@ -25,7 +25,7 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
   assert.equal(await p.evaluate(()=>__walk.lighting.rooms.training.effectState),state);
   assert.ok((await p.evaluate(()=>__walk.hardware.devices.filter(d=>d.room==='training'))).every(d=>d.state===state));
   assert.equal(await p.evaluate(()=>Screens.roomStates().training),state);
-  await p.waitForFunction(state=>document.querySelector('[data-room-state="training"]').textContent.toLowerCase().startsWith(state),state);
+  await p.waitForFunction(state=>document.querySelector('[data-room-state="training"]').textContent.toLowerCase().startsWith(RoomStates.get('training').displayState),state);
  }
  async function refresh(){await p.evaluate(()=>document.querySelector('#character-refresh').click());}
  await assertRoom('working',1);
@@ -40,7 +40,7 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  live.tasks['nebula.training']={id:'nebula.training',state:'running',updatedAt:Date.now()};
  await refresh();await assertRoom('working',0);
  live.tasks['nebula.training'].state='idle';await refresh();await assertRoom('idle',0);
- await p.click('#lighting-toggle');
+ await p.click('#hud-edit');await p.click('#lighting-toggle');
  assert.equal(await p.locator('#lighting-panel select').count(),2,'One room selector and one shared state selector only');
  await p.selectOption('#room-preview-room','training');
  await p.selectOption('#room-preview-state','working');
@@ -54,7 +54,7 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  assert.equal(await p.evaluate(()=>__walk.rooms.training.liveState),'working');
  await p.selectOption('#room-preview-state','live');await assertRoom('working',1);
  await p.click('#lighting-close');
- await p.click('#hud-rooms');await p.click('[data-hud-room="training"]');
+ await p.evaluate(()=>WorldHUD.focus('training'));
  await p.waitForTimeout(350);
  await p.screenshot({path:path.resolve(__dirname,'../artifacts/illustrated-map/unified-training-working.png')});
  assert.equal(await p.evaluate(()=>__walk.dirty),false,'Live updates and previews must not dirty saved map data');
