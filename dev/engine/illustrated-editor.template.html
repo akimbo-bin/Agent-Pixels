@@ -134,17 +134,21 @@ function layer(m){if(cache.has(m.id))return cache.get(m.id);const b=bounds(m);if
 // One eased camera for navigation, editing and character following.
 const Camera=(()=>{
  const target={x:view.x,y:view.y,zoom:view.zoom};let anchor=null,previous={...view};
- const clamp=(v,size,z)=>z<=1?size/2:Math.max(size/2/z,Math.min(size-size/2/z,v));
- const fitZoom=()=>matchMedia('(max-width:700px), (pointer:coarse) and (max-height:600px)').matches?Math.min(1,$('#stage').clientWidth/($('#stage').clientHeight*W/H),$('#stage').clientHeight/($('#stage').clientWidth*H/W)):1;
+ const mobile=()=>matchMedia('(max-width:700px), (pointer:coarse) and (max-height:600px)').matches;
+ // The phone crops the canvas, so bounds must use the visible viewport, not its full backing size.
+ function visible(){const b=canvas.getBoundingClientRect(),s=$('#stage');return{x:Math.min(1,s.clientWidth/Math.max(1,b.width)),y:Math.min(1,s.clientHeight/Math.max(1,b.height))};}
+ const clamp=(v,size,z,axis)=>{const half=size*visible()[axis]/(2*z);return half>=size/2?size/2:Math.max(half,Math.min(size-half,v));};
+ const fitZoom=()=>mobile()?visible().y:1;
  function move(x,y){target.x=x;target.y=y;anchor=null;}
  function zoom(z,p){target.zoom=Math.max(fitZoom(),Math.min(5,z));anchor=null;if(p){const b=canvas.getBoundingClientRect(),sx=(p.clientX-b.left)/b.width*W-W/2,sy=(p.clientY-b.top)/b.height*H-H/2;anchor={sx,sy,x:view.x+sx/view.zoom,y:view.y+sy/view.zoom};view.follow=false;}$('#zoom').textContent=Math.abs(target.zoom-fitZoom())<.001?'Fit':Math.round(target.zoom*100)+'%';}
  function tick(dt){
   for(const k of ['x','y','zoom'])if(view[k]!==previous[k])target[k]=view[k];
   if(view.follow&&mode==='walk'&&!anchor){const pose=Seating.visual(),car=Lift.cameraPoint()||(pose?[pose.x,pose.y]:null);target.x=car?car[0]:player.x;target.y=car?car[1]:player.y;}
+  target.zoom=Math.max(fitZoom(),target.zoom);
   const ease=1-Math.exp(-12*dt),z=view.zoom+(target.zoom-view.zoom)*ease;view.zoom=Math.abs(z-target.zoom)<.0001?target.zoom:z;
   if(anchor){view.x=anchor.x-anchor.sx/view.zoom;view.y=anchor.y-anchor.sy/view.zoom;target.x=anchor.x-anchor.sx/target.zoom;target.y=anchor.y-anchor.sy/target.zoom;}
-  else{view.x+=(clamp(target.x,W,target.zoom)-view.x)*ease;view.y+=(clamp(target.y,H,target.zoom)-view.y)*ease;}
-  view.x=clamp(view.x,W,view.zoom);view.y=clamp(view.y,H,view.zoom);
+  else{view.x+=(clamp(target.x,W,target.zoom,'x')-view.x)*ease;view.y+=(clamp(target.y,H,target.zoom,'y')-view.y)*ease;}
+  view.x=clamp(view.x,W,view.zoom,'x');view.y=clamp(view.y,H,view.zoom,'y');
   if(anchor&&view.zoom===target.zoom)anchor=null;previous={...view};
  }
  function settle(){tick(10);previous={...view};}
