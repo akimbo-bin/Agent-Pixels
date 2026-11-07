@@ -152,7 +152,8 @@ const Camera=(()=>{
   if(anchor&&view.zoom===target.zoom)anchor=null;previous={...view};
  }
  function settle(){tick(10);previous={...view};}
- return{move,zoom,tick,settle,fitZoom,get target(){return{...target};}};
+ function bounds(){const v=visible(),rx=W*v.x/(2*view.zoom),ry=H*v.y/(2*view.zoom);return{left:view.x-rx,right:view.x+rx,top:view.y-ry,bottom:view.y+ry};}
+ return{move,zoom,tick,settle,fitZoom,bounds,get target(){return{...target};}};
 })();
 function drawGrid(){const f=floors[player.floor];ctx.lineWidth=.6;for(let y=Math.floor(f.min/8)*8;y<f.max;y+=8)for(let x=0;x<W;x+=12){const k=`${player.floor}:${x/12}:${y/8}`;if(edits[k]===undefined&&!f.areas.some(p=>inside(x+6,y+4,p))&&Lift.pointOverride(player.floor,x+6,y+4)===undefined)continue;const open=point(player.floor,x+6,y+4);ctx.fillStyle=open?'#5de6b72c':'#ff4e7870';ctx.strokeStyle=open?'#9cf6cf66':'#ff90a080';ctx.fillRect(x,y,12,8);ctx.strokeRect(x,y,12,8);}ctx.strokeStyle='#d8b7f7b0';ctx.setLineDash([3,4]);for(const p of f.areas){path(ctx,p);ctx.stroke();}ctx.setLineDash([]);}
 function actor(){if(Seating.drawActor())return;Characters.drawPlayer();}

@@ -10,10 +10,10 @@ const StarTwinkle=(()=>{
  function tick(dt){if(Portal.info().enabled&&mode==='walk'&&!document.hidden)time+=dt;}
  function clip(region){ctx.beginPath();for(const poly of [...region.polys,...(region.exclude||[])]){poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();}ctx.clip('evenodd');}
  function draw(){if(!Portal.info().enabled||mode!=='walk')return;
-  for(const region of regions){ctx.save();clip(region);
+  const v=Camera.bounds();for(const region of regions){const visibleStars=region.stars.filter(s=>s.x+30>=v.left&&s.x-30<=v.right&&s.y+30>=v.top&&s.y-30<=v.bottom);if(!visibleStars.length)continue;ctx.save();clip(region);
    // Dim baked cores first, then batch bright glints without per-star blend switches.
-   ctx.globalCompositeOperation='multiply';for(const star of region.stars){const a=strength(star),core=(star.major?3.8:1.8)*star.size;ctx.globalAlpha=(1-a)*.65;ctx.drawImage(shade,star.x-core,star.y-core,core*2,core*2);}
-   ctx.globalCompositeOperation='screen';for(const star of region.stars){const a=strength(star),radius=8.5*star.size;
+   ctx.globalCompositeOperation='multiply';for(const star of visibleStars){const a=strength(star),core=(star.major?3.8:1.8)*star.size;ctx.globalAlpha=(1-a)*.65;ctx.drawImage(shade,star.x-core,star.y-core,core*2,core*2);}
+   ctx.globalCompositeOperation='screen';for(const star of visibleStars){const a=strength(star),radius=8.5*star.size;
     ctx.globalAlpha=a*.95;ctx.drawImage(glow,star.x-radius,star.y-radius,radius*2,radius*2);
     const arm=star.size*(star.major?3+a*3:1.4+a*2.5),width=star.major?1.1:.85;
     ctx.fillStyle='#dceeff';ctx.globalAlpha=Math.max(0,(a-.3)/.7);ctx.fillRect(star.x-width/2,star.y-arm,width,arm*2);ctx.fillRect(star.x-arm,star.y-width/2,arm*2,width);
