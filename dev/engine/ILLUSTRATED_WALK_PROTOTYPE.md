@@ -669,3 +669,28 @@ use centered five-source-pixel round falloffs instead of the wider fitted
 rectangular lamp-bank masks. Shared Working timing and Idle restoration remain.
 Verified animated rendered pixels and exact Idle restoration with
 check-music-lights.cjs; screenshot inspected and saved grid unchanged.
+
+## Room-specific screen programs and real telemetry (2026-11-07)
+
+Exported the owner's saved map through the existing UI and seeded all 42 exact
+screen outlines together with existing grid/masks/seats/characters. Added
+Automatic room programs and per-screen overrides. Small screens show room
+specific corporate, clerk, celestial, engineering, DSP, neural and medical
+artwork; large screens show blueprint mission control, chalkboard math,
+AKIMB0 queue training progress and the Music render station. Idle alternates
+slowly; Working has busier animation. Real numbers are separate from artwork.
+
+Existing /live polling now supplies actual training done/total/stage and GPU
+readings, Engine assignments, render jobs and machine health. Training job
+activity participates in shared room Working state even with a paused agent.
+Operations defaults: Active Work, Machine Health, Attention, Review Readiness.
+Queue defaults: Ready, In Progress, Needs Review with NEB IDs when available.
+Missing full Nebula board totals and measured audio/sample feeds are explicitly
+unavailable. The installed Paperclip connector is scoped to Chibi; unrelated
+company data was not used. Optional complete board and validated measured audio
+hooks are documented in SCREEN_DATA.md. No organization changes were made.
+
+Verified all 42 exact owner outlines and 599 overrides, room-specific Idle
+movement/Working intensity, real /live training readings, synthetic board/audio
+contracts, freshness handling and no page errors. Shared multi-agent state
+regression also passed. Training and room screenshots inspected.

@@ -66,6 +66,7 @@
 <div id="screen-fields" hidden><div class="row"><button id="screen-duplicate">Duplicate</button><button id="screen-delete">Delete</button></div><button id="screen-redraw" style="width:100%;margin-top:7px">Redraw four corners</button>
 <label class="field">Name</label><input id="screen-name" type="text" maxlength="80"><label class="field">Room</label><select id="screen-room"></select>
 <label class="field">Display purpose</label><select id="screen-kind"><option value="indicator">Small · Working indicator</option><option value="data">Large · Data display</option></select>
+<label class="field">Screen program</label><select id="screen-profile"></select><p id="screen-program-help" class="help">Automatic matches the room. Live numbers are separate from illustrative screen artwork.</p>
 <div id="screen-indicator-fields"><label class="field">Indicator animation</label><select id="screen-effect"><option value="chase">Pixels chase left to right</option><option value="sweep">Lights sweep inward / outward</option><option value="pulse">Pulse</option></select></div>
 <label class="field">Color</label><select id="screen-color"><option value="green">Green</option><option value="red">Red</option><option value="cyan">Cyan</option><option value="purple">Purple</option></select>
 <label class="field">Brightness · <span id="screen-opacity-label"></span></label><input id="screen-opacity" type="range" min="0.1" max="1" step="0.05" style="width:100%">
@@ -111,7 +112,7 @@ let masks=[
  seeded('lift-jamb-left','Open elevator left frame','middle',607,R(1277,536,7,71)),seeded('lift-jamb-right','Open elevator right frame','middle',607,R(1318,536,7,71))
 ];
 const approvedMap={
-  "version": 2,
+  "version": 5,
   "image": {
     "name": "8a8c2bde-8bc6-4103-91c2-5f257de3e645.png",
     "sha256": "df38dd974bffc108ab6595a34ca132d5c3cb1facaae9a96ab7b692af049f1539",
@@ -6582,7 +6583,1695 @@ const approvedMap={
       ]
     }
   ],
-  "savedAt": 1793992056017,
+  "seats": [
+    {
+      "id": "review-front",
+      "name": "Review · front left",
+      "floor": "ground",
+      "x": 371,
+      "y": 754,
+      "depth": 781,
+      "approach": [
+        386,
+        793
+      ],
+      "exit": [
+        386,
+        793
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": []
+    },
+    {
+      "id": "data-front",
+      "name": "Data · left workstation",
+      "floor": "middle",
+      "x": 559,
+      "y": 602,
+      "depth": 629,
+      "approach": [
+        559,
+        641
+      ],
+      "exit": [
+        559,
+        641
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": []
+    },
+    {
+      "id": "training-front",
+      "name": "Training · left workstation",
+      "floor": "middle",
+      "x": 785,
+      "y": 609,
+      "depth": 631,
+      "approach": [
+        785,
+        641
+      ],
+      "exit": [
+        785,
+        641
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": [
+        "mask-fa73615b-fac5-4549-ba01-9ccdd2cbd0ae"
+      ]
+    },
+    {
+      "id": "music-console",
+      "name": "Music · mixing console",
+      "floor": "middle",
+      "x": 1118,
+      "y": 603,
+      "depth": 638,
+      "approach": [
+        1118,
+        642
+      ],
+      "exit": [
+        1118,
+        642
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": [
+        "mixing"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "id": "screen-5b78bf42-de06-4400-8c25-28e2eac2c759",
+      "name": "Lead Main screen Left",
+      "room": "lead",
+      "points": [
+        [
+          330.2671561841906,
+          335.6310693015205
+        ],
+        [
+          347.76865721914174,
+          335.6310693015205
+        ],
+        [
+          347.76865721914174,
+          350.0964092917595
+        ],
+        [
+          330.2671561841906,
+          350.0964092917595
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "lead",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2af87d1e-d139-4199-b747-40651349609e",
+      "name": "Lead Main screen Right",
+      "room": "lead",
+      "points": [
+        [
+          431.89100039089345,
+          336.30111653954225
+        ],
+        [
+          447.8290468469908,
+          336.30111653954225
+        ],
+        [
+          447.8290468469908,
+          350.3197610975293
+        ],
+        [
+          431.89100039089345,
+          350.3197610975293
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "lead",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-6f7c7a20-0225-4360-8ade-3b363d816616",
+      "name": "Lead Second Screen Left",
+      "room": "second",
+      "points": [
+        [
+          612.870268868717,
+          324.25948882774435
+        ],
+        [
+          626.3514861727467,
+          324.25948882774435
+        ],
+        [
+          626.3514861727467,
+          335.59794443364433
+        ],
+        [
+          612.870268868717,
+          335.59794443364433
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "second",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7c838d00-729b-47e7-ad0a-67684e2ab7b2",
+      "name": "Lead Second screen Right",
+      "room": "second",
+      "points": [
+        [
+          665.8040046591807,
+          324.25948882774435
+        ],
+        [
+          679.7319092498174,
+          324.25948882774435
+        ],
+        [
+          679.7319092498174,
+          335.15124900139233
+        ],
+        [
+          665.8040046591807,
+          335.15124900139233
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "second",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-06d757c4-6565-40eb-a311-d94281744fa6",
+      "name": "Admin / Clerk screen 5",
+      "room": "clerk",
+      "points": [
+        [
+          608.1651889896925,
+          407.251474346638
+        ],
+        [
+          625.2199863794601,
+          407.251474346638
+        ],
+        [
+          625.2199863794601,
+          419.25997719055965
+        ],
+        [
+          608.1651889896925,
+          419.25997719055965
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "clerk",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-21838d19-7852-4807-aed5-410ca67467cb",
+      "name": "Admin / Clerk screen 6",
+      "room": "clerk",
+      "points": [
+        [
+          672.7130723277369,
+          407.4748261524078
+        ],
+        [
+          689.544526074201,
+          407.4748261524078
+        ],
+        [
+          689.544526074201,
+          419.7066808020993
+        ],
+        [
+          672.7130723277369,
+          419.7066808020993
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "clerk",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-bc2bde6b-30f0-4631-b04f-9af2e0bb4fe8",
+      "name": "Observatory screen 7",
+      "room": "observatory",
+      "points": [
+        [
+          845.0341496244985,
+          360.32862249117164
+        ],
+        [
+          872.4215600530708,
+          360.32862249117164
+        ],
+        [
+          872.4215600530708,
+          376.8975507383839
+        ],
+        [
+          845.0341496244985,
+          376.8975507383839
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-5493b042-5e46-4288-a1ee-533b2d277913",
+      "name": "Observatory screen 8",
+      "room": "observatory",
+      "points": [
+        [
+          898.0115391848396,
+          362.8838755520027
+        ],
+        [
+          920.6500748843825,
+          362.8838755520027
+        ],
+        [
+          920.6500748843825,
+          377.12586373647196
+        ],
+        [
+          898.0115391848396,
+          377.12586373647196
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-854b1001-ed3d-4d45-ae4c-9b8b1182d992",
+      "name": "Observatory screen 9",
+      "room": "observatory",
+      "points": [
+        [
+          1052.2655121836988,
+          372.9869315627999
+        ],
+        [
+          1074.2339842361782,
+          372.9869315627999
+        ],
+        [
+          1074.2339842361782,
+          386.1121770769954
+        ],
+        [
+          1052.2655121836988,
+          386.1121770769954
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8c9d9238-928c-44b0-ab9f-c73e0a1b8938",
+      "name": "Observatory screen 10",
+      "room": "observatory",
+      "points": [
+        [
+          1143.008040347451,
+          387.1626184421983
+        ],
+        [
+          1164.08312146814,
+          387.1626184421983
+        ],
+        [
+          1164.08312146814,
+          401.8513020589196
+        ],
+        [
+          1143.008040347451,
+          401.8513020589196
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a924db5e-7f02-4045-913f-ae406e8c44ad",
+      "name": "Engine screen 11",
+      "room": "engine",
+      "points": [
+        [
+          301.9033228187168,
+          560.67691264349
+        ],
+        [
+          316.50129105641685,
+          560.67691264349
+        ],
+        [
+          316.50129105641685,
+          572.2387118758722
+        ],
+        [
+          301.9033228187168,
+          572.2387118758722
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c61f176a-ee22-4259-80ae-aaa46b5543c6",
+      "name": "Engine screen 12",
+      "room": "engine",
+      "points": [
+        [
+          319.99459960786265,
+          560.67691264349
+        ],
+        [
+          334.1458642003793,
+          560.67691264349
+        ],
+        [
+          334.1458642003793,
+          571.7920246229078
+        ],
+        [
+          319.99459960786265,
+          571.7920246229078
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-f019c237-1561-45ae-8cc1-6b2641b49fcb",
+      "name": "Engine screen 13",
+      "room": "engine",
+      "points": [
+        [
+          379.62880828319527,
+          529.6313960680056
+        ],
+        [
+          394.8968238093823,
+          529.6313960680056
+        ],
+        [
+          394.8968238093823,
+          540.076452630114
+        ],
+        [
+          379.62880828319527,
+          540.076452630114
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-16a2d13a-83f5-4afa-8edd-019aac3c2d4d",
+      "name": "Engine screen 14",
+      "room": "engine",
+      "points": [
+        [
+          403.8307822030153,
+          529.3556968217654
+        ],
+        [
+          420.80530805849077,
+          529.4080442622359
+        ],
+        [
+          420.80530805849077,
+          540.076452630114
+        ],
+        [
+          404.27748584819864,
+          540.076452630114
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-52cfaf31-0d6c-4db7-8566-43b337bc93d3",
+      "name": "Engine screen 15",
+      "room": "engine",
+      "points": [
+        [
+          289.61912798264933,
+          504.39294464965997
+        ],
+        [
+          365.6380867592629,
+          504.39294464965997
+        ],
+        [
+          365.6380867592629,
+          552.8073419732403
+        ],
+        [
+          289.61912798264933,
+          552.8073419732403
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2a64d833-a780-4f1f-8c1e-a3a1ce53266d",
+      "name": "Data screen 16",
+      "room": "data",
+      "points": [
+        [
+          548.7823121236895,
+          491.1044503103569
+        ],
+        [
+          623.2378163214494,
+          491.1044503103569
+        ],
+        [
+          623.2378163214494,
+          541.9756847802548
+        ],
+        [
+          548.7823121236895,
+          541.9756847802548
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-1f45efb3-4501-483c-84e4-e7ee0f1a5a9f",
+      "name": "Data screen 17",
+      "room": "data",
+      "points": [
+        [
+          498.75210913047664,
+          563.022856584458
+        ],
+        [
+          516.4769538087312,
+          563.022856584458
+        ],
+        [
+          516.4769538087312,
+          576.1480939193659
+        ],
+        [
+          498.75210913047664,
+          576.1480939193659
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-52e4b8b4-2ccb-488c-ab6a-8af6e8f0f5f4",
+      "name": "Data screen 18",
+      "room": "data",
+      "points": [
+        [
+          523.0971633385961,
+          563.6929038224797
+        ],
+        [
+          540.5986561942591,
+          563.6929038224797
+        ],
+        [
+          540.5986561942591,
+          575.7014066664016
+        ],
+        [
+          523.0971633385961,
+          575.7014066664016
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d11119ed-c47c-4a77-a8eb-283b1426241f",
+      "name": "Data screen 19",
+      "room": "data",
+      "points": [
+        [
+          508.57947481447644,
+          584.2410082160978
+        ],
+        [
+          525.4109203816524,
+          584.2410082160978
+        ],
+        [
+          525.4109203816524,
+          597.5896055360631
+        ],
+        [
+          508.57947481447644,
+          597.5896055360631
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a1f75684-296f-42a0-ab23-7a96d958a3fb",
+      "name": "Data screen 20",
+      "room": "data",
+      "points": [
+        [
+          531.1377308004387,
+          584.2410082160978
+        ],
+        [
+          547.0757854358244,
+          586.1988024896928
+        ],
+        [
+          547.0757854358244,
+          598.7063563856244
+        ],
+        [
+          531.1377308004387,
+          598.7063563856244
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-1e879ebb-abae-44d5-be18-23635abc39d7",
+      "name": "Data screen 21",
+      "room": "data",
+      "points": [
+        [
+          635.8884596269843,
+          563.2462002109402
+        ],
+        [
+          653.6133043052389,
+          563.2462002109402
+        ],
+        [
+          653.6133043052389,
+          575.9247502928837
+        ],
+        [
+          635.8884596269843,
+          575.9247502928837
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-0a2d9850-7f7e-4dfc-b91d-b15dc3a2e304",
+      "name": "Data screen 22",
+      "room": "data",
+      "points": [
+        [
+          660.0101620125122,
+          563.2462002109402
+        ],
+        [
+          677.7350066907668,
+          563.2462002109402
+        ],
+        [
+          677.7350066907668,
+          575.7014066664016
+        ],
+        [
+          660.0101620125122,
+          575.7014066664016
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-f6a5e957-a1bf-4d81-897a-655ff25533cb",
+      "name": "Data screen 23",
+      "room": "data",
+      "points": [
+        [
+          652.4162818372765,
+          584.6877118276374
+        ],
+        [
+          669.694439228924,
+          584.6877118276374
+        ],
+        [
+          669.694439228924,
+          598.2596527740849
+        ],
+        [
+          652.4162818372765,
+          598.2596527740849
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a389d20e-4217-45f6-b3e2-a24dddcd8557",
+      "name": "Data screen 24",
+      "room": "data",
+      "points": [
+        [
+          633.4316141163404,
+          587.5912444062068
+        ],
+        [
+          648.029565995464,
+          585.3054116251886
+        ],
+        [
+          647.8062223521604,
+          597.8129655211204
+        ],
+        [
+          633.4316141163404,
+          598.7063563856244
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-db523a20-f7bd-4633-9d54-1f4e3d4b2f4d",
+      "name": "Training screen 25",
+      "room": "training",
+      "points": [
+        [
+          798.7402241403383,
+          504.0364707265206
+        ],
+        [
+          905.7971708586736,
+          504.0364707265206
+        ],
+        [
+          905.7971708586736,
+          554.9989942250263
+        ],
+        [
+          798.7402241403383,
+          554.9989942250263
+        ]
+      ],
+      "kind": "data",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c853ccc6-4e16-469b-8007-b369473037eb",
+      "name": "Training screen 26",
+      "room": "training",
+      "points": [
+        [
+          800.3859485827354,
+          564.2231642616092
+        ],
+        [
+          811.7554518986115,
+          563.227650256373
+        ],
+        [
+          811.520353326713,
+          572.3967177240395
+        ],
+        [
+          800.4704449346218,
+          573.1020306061677
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-16316ece-82d4-4046-ac81-2a5bac6cc3d5",
+      "name": "Training screen 27",
+      "room": "training",
+      "points": [
+        [
+          894.5121638946839,
+          562.5223373742447
+        ],
+        [
+          906.7375995853754,
+          563.4627488105647
+        ],
+        [
+          906.032286650126,
+          572.8669148324232
+        ],
+        [
+          894.8978819061485,
+          572.8669148324232
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-efc9d3f2-2b99-4739-ae5c-3bf74d9dbfb1",
+      "name": "Training screen 28",
+      "room": "training",
+      "points": [
+        [
+          768.6468751062916,
+          583.7368264070069
+        ],
+        [
+          789.3360574101982,
+          583.0315135248787
+        ],
+        [
+          789.1854379706322,
+          598.7283929169746
+        ],
+        [
+          768.6468751062916,
+          598.7283929169746
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8dc67d05-6b71-4974-8acc-5114fe39581d",
+      "name": "Training screen 29",
+      "room": "training",
+      "points": [
+        [
+          794.7434451007406,
+          586.3229621617751
+        ],
+        [
+          810.3448260281127,
+          588.3837982392434
+        ],
+        [
+          810.8150403914638,
+          600.1390186812309
+        ],
+        [
+          794.7434451007406,
+          600.1390186812309
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-3980d174-1cf4-41cd-995e-d66a6051a976",
+      "name": "Training screen 30",
+      "room": "training",
+      "points": [
+        [
+          893.2486679211163,
+          587.6497958602179
+        ],
+        [
+          910.3034653108841,
+          585.5873067056821
+        ],
+        [
+          910.0801053090042,
+          597.6481569900742
+        ],
+        [
+          893.1055794535287,
+          599.8816586891969
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d7f015ee-4efc-4c5c-9a4e-d0b3917e21a6",
+      "name": "Training screen 31",
+      "room": "training",
+      "points": [
+        [
+          914.7704363284124,
+          582.4604305006304
+        ],
+        [
+          935.7652622733856,
+          583.3538213651344
+        ],
+        [
+          935.5419022715057,
+          598.0948606016137
+        ],
+        [
+          914.7704363284124,
+          597.424813363592
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-95b0ccce-2ac5-407b-9f1a-a47df6475caa",
+      "name": "Music Studio screen 32",
+      "room": "music",
+      "points": [
+        [
+          1054.1296013052756,
+          505.84964945194537
+        ],
+        [
+          1189.1639582519094,
+          505.84964945194537
+        ],
+        [
+          1189.1639582519094,
+          559.6334330887404
+        ],
+        [
+          1054.1296013052756,
+          559.6334330887404
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "music",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8018e28f-770f-42c0-b55c-f6e8d392ed7e",
+      "name": "Doctor screen 33",
+      "room": "doctor",
+      "points": [
+        [
+          244.18214036207877,
+          692.0891196508446
+        ],
+        [
+          271.2876470791498,
+          692.0891196508446
+        ],
+        [
+          271.2876470791498,
+          715.2650737353669
+        ],
+        [
+          244.18214036207877,
+          715.2650737353669
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7287338f-dfba-46d9-8a36-57f613c34c10",
+      "name": "Doctor screen 34",
+      "room": "doctor",
+      "points": [
+        [
+          285.5017122463857,
+          704.5966653674888
+        ],
+        [
+          301.8864623476665,
+          704.5966653674888
+        ],
+        [
+          301.8864623476665,
+          713.9249792593233
+        ],
+        [
+          285.5017122463857,
+          713.9249792593233
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-ba1262e6-e619-43b3-9a0c-020304461cec",
+      "name": "Doctor screen 35",
+      "room": "doctor",
+      "points": [
+        [
+          277.2378011412396,
+          725.3681297461642
+        ],
+        [
+          296.0793967531645,
+          725.3681297461642
+        ],
+        [
+          296.0793967531645,
+          741.6202596446989
+        ],
+        [
+          277.2378011412396,
+          741.6202596446989
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7f1de894-d188-447c-8838-43c92499fd7d",
+      "name": "Operations screen RED",
+      "room": "operations",
+      "points": [
+        [
+          637.3219092135869,
+          697.4878911308889
+        ],
+        [
+          691.4526552030809,
+          697.4878911308889
+        ],
+        [
+          691.4526552030809,
+          746.1256320809515
+        ],
+        [
+          637.3219092135869,
+          746.1256320809515
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-3fd71bca-f243-4e90-bacc-f2ed078f81eb",
+      "name": "Operations screen BLUE",
+      "room": "operations",
+      "points": [
+        [
+          717.727579742369,
+          697.9345865631409
+        ],
+        [
+          769.1781324882713,
+          697.9345865631409
+        ],
+        [
+          769.1781324882713,
+          745.678944827987
+        ],
+        [
+          717.727579742369,
+          745.678944827987
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-cbd00a14-fb53-4111-a3c9-f4c2234bc9aa",
+      "name": "Operations screen ORANGE",
+      "room": "operations",
+      "points": [
+        [
+          794.9261063859483,
+          698.4336294358633
+        ],
+        [
+          846.8233627770339,
+          698.4336294358633
+        ],
+        [
+          846.8233627770339,
+          745.9546358949398
+        ],
+        [
+          794.9261063859483,
+          745.9546358949398
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c54e1bea-3d1f-4a92-8ae7-50046faed8cb",
+      "name": "Operations screen PURPLE",
+      "room": "operations",
+      "points": [
+        [
+          874.0545033606961,
+          697.8682770787824
+        ],
+        [
+          926.8451670421487,
+          697.8682770787824
+        ],
+        [
+          926.8451670421487,
+          745.8359707908234
+        ],
+        [
+          874.0545033606961,
+          745.8359707908234
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "purple",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d72ba980-15d9-45f1-ba51-851b92b81654",
+      "name": "Ticket Queue screen ORANGE",
+      "room": "queue",
+      "points": [
+        [
+          1008.7165660144956,
+          751.852442068419
+        ],
+        [
+          1054.136693164016,
+          751.852442068419
+        ],
+        [
+          1054.136693164016,
+          772.3482153801417
+        ],
+        [
+          1008.7165660144956,
+          772.3482153801417
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2c482766-0b28-4588-9adc-bab3877b34df",
+      "name": "Ticket Queue screen VIOLET",
+      "room": "queue",
+      "points": [
+        [
+          1079.2146115939179,
+          751.4580858973499
+        ],
+        [
+          1123.7413396323598,
+          751.4580858973499
+        ],
+        [
+          1123.7413396323598,
+          772.6239064470943
+        ],
+        [
+          1079.2146115939179,
+          772.6239064470943
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-e8bccf9d-24c0-4ed5-bcf8-3a7e1221394c",
+      "name": "Ticket Queue screen PINK",
+      "room": "queue",
+      "points": [
+        [
+          1148.6761777739623,
+          751.4580858973499
+        ],
+        [
+          1194.3196649253623,
+          751.4580858973499
+        ],
+        [
+          1194.3196649253623,
+          772.1772028355548
+        ],
+        [
+          1148.6761777739623,
+          772.1772028355548
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    }
+  ],
+  "characters": {
+    "3ef85421-09a9-4a3f-828a-29513c05c65f": {
+      "skin": 11,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "engine",
+      "x": 285,
+      "y": 640,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "e7f4a9e1-b56b-47b5-b193-51d61c4809ed": {
+      "skin": 39,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "engine",
+      "x": 325,
+      "y": 640,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "ecd3cbaf-c405-4dc0-b83a-1caf46bb7459": {
+      "skin": 61,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "clerk",
+      "x": 642,
+      "y": 423,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "0f0300e1-dd24-4730-a29e-21893947aaa0": {
+      "skin": 67,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "data",
+      "x": 559,
+      "y": 641,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "f7f568e8-ee08-46f3-be89-eb0a16f5a481": {
+      "skin": 17,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "doctor",
+      "x": 253,
+      "y": 748,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "f50c7658-254b-46ab-94de-68abe9990255": {
+      "skin": 76,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "observatory",
+      "x": 1010,
+      "y": 433,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "77b41f73-5f28-48bb-9011-0d481936dc9e": {
+      "skin": 40,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "lead",
+      "x": 375,
+      "y": 363,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "bd01ea5e-0f61-4e04-bf0a-ef61293793f7": {
+      "skin": 81,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "second",
+      "x": 640,
+      "y": 337,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "2e806341-34b9-40f9-9273-14c7c618efe9": {
+      "skin": 10,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "clerk",
+      "x": 565,
+      "y": 460,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "ab19de07-cc8e-4c7f-bebe-ac4b1a0101b7": {
+      "skin": 40,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 385,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "86bac1d2-a575-4971-86d8-b1a825752aca": {
+      "skin": 33,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 440,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "35f1840a-63ec-4463-8c4b-50cc737b63e6": {
+      "skin": 2,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 495,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "11998dd6-aed1-40d7-89e4-282731458ff8": {
+      "skin": 79,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 550,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "abe2420a-f7ae-460f-ae5d-b75bdc956a12": {
+      "skin": 59,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "training",
+      "x": 785,
+      "y": 641,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    }
+  },
+  "savedAt": 1794021836922,
   "floors": {
     "upper": {
       "name": "Upper floor",
@@ -7885,6 +9574,48 @@ const approvedMap={
     }
   },
   "starts": {
+    "music": {
+      "label": "Music Studio",
+      "floor": "middle",
+      "x": 1118,
+      "y": 642
+    },
+    "engine": {
+      "label": "Engine room",
+      "floor": "middle",
+      "x": 290,
+      "y": 640
+    },
+    "data": {
+      "label": "Data room",
+      "floor": "middle",
+      "x": 590,
+      "y": 640
+    },
+    "training": {
+      "label": "Training room",
+      "floor": "middle",
+      "x": 850,
+      "y": 641
+    },
+    "portal": {
+      "label": "Observatory portal",
+      "floor": "upper",
+      "x": 1193,
+      "y": 437
+    },
+    "lift-upper": {
+      "label": "Upper elevator",
+      "floor": "upper",
+      "x": 1300,
+      "y": 463
+    },
+    "lift-ground": {
+      "label": "Ground elevator",
+      "floor": "ground",
+      "x": 1300,
+      "y": 799
+    },
     "entry": {
       "label": "Main entrance",
       "floor": "ground",
@@ -8250,6 +9981,59 @@ const Turbines=(()=>{
  return{tick,draw,info:()=>({state:RoomStates.state('engine'),time,speedScale,paused:!Portal.info().enabled||mode!=='walk',fans:fans.map(f=>({id:f.id,angle:rotation*f.speed,center:[f.x,f.y]}))})};
 })();
 
+// Display artwork is illustrative; numerical operational readings come only from telemetry.
+const ScreenPrograms=(()=>{
+ const profiles={auto:'Automatic · room theme',generic:'Generic · custom data / indicator',admin:'Corporate charts',inbox:'Mail / sheets / schedule',stars:'Star charts / quantum lab',blueprint:'Rocket blueprints',code:'Code / signal processing',math:'Green chalkboard',matrix:'Matrix / neural network',medical:'Medical diagnostics',engineering:'Engine mission control',training:'AKIMB0 training',audio:'Music render station',work:'Operations · active work',health:'Operations · machines',blockers:'Operations · attention',reviews:'Operations · review readiness',ready:'Queue · ready',progress:'Queue · in progress',review:'Queue · needs review'};
+ let feed=null,received=0,revision=0,audio=null;
+ function setAudioTelemetry(value){if(!value||typeof value!=='object'||!['running','idle','paused','done','failed'].includes(value.state))return false;const vectors=['waveform','spectrum'];for(const key of vectors)if(value[key]!==undefined&&(!Array.isArray(value[key])||value[key].length>256||value[key].some(n=>!Number.isFinite(n)||n<(key==='spectrum'?0:-1)||n>1)))return false;if(value.samples!==undefined&&(!Number.isInteger(value.samples)||value.samples<0))return false;const p=value.progress;if(p&&(!Number.isFinite(p.done)||!Number.isFinite(p.total)||p.done<0||p.total<=0||p.done>p.total))return false;audio={...structuredClone(value),received:Date.now()};revision++;RoomStates.setRoomState('music',value.state==='running'?'working':'idle',{updatedAt:audio.received,ttl:15000});return true;}
+ const themes={lead:['#091d26','#75d5c2'],second:['#102033','#7fc9ec'],clerk:['#162033','#a2ccf3'],observatory:['#10152f','#b5a0ff'],engine:['#09263e','#70d4f9'],data:['#102e28','#a4ebbf'],training:['#1b1036','#cb93ff'],music:['#1d1330','#ec9ad9'],doctor:['#0c242e','#8de6e3'],operations:['#111c30','#98c7ff'],queue:['#211b2e','#eecba0']};
+ const clean=v=>String(v??'').replace(/[\r\n\t]/g,' ').slice(0,160);
+ function ingest(value){if(!value||typeof value!=='object'||!value.tasks||value.org?.paperclip?.company?.name?.toLowerCase()!=='nebula')return false;feed=structuredClone(value);received=Date.now();revision++;const t=task('nebula.training');RoomStates.setRoomState('training',t.fresh&&t.state==='running'?'working':'idle',{available:t.fresh,updatedAt:Date.now()});const r=task('paperclip.renders.vm116');if(audio&&Date.now()-audio.received<15000)RoomStates.setRoomState('music',audio.state==='running'?'working':'idle',{updatedAt:audio.received,ttl:15000});else RoomStates.setRoomState('music',r.fresh&&r.state==='running'?'working':'idle',{available:r.fresh,updatedAt:Date.now()});return true;}
+ function task(id){const t=feed?.tasks?.[id],fresh=!!t&&Date.now()-received<30000&&Number.isFinite(t.updatedAt)&&Date.now()-t.updatedAt<180000;return{...t,fresh,state:fresh?t.state:'unknown'};}
+ function organization(){const o=feed?.org?.paperclip,fresh=!!o&&o.company?.name?.toLowerCase().startsWith('nebula')&&Date.now()-received<30000&&Date.now()-Date.parse(o.exportedAt)<90000;return{...o,fresh,agents:fresh&&Array.isArray(o.agents)?o.agents:[]};}
+ function board(){const o=organization(),b=o.workboard;return o.fresh&&b&&b.complete===true&&Date.now()-Date.parse(b.updatedAt)<180000?b:null;}
+ function slot(s){return screens.filter(x=>x.room===s.room&&x.kind===s.kind).findIndex(x=>x.id===s.id);}
+ function resolve(s){if(s.profile&&s.profile!=='auto')return s.profile;if(s.url||s.channel&&!['',s.room].includes(s.channel))return'generic';const index=slot(s);if(s.room==='operations')return['work','health','blockers','reviews'][Math.max(0,index)%4];if(s.room==='queue')return['ready','progress','review'][Math.max(0,index)%3];if(s.kind==='data')return{engine:'engineering',data:'math',training:'training',music:'audio'}[s.room]||'generic';return{lead:'admin',second:'admin',clerk:'inbox',observatory:'stars',engine:'blueprint',data:'code',training:'matrix',doctor:'medical'}[s.room]||'generic';}
+ function liveModel(profile){const o=organization(),b=board(),assigned=o.agents.filter(a=>a.issue),jobs=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.job.')),machines=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.machine.')),agent=o.agents.find(a=>a.name==='Engine');
+  if(profile==='training'){const t=task('nebula.training'),p=t.progress,gpu=task('host.gpu'),good=t.fresh&&p&&Number.isFinite(p.done)&&Number.isFinite(p.total)&&p.total>0;return{title:'AKIMB0 · TRAINING',fresh:t.fresh,status:t.fresh?t.state:'Unavailable',value:good?Math.round(p.done/p.total*1000)/10+'%':'—',fraction:good?Math.max(0,Math.min(1,p.done/p.total)):null,lines:[good?p.done+' / '+p.total+' jobs · '+clean(t.detail||'—'):'Progress feed unavailable',gpu.fresh?gpu.metrics?.map(m=>m.label+' '+m.value+m.unit).join(' · '):'GPU reading unavailable'],note:'Queue completion · not epoch progress'};}
+  if(profile==='audio'){const a=audio&&Date.now()-audio.received<15000?audio:null,t=task('paperclip.renders.vm116'),fresh=!!a||t.fresh,sample=a?.samples??(t.fresh?t.metrics?.find(m=>/samples/i.test(m.label))?.value:null),p=a?.progress??(t.fresh?t.progress:null),state=a?.state??t.state;return{title:'VM116 · AUDIO RENDERS',fresh,status:fresh?state:'Unavailable',value:p&&p.total>0?Math.round(p.done/p.total*100)+'%':fresh&&state==='idle'?'STANDBY':'—',fraction:p&&p.total>0?Math.max(0,Math.min(1,p.done/p.total)):null,lines:[clean(a?.detail||t.detail||'Render feed unavailable'),'Samples '+(sample??'— · not reported'),a?.waveform?.length||a?.spectrum?.length?'Live audio telemetry':'Audio visualizer · illustrative'],waveform:a?.waveform,spectrum:a?.spectrum,note:a?'Measured audio · 15s freshness':'Spectrum needs an audio telemetry feed'};}
+  if(profile==='engineering')return{title:'ENGINE · MISSION CONTROL',fresh:o.fresh,status:o.fresh?agent?.issue?.running?'Running':clean(agent?.status||'No agent'):'Unavailable',value:agent?.issue?.key||'STANDBY',lines:[agent?.issue?.title||'No active Engine assignment',jobs.some(j=>j.title?.includes('(Engine)')||agent?.issue?.key&&j.title?.includes(agent.issue.key))?jobs.filter(j=>j.title?.includes('(Engine)')||agent?.issue?.key&&j.title?.includes(agent.issue.key)).map(j=>j.title+' · '+task(j.id).state).join(' | '):'No reported Engine compute jobs'],note:'Engine agent + reported job state'};
+  if(profile==='health'){const list=machines.map(m=>{const t=task(m.id);return m.title+' · '+(t.fresh?t.state==='running'?'online':t.state:'stale');});return{title:'MACHINE HEALTH',fresh:machines.some(m=>task(m.id).fresh),status:'Reported checks',value:machines.filter(m=>task(m.id).state==='running').length+' / '+machines.length,lines:list,note:'Service check · not GPU availability'};}
+  if(profile==='work')return{title:'ACTIVE WORK',fresh:o.fresh,status:o.fresh?'Live assignments':'Unavailable',value:o.fresh?String(assigned.filter(a=>a.issue.running).length):'—',lines:assigned.length?assigned.map(a=>a.issue.key+' · '+a.name+' · '+(a.issue.running?'running':'assigned')):['No assigned in-progress tickets'],note:'Running agents; external jobs shown in their rooms'};
+  if(profile==='blockers'){const failed=machines.filter(m=>!task(m.id).fresh||task(m.id).state==='failed'),lines=[...failed.map(m=>m.title+' · '+(task(m.id).fresh?m.detail:'check stale / unavailable')),...(b?.issues||[]).filter(i=>i.status==='blocked').map(i=>i.key+' · '+i.title)];return{title:'NEEDS ATTENTION',fresh:o.fresh,status:b?'Live blockers + checks':'Partial · machine checks',value:b?String(lines.length):failed.length+' checks',lines:lines.length?lines:['No failing checks reported'],note:b?'Blocked tickets + failed machine checks':'Ticket blocker totals not connected'};}
+  const category=profile==='ready'?'todo':profile==='progress'?'in_progress':'in_review',title=profile==='ready'?'READY QUEUE':profile==='progress'?'IN PROGRESS':profile==='reviews'?'REVIEW READINESS':'NEEDS REVIEW',issues=b?.issues?.filter(i=>i.status===category)||[];return{title,fresh:!!b,status:b?'Live ticket board':'Board feed unavailable',value:b?String(b.counts?.[category]??issues.length):'—',lines:b?issues.map(i=>i.key+' · '+i.title):profile==='progress'?assigned.map(a=>a.issue.key+' · '+a.name):['Full ticket summary not connected'],note:b?'NEB tickets · '+(b.counts?.blocked??0)+' blocked':'Assigned tickets are not queue totals'};
+ }
+ function paint(s,g,w,h,time,active){const profile=resolve(s);if(profile==='generic')return false;const variant=Math.max(0,slot(s)),[bg,ink]=themes[s.room]||themes.operations,t=time*(active?1:.18)+variant*.73;
+  g.fillStyle=bg;g.fillRect(0,0,w,h);g.strokeStyle=ink;g.fillStyle=ink;g.lineWidth=1;g.font='12px monospace';
+  const line=(x,y,X,Y,a=1)=>{g.globalAlpha=a;g.beginPath();g.moveTo(x,y);g.lineTo(X,Y);g.stroke();g.globalAlpha=1;};
+  const text=(str,x,y,size=12,col=ink)=>{g.fillStyle=col;g.font=size+'px monospace';g.fillText(clean(str),x,y);g.fillStyle=ink;};
+  const grid=()=>{for(let x=0;x<w;x+=20)line(x,0,x,h,.12);for(let y=0;y<h;y+=20)line(0,y,w,y,.12);};
+  const scope=(x,y,W,H,ecg=false)=>{g.strokeStyle=ink;g.beginPath();for(let n=0;n<W;n++){const u=n/W,phase=((u*3-t*.5)%1+1)%1,v=ecg?(phase>.45&&phase<.49?-(phase-.45)*16:phase>=.49&&phase<.54?-.64+(phase-.49)*24:phase>=.54&&phase<.6?.56-(phase-.54)*9:.04*Math.sin(phase*18)):Math.sin(u*25+t*2)*.28+Math.sin(u*59-t)*.12;const yy=y+H*.5+v*H*(active?.75:.5);n?g.lineTo(x+n,yy):g.moveTo(x,yy);}g.stroke();};
+  const frame=(title)=>{g.fillStyle=ink;g.globalAlpha=.16;g.fillRect(0,0,w,21);g.globalAlpha=1;text(title,8,15,12);g.fillStyle=active?'#a0ffe0':'#6c91a7';g.fillRect(w-12,8,4,4);};
+  const bar=(x,y,W,H,f)=>{g.fillStyle=ink;g.globalAlpha=.16;g.fillRect(x,y,W,H);g.globalAlpha=1;g.fillRect(x,y,W*Math.max(0,Math.min(1,f)),H);};
+  if(['engineering','training','audio','work','health','blockers','reviews','ready','progress','review'].includes(profile)){
+   const m=liveModel(profile);if(profile==='engineering')grid();frame(m.title);text(m.value,10,45,26);text(m.status+(m.fresh?'':' · STALE / NO FEED'),10,63,11,m.fresh?ink:'#d9ad91');
+   let y=86;if(m.fraction!==null&&m.fraction!==undefined){bar(10,70,w-20,7,m.fraction);y=91;}
+   for(const str of m.lines.slice(0,Math.max(1,Math.floor(((profile==='audio'&&h>150?h-60:h-30)-y)/13)+1))){text(str.slice(0,44),10,y,11);y+=13;}
+   if(profile==='audio'&&h>150){if(m.waveform?.length>1){g.beginPath();m.waveform.forEach((v,i)=>{const x=10+i/(m.waveform.length-1)*(w-20),y=h-38+v*9;i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();text('LIVE WAVEFORM',10,h-51,9);}else if(m.spectrum?.length){m.spectrum.forEach((v,i)=>bar(10+i*(w-20)/m.spectrum.length,h-28-Math.max(0,v)*20,(w-20)/m.spectrum.length-1,Math.max(0,v)*20,1));text('LIVE SPECTRUM',10,h-51,9);}else{scope(10,h-48,w-20,20);text('SCOPE VISUALIZATION',10,h-51,9);}}
+   if(profile==='engineering'&&h>140){g.save();g.translate(w-57,h-66);g.strokeStyle=ink;g.strokeRect(-9,-26,18,46);line(-9,-26,0,-40);line(0,-40,9,-26);line(-9,8,-20,25);line(9,8,20,25);line(-20,25,20,25);g.restore();}
+   // Status rail is animated artwork, never a fabricated progress reading.
+   for(let i=0;i<40;i++){const phase=(i-Math.floor(t*9)+40000)%40;g.globalAlpha=active?(phase<12?1-phase/16:.15):phase<3?.4:.07;g.fillStyle=ink;g.fillRect(10+i*(w-20)/40,h-24,(w-20)/40-2,4);}g.globalAlpha=1;
+   text(m.note.slice(0,53),10,h-9,9,'#99aab9');return true;
+  }
+  if(profile==='math'){g.fillStyle='#12392e';g.fillRect(0,0,w,h);frame('DATA · SIGNAL LAB');const formulas=['F(ω) = ∫ f(t)e⁻ⁱωᵗ dt','∇L(θ) = E[∂L / ∂θ]','y[n] = Σ h[k] x[n-k]','X[k] = Σ x[n] e⁻ⁱ²πkn/N','S(ω) = |F(ω)|²','H(z) = B(z) / A(z)'];for(let i=0;i<4;i++)text(formulas[(i+Math.floor(t/6))%formulas.length],12,44+i*23,14);scope(14,h-56,w-28,39);text('FOURIER / CONVOLUTION / OPTIMIZATION',12,h-8,9);return true;}
+  if(profile==='admin'){frame(variant%2?'OPERATIONS OVERVIEW':'RESOURCE ALLOCATION');grid();for(let i=0;i<8;i++){const v=.2+((i*7+variant*3)%11)/17+.08*Math.sin(t+i);bar(15+i*35,h-15-(h-45)*v,21,(h-45)*v,1);}line(10,h-15,w-8,h-15,.8);scope(w*.53,30,w*.42,h*.3);return true;}
+  if(profile==='inbox'){const page=(Math.floor(t/8)+variant)%3;frame(['CORRESPONDENCE','TEAM SCHEDULE','WORKBOOK'][page]);if(page===0){for(let i=0;i<5;i++){g.globalAlpha=i===Math.floor(t)%5?1:.45;g.fillRect(10,32+i*18,7,6);g.fillRect(28,32+i*18,75+(i*31)%145,3);g.fillRect(28,38+i*18,150,2);}g.globalAlpha=1;}else{for(let x=8;x<w;x+=45)line(x,25,x,h-8,.35);for(let y=25;y<h;y+=19)line(8,y,w-8,y,.35);for(let i=0;i<12;i++){g.globalAlpha=.2+((i+Math.floor(t))%4)*.15;g.fillRect(12+i%6*45,30+Math.floor(i/6)*38,27,8);}g.globalAlpha=1;}return true;}
+  if(profile==='stars'){grid();frame(['CELESTIAL ATLAS','QUANTUM STATES','ORBITAL EPHEMERIS','SPECTRAL ANALYSIS'][variant%4]);if(variant%4===3){scope(10,30,w-20,h-42);return true;}for(let i=0;i<24;i++){const x=12+(i*73+variant*13)%(w-24),y=30+(i*41)%(h-40);g.globalAlpha=.4+.5*Math.pow(Math.sin(t+i),2);g.fillRect(x,y,i%7===0?3:1.5,i%7===0?3:1.5);if(i<9)line(x,y,12+((i+1)*73+variant*13)%(w-24),30+((i+1)*41)%(h-40),.3);}g.globalAlpha=1;g.beginPath();g.ellipse(w/2,h*.6,w*.3,h*.25,-.2,0,Math.PI*2);g.stroke();const a=t*.4;g.fillRect(w/2+Math.cos(a)*w*.3-2,h*.6+Math.sin(a)*h*.25-2,4,4);return true;}
+  if(profile==='blueprint'){grid();frame(['PROPULSION SCHEMATIC','FLIGHT DYNAMICS','THRUST VECTOR','ENGINE TELEMETRY'][variant%4]);const cx=w*.4;line(cx,32,cx-24,h-20);line(cx,32,cx+24,h-20);line(cx-24,h-20,cx+24,h-20);for(let i=0;i<4;i++)line(cx-7-i*4,52+i*15,cx+7+i*4,52+i*15,.65);line(cx,27,cx,h-10,.4);scope(w*.62,35,w*.32,h*.35);text('F = ṁv + ΔpA',w*.6,h-23,11);return true;}
+  if(profile==='code'){frame(variant%3===0?'DSP · TERMINAL':variant%3===1?'SPECTRAL TRANSFORM':'NUMERICAL ANALYSIS');if(variant%3===1){grid();scope(10,35,w-20,h-50);}else for(let i=0;i<8;i++){const y=32+i*13;if(y>h-7)break;g.globalAlpha=.35+((i+Math.floor(t*2))%5)/8;g.fillRect(10+(i%3)*12,y,35+(i*37)%180,3);g.fillRect(210,y,15+(i*13)%70,3);}g.globalAlpha=1;return true;}
+  if(profile==='matrix'){frame(variant%2?'TENSOR GRAPH':'NEURAL COMPUTE');if(variant%2){const nodes=[];for(let layer=0;layer<4;layer++)for(let n=0;n<4;n++)nodes.push([35+layer*78,35+n*(h-48)/4]);for(let i=0;i<12;i++)for(let j=0;j<4;j++)line(...nodes[i],...nodes[Math.floor(i/4)*4+4+j],.16+.2*Math.pow(Math.sin(t*2+i+j),6));for(const[x,y]of nodes){g.beginPath();g.arc(x,y,3+Math.sin(t+x)*.6,0,7);g.stroke();}}else{g.font='10px monospace';for(let col=0;col<24;col++)for(let row=0;row<8;row++){const y=30+row*12;if(y>h-3)break;g.globalAlpha=.2+((row+col+Math.floor(t*2))%7)/9;g.fillText(String((col*3+row+Math.floor(t))%10),9+col*13,y);}g.globalAlpha=1;}return true;}
+  if(profile==='medical'){frame(['RADIOGRAPH · DEMO','ECG · DEMO','DIAGNOSTICS · DEMO'][variant%3]);if(variant%3===0){const cx=w/2;line(cx,32,cx,h-15,.8);for(let i=0;i<7;i++){g.beginPath();g.ellipse(cx,37+i*9,30+i*2,9,0,.1,Math.PI-.1);g.stroke();}line(cx-50,30+(t*9)%(h-46),cx+50,30+(t*9)%(h-46),.45);g.beginPath();g.ellipse(cx-28,66,18,35,.1,0,7);g.ellipse(cx+28,66,18,35,-.1,0,7);g.stroke();}else{grid();scope(10,35,w-20,h-53,true);}return true;}
+  return false;
+ }
+ return{profiles,resolve,paint,ingest,setAudioTelemetry,revision:()=>revision,model:liveModel,info:()=>({received,revision,organizationFresh:organization().fresh,boardConnected:!!board(),training:liveModel('training'),audio:liveModel('audio')})};
+})();
+
 let screens=[];
 const Screens=(()=>{
  const rooms={lead:['Lead Main','upper'],second:['Lead Second','upper'],clerk:['Admin / Clerk','upper'],observatory:['Observatory','upper'],engine:['Engine','middle'],data:['Data','middle'],training:['Training','middle'],music:['Music Studio','middle'],doctor:['Doctor','ground'],review:['Review','ground'],operations:['Operations','ground'],queue:['Ticket Queue','ground']};
@@ -8260,14 +10044,14 @@ const Screens=(()=>{
  const floor=s=>rooms[s.room][1];
  const roomState=RoomStates.state;
  function setRoomState(id,state){const ok=RoomStates.setRoomState(id,state);refreshState();return ok;}
- function setData(key,payload){if(typeof key!=='string'||!key.trim()||!payload||typeof payload!=='object'||Array.isArray(payload))return false;let copy;try{copy=clone(payload);}catch{return false;}if(!copy||typeof copy!=='object'||Array.isArray(copy))return false;channels.set(key,{payload:copy,updated:Date.now(),error:null});surfaces.clear();refreshFeed();return true;}
+ function setData(key,payload){if(typeof key!=='string'||!key.trim()||!payload||typeof payload!=='object'||Array.isArray(payload))return false;let copy;try{copy=clone(payload);}catch{return false;}if(!copy||typeof copy!=='object'||Array.isArray(copy))return false;if(['music','music.telemetry'].includes(key)&&copy.state&&!ScreenPrograms.setAudioTelemetry(copy))return false;channels.set(key,{payload:copy,updated:Date.now(),error:null});surfaces.clear();refreshFeed();return true;}
  function bbox(points){return{x:Math.min(...points.map(p=>p[0])),y:Math.min(...points.map(p=>p[1])),w:Math.max(...points.map(p=>p[0]))-Math.min(...points.map(p=>p[0])),h:Math.max(...points.map(p=>p[1]))-Math.min(...points.map(p=>p[1]))};}
  function validQuad(points){if(!Array.isArray(points)||points.length!==4||points.some(p=>!Array.isArray(p)||p.length!==2||!p.every(Number.isFinite)||p[0]<0||p[0]>W||p[1]<0||p[1]>H))return false;const cross=points.map((a,i)=>{const b=points[(i+1)%4],c=points[(i+2)%4];return(b[0]-a[0])*(c[1]-b[1])-(b[1]-a[1])*(c[0]-b[0]);});return cross.every(c=>c>.5)||cross.every(c=>c<-.5);}
- function validate(data){if(!Array.isArray(data)||data.length>200)throw Error('Invalid screen list.');const ids=new Set();return data.map(s=>{if(typeof s.id!=='string'||ids.has(s.id)||!rooms[s.room]||!validQuad(s.points)||!['indicator','data'].includes(s.kind)||!['chase','sweep','pulse'].includes(s.effect)||!colors[s.color]||!Number.isFinite(s.opacity)||s.opacity<.1||s.opacity>1||!Number.isFinite(s.interval)||s.interval<2||s.interval>300||typeof s.channel!=='string'||typeof s.url!=='string'||s.url.length>2048)throw Error('Invalid screen configuration.');if(s.url)urlFor(s.url);ids.add(s.id);return{...s,name:String(s.name||'Screen').slice(0,80),visible:s.visible!==false,poll:!!s.poll};});}
+ function validate(data){if(!Array.isArray(data)||data.length>200)throw Error('Invalid screen list.');const ids=new Set();return data.map(s=>{if(s.profile&&!Object.hasOwn(ScreenPrograms.profiles,s.profile))throw Error('Unknown screen program.');if(typeof s.id!=='string'||ids.has(s.id)||!rooms[s.room]||!validQuad(s.points)||!['indicator','data'].includes(s.kind)||!['chase','sweep','pulse'].includes(s.effect)||!colors[s.color]||!Number.isFinite(s.opacity)||s.opacity<.1||s.opacity>1||!Number.isFinite(s.interval)||s.interval<2||s.interval>300||typeof s.channel!=='string'||typeof s.url!=='string'||s.url.length>2048)throw Error('Invalid screen configuration.');if(s.url)urlFor(s.url);ids.add(s.id);return{...s,name:String(s.name||'Screen').slice(0,80),visible:s.visible!==false,poll:!!s.poll};});}
  function urlFor(value){const u=new URL(value,location.href);if(!['http:','https:'].includes(u.protocol)||u.username||u.password)throw Error('Use an HTTP(S) JSON address without a password.');return u.href;}
  function refreshState(){const s=current();if(s)$('#screen-state').value=RoomStates.get(s.room).mode;}
- function refreshFeed(){const s=current(),entry=s&&channels.get(s.channel);$('#screen-feed').textContent=!s?'':entry?.error?'Feed: '+entry.error:entry?'Updated '+new Date(entry.updated).toLocaleTimeString():s.kind==='data'?'Preview data · no live feed received':'';}
- function refresh(){const list=$('#screen-list');if(!list)return;if(!current())selectedId=screens[0]?.id;list.replaceChildren();for(const s of screens){const o=document.createElement('option');o.value=s.id;o.textContent=s.name+' · '+rooms[s.room][0];list.append(o);}list.value=selectedId||'';const s=current();$('#screen-empty').hidden=!!s;$('#screen-fields').hidden=!s;if(!s)return;for(const key of ['name','room','kind','effect','color','opacity','channel','url','interval'])$('#screen-'+key).value=s[key];$('#screen-visible').checked=s.visible;$('#screen-poll').checked=s.poll;$('#screen-preview').checked=preview;$('#screen-data-fields').hidden=s.kind!=='data';$('#screen-indicator-fields').hidden=s.kind!=='indicator';$('#screen-opacity-label').textContent=Math.round(s.opacity*100)+'%';refreshState();refreshFeed();}
+ function refreshFeed(){const s=current(),entry=s&&channels.get(s.channel);$('#screen-feed').textContent=s&&ScreenPrograms.resolve(s)!=='generic'?'Room program · live readings when available; illustrative graphics otherwise':!s?'':entry?.error?'Feed: '+entry.error:entry?'Updated '+new Date(entry.updated).toLocaleTimeString():s.kind==='data'?'Preview data · no live feed received':'';}
+ function refresh(){const list=$('#screen-list');if(!list)return;if(!current())selectedId=screens[0]?.id;list.replaceChildren();for(const s of screens){const o=document.createElement('option');o.value=s.id;o.textContent=s.name+' · '+rooms[s.room][0];list.append(o);}list.value=selectedId||'';const s=current();$('#screen-empty').hidden=!!s;$('#screen-fields').hidden=!s;if(!s)return;for(const key of ['name','room','kind','effect','color','opacity','channel','url','interval'])$('#screen-'+key).value=s[key];$('#screen-profile').value=s.profile||'auto';$('#screen-program-help').textContent='Resolved program: '+(ScreenPrograms.profiles[ScreenPrograms.resolve(s)]||'Generic')+'. Room Working / Idle controls intensity. Room programs use themed palettes; Color and Indicator animation apply to Generic.';$('#screen-visible').checked=s.visible;$('#screen-poll').checked=s.poll;$('#screen-preview').checked=preview;$('#screen-data-fields').hidden=s.kind!=='data';$('#screen-indicator-fields').hidden=s.kind!=='indicator';$('#screen-opacity-label').textContent=Math.round(s.opacity*100)+'%';refreshState();refreshFeed();}
  function choose(id){selectedId=id;drawing=null;draft=[];const s=current();if(s){player.floor=floor(s);[player.x,player.y]=floors[player.floor].spawn;const b=bbox(s.points);view.x=b.x+b.w/2;view.y=b.y+b.h/2;view.follow=false;}refresh();}
  function reset(){drawing=null;draft=[];rectStart=null;surfaces.clear();refresh();}
  function begin(shape,redraw=false){drawing={shape,id:redraw?current()?.id:null};draft=[];message(shape==='quad'?'Click four screen corners clockwise: top left, top right, bottom right, bottom left.':'Drag across the screen surface. Then adjust the corner handles.');canvas.focus();}
@@ -8280,10 +10064,11 @@ const Screens=(()=>{
  if(draft.length){ctx.strokeStyle='#ffdb96';if(drawing?.shape==='rect'&&draft.length===2)ctx.strokeRect(draft[0][0],draft[0][1],draft[1][0]-draft[0][0],draft[1][1]-draft[0][1]);else{ctx.beginPath();draft.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));if(cursor)ctx.lineTo(...cursor);ctx.stroke();}}ctx.restore();}
  function inverse(points){const [a,b,c,d]=points,dx1=b[0]-c[0],dx2=d[0]-c[0],dx3=a[0]-b[0]+c[0]-d[0],dy1=b[1]-c[1],dy2=d[1]-c[1],dy3=a[1]-b[1]+c[1]-d[1],den=dx1*dy2-dx2*dy1,g=Math.abs(den)<1e-8?0:(dx3*dy2-dx2*dy3)/den,h=Math.abs(den)<1e-8?0:(dx1*dy3-dx3*dy1)/den;const A=b[0]-a[0]+g*b[0],B=d[0]-a[0]+h*d[0],C=a[0],D=b[1]-a[1]+g*b[1],E=d[1]-a[1]+h*d[1],F=a[1];return[E-F*h,C*h-B,B*F-C*E,F*g-D,A-C*g,C*D-A*F,D*h-E*g,B*g-A*h,A*E-B*D];}
  function paint(s){const b=bbox(s.points),width=320,height=Math.max(40,Math.min(240,Math.round(width*b.h/b.w))),c=document.createElement('canvas');c.width=width;c.height=height;const g=c.getContext('2d'),color=colors[s.color],active=roomState(s.room)==='working';g.fillStyle='#080f20';g.fillRect(0,0,width,height);g.fillStyle=color;g.globalAlpha=.07;for(let y=2;y<height;y+=4)g.fillRect(0,y,width,1);g.globalAlpha=1;
+ if(ScreenPrograms.paint(s,g,width,height,time,active))return c;
  if(s.kind==='indicator'){const count=32,pitch=width/count,phase=Math.floor(time*10)%count;for(let i=0;i<count;i++){let on=.09;if(active){if(s.effect==='pulse')on=.5+.4*Math.sin(time*3);else if(s.effect==='sweep'){const position=(.5+.5*Math.sin(time*1.8))*(count-1)/2;on=Math.max(.09,1-Math.abs(Math.abs(i-(count-1)/2)-position)/4);}else{const behind=(phase-i+count)%count;on=behind<7?1-behind/7:.09;}}g.globalAlpha=on;g.fillStyle=color;g.fillRect(i*pitch+2,Math.max(2,height*.24),pitch-3,Math.max(2,height*.52));}g.globalAlpha=1;}
  else{const entry=channels.get(s.channel),data=entry?.payload||{title:s.name,value:'—',unit:'',series:[.2,.4,.35,.7,.55,.8],lines:['Preview · connect a data channel']};g.fillStyle=color;g.font='bold 15px monospace';g.fillText(String(data.title||s.name).slice(0,32),12,23);g.fillStyle='#f1eeff';g.font='bold 25px monospace';g.fillText((String(data.value??'—')+' '+String(data.unit||'')).slice(0,24),12,54);g.font='11px monospace';g.fillStyle=color;g.fillText(String(data.status||roomState(s.room)).slice(0,46),12,72);const values=Array.isArray(data.series)?data.series.slice(-120).filter(Number.isFinite):[];if(values.length>1&&height>=80){const lo=Math.min(...values),hi=Math.max(...values),range=hi-lo||1,wide=height<115,left=wide?145:12,top=wide?30:88,bottom=height-22;g.strokeStyle=color;g.lineWidth=2;g.beginPath();values.forEach((v,i)=>{const x=left+i/(values.length-1)*(width-left-12),y=bottom-(v-lo)/range*(bottom-top);i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();}if(height>95){g.font='10px monospace';g.fillStyle='#bfc4d9';g.fillText(String(data.lines?.[0]||'').slice(0,50),12,height-10);}}
  return c;}
- function surface(s){const key=JSON.stringify(s)+':'+(s.kind==='indicator'&&roomState(s.room)==='working'?Math.floor(time*12):'static')+':'+roomState(s.room),old=surfaces.get(s.id);if(old?.key===key)return old;const b=bbox(s.points),c=document.createElement('canvas');c.width=Math.ceil(b.w*P)+2;c.height=Math.ceil(b.h*P)+2;const g=c.getContext('2d'),img=paint(s),source=img.getContext('2d').getImageData(0,0,img.width,img.height).data,output=g.createImageData(c.width,c.height),inv=inverse(s.points);
+ function surface(s){const key=JSON.stringify(s)+':'+(ScreenPrograms.resolve(s)!=='generic'?Math.floor(time*(roomState(s.room)==='working'?10:2)):s.kind==='indicator'&&roomState(s.room)==='working'?Math.floor(time*12):'static')+':'+ScreenPrograms.revision()+':'+Math.floor(Date.now()/5000)+':'+roomState(s.room),old=surfaces.get(s.id);if(old?.key===key)return old;const b=bbox(s.points),c=document.createElement('canvas');c.width=Math.ceil(b.w*P)+2;c.height=Math.ceil(b.h*P)+2;const g=c.getContext('2d'),img=paint(s),source=img.getContext('2d').getImageData(0,0,img.width,img.height).data,output=g.createImageData(c.width,c.height),inv=inverse(s.points);
  // Inverse sampling keeps perspective-correct pixels without triangle seams.
  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){const wx=b.x+(x+.5)/P,wy=b.y+(y+.5)/P,z=inv[6]*wx+inv[7]*wy+inv[8],u=(inv[0]*wx+inv[1]*wy+inv[2])/z,v=(inv[3]*wx+inv[4]*wy+inv[5])/z;if(u<0||u>1||v<0||v>1||!Number.isFinite(u+v))continue;const from=(Math.min(img.height-1,Math.floor(v*img.height))*img.width+Math.min(img.width-1,Math.floor(u*img.width)))*4,to=(y*c.width+x)*4;output.data[to]=source[from];output.data[to+1]=source[from+1];output.data[to+2]=source[from+2];output.data[to+3]=source[from+3];}g.putImageData(output,0,0);const value={key,...b,c,masked:new Map()};surfaces.set(s.id,value);return value;}
  function drawable(s){return s.visible&&(mode==='walk'||mode==='screens'&&preview);}
@@ -8292,7 +10077,7 @@ const Screens=(()=>{
  async function poll(s){if(requests.has(s.id)||!s.poll||!s.url)return;const stamp={url:s.url,channel:s.channel,next:Date.now()+s.interval*1000};requests.set(s.id,stamp);try{const response=await fetch(urlFor(s.url),{credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(4000)});if(!response.ok)throw Error('HTTP '+response.status);const payload=await response.json();if(screens.includes(s)&&s.poll&&s.url===stamp.url&&s.channel===stamp.channel&&!setData(stamp.channel,payload))throw Error('Expected a JSON object');}catch(e){if(screens.includes(s)){const old=channels.get(s.channel);channels.set(s.channel,{...old,error:e.name==='TimeoutError'?'Request timed out':e.message});refreshFeed();}}finally{stamp.done=true;}}
  function tick(dt){if(Portal.info().enabled&&(mode==='walk'||mode==='screens'&&preview))time+=dt;if(!['walk','screens'].includes(mode)||document.hidden)return;for(const s of screens){const req=requests.get(s.id);if(req?.done&&Date.now()>req.next)requests.delete(s.id);if(s.kind==='data'&&s.poll&&s.url)poll(s);}}
  function change(fn){const s=current();if(!s)return;remember();fn(s);surfaces.delete(s.id);dirtyNow();refresh();}
- function init(){for(const[id,[name]]of Object.entries(rooms))for(const el of [$('#screen-room'),$('#screen-new-room')]){const o=document.createElement('option');o.value=id;o.textContent=name;el.append(o);}$('#screen-new-room').value='data';$('#screen-list').onchange=e=>choose(e.target.value);$('#screen-new-rect').onclick=()=>begin('rect');$('#screen-new-quad').onclick=()=>begin('quad');$('#screen-redraw').onclick=()=>begin('quad',true);$('#screen-duplicate').onclick=()=>{const s=current();if(!s)return;remember();const copy=clone(s);copy.id='screen-'+crypto.randomUUID();copy.name+=' copy';copy.points=copy.points.map(p=>[Math.min(W,p[0]+12),Math.min(H,p[1]+12)]);if(!validQuad(copy.points))return;screens.push(copy);choose(copy.id);dirtyNow();};$('#screen-delete').onclick=()=>{if(!current())return;remember();screens=screens.filter(s=>s.id!==selectedId);reset();dirtyNow();};for(const key of ['name','room','kind','effect','color','opacity','channel','url','interval'])$('#screen-'+key).onchange=e=>{if(key==='url'&&e.target.value){try{urlFor(e.target.value);}catch(err){message(err.message);refresh();return;}}change(s=>{s[key]=key==='opacity'?Number(e.target.value):key==='interval'?Math.max(2,Math.min(300,Number(e.target.value)||5)):e.target.value.trim();if(key==='room')player.floor=floor(s);if(key==='url')requests.delete(s.id);});};$('#screen-visible').onchange=e=>change(s=>s.visible=e.target.checked);$('#screen-poll').onchange=e=>change(s=>{s.poll=e.target.checked;requests.delete(s.id);});$('#screen-preview').onchange=e=>preview=e.target.checked;$('#screen-state').onchange=e=>{const s=current();if(s)HardwareActivity.setPreview(s.room,e.target.value,false);};$('#screen-apply-data').onclick=()=>{try{const s=current();if(s&&!setData(s.channel,JSON.parse($('#screen-json').value)))throw Error('Use a JSON object and a nonempty channel name.');message('Preview data applied to this channel.');}catch(e){message(e.message);}};window.addEventListener('nebula:screen-data',e=>{const d=e.detail;if(d)setData(d.channel,d.data);});refresh();}
+ function init(){for(const[id,name]of Object.entries(ScreenPrograms.profiles))$('#screen-profile').append(new Option(name,id));$('#screen-profile').onchange=e=>change(s=>s.profile=e.target.value);for(const[id,[name]]of Object.entries(rooms))for(const el of [$('#screen-room'),$('#screen-new-room')]){const o=document.createElement('option');o.value=id;o.textContent=name;el.append(o);}$('#screen-new-room').value='data';$('#screen-list').onchange=e=>choose(e.target.value);$('#screen-new-rect').onclick=()=>begin('rect');$('#screen-new-quad').onclick=()=>begin('quad');$('#screen-redraw').onclick=()=>begin('quad',true);$('#screen-duplicate').onclick=()=>{const s=current();if(!s)return;remember();const copy=clone(s);copy.id='screen-'+crypto.randomUUID();copy.name+=' copy';copy.points=copy.points.map(p=>[Math.min(W,p[0]+12),Math.min(H,p[1]+12)]);if(!validQuad(copy.points))return;screens.push(copy);choose(copy.id);dirtyNow();};$('#screen-delete').onclick=()=>{if(!current())return;remember();screens=screens.filter(s=>s.id!==selectedId);reset();dirtyNow();};for(const key of ['name','room','kind','effect','color','opacity','channel','url','interval'])$('#screen-'+key).onchange=e=>{if(key==='url'&&e.target.value){try{urlFor(e.target.value);}catch(err){message(err.message);refresh();return;}}change(s=>{s[key]=key==='opacity'?Number(e.target.value):key==='interval'?Math.max(2,Math.min(300,Number(e.target.value)||5)):e.target.value.trim();if(key==='room')player.floor=floor(s);if(key==='url')requests.delete(s.id);});};$('#screen-visible').onchange=e=>change(s=>s.visible=e.target.checked);$('#screen-poll').onchange=e=>change(s=>{s.poll=e.target.checked;requests.delete(s.id);});$('#screen-preview').onchange=e=>preview=e.target.checked;$('#screen-state').onchange=e=>{const s=current();if(s)HardwareActivity.setPreview(s.room,e.target.value,false);};$('#screen-apply-data').onclick=()=>{try{const s=current();if(s&&!setData(s.channel,JSON.parse($('#screen-json').value)))throw Error('Use a JSON object and a nonempty channel name.');message('Preview data applied to this channel.');}catch(e){message(e.message);}};window.addEventListener('nebula:screen-data',e=>{const d=e.detail;if(d)setData(d.channel,d.data);});refresh();}
  return{init,refresh,refreshState,reset,pointer,drag,end,markers,draw,drawMasked,tick,validate,setData,setRoomState,roomStates:()=>Object.fromEntries(Object.keys(rooms).map(id=>[id,roomState(id)])),pending:()=>draft.length>0||!!rectStart,escape:()=>{drawing=null;draft=[];rectStart=null;},info:()=>({selected:selectedId,drawing:drawing?.shape||null,time,preview,channels:[...channels.keys()]})};
 })();
 
@@ -8421,7 +10206,7 @@ const Characters=(()=>{
  function applyConfig(){AgentMotion.reset();for(const [i,m]of members.entries())if(!config(m.id))characterOverrides[m.id]=defaults(m,i);publishActivity();pixelKey='';refresh();}
  function mutate(fn){if(!current())return;remember();fn(config(selectedId));publishActivity();pixelKey='';dirtyNow();refresh();}
  async function poll(){if(polling)return;polling=true;lastPoll=Date.now();try{const r=await fetch('/live',{cache:'no-store',signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json(),org=data.org?.paperclip;if(org?.company?.name?.toLowerCase()!=='nebula'||!Array.isArray(org.agents))throw Error('Nebula roster is unavailable');const seen=new Set();const roster=org.agents.filter(m=>typeof m.id==='string'&&/^[a-f0-9-]{36}$/i.test(m.id)&&typeof m.name==='string'&&!seen.has(m.id)&&seen.add(m.id)).map(m=>({id:m.id,name:m.name,role:m.role||'',title:m.title||'',status:m.status,issue:m.issue?{key:m.issue.key,title:m.issue.title,running:!!m.issue.running}:null})).sort((a,b)=>a.name.localeCompare(b.name));const changed=roster.map(m=>m.id).join()!==members.map(m=>m.id).join();members=roster;lastReceived=Date.now();exportedAt=Date.parse(org.exportedAt)||lastReceived;liveError='';for(const[i,m]of members.entries()){if(!config(m.id))characterOverrides[m.id]=defaults(m,i);imageFor(m.id);}if(controlled&&!members.some(m=>m.id===controlled))controlled=null;if(!members.some(m=>m.id===selectedId))selectedId=members[0]?.id;
- publishActivity();Screens.setData('nebula.agents',{title:'Nebula organization',value:members.length,unit:'agents',status:stale()?'Stale':'Connected',lines:[members.filter(m=>presence(m)==='running').length+' working · '+members.filter(m=>presence(m)==='paused').length+' paused']});
+ publishActivity();ScreenPrograms.ingest(data);Screens.setData('nebula.agents',{title:'Nebula organization',value:members.length,unit:'agents',status:stale()?'Stale':'Connected',lines:[members.filter(m=>presence(m)==='running').length+' working · '+members.filter(m=>presence(m)==='paused').length+' paused']});
  if(changed&&mode==='characters')choose(selectedId);else if(changed||!document.activeElement?.closest('#character-panel'))refresh();else refreshStatus();
  }catch(e){liveError=e.message;RoomStates.markAgentsStale();Screens.setData('nebula.agents',{title:'Nebula organization',value:members.length||'—',unit:members.length?'last known agents':'',status:'Stale · feed unavailable',lines:[liveError]});refreshStatus();}finally{polling=false;}}
  function refreshStatus(){const status=$('#character-live');if(!status)return;status.textContent=lastReceived?(stale()?'Stale · showing last roster':'Nebula · '+members.length+' agents · read-only live feed'):(liveError?'Roster unavailable · '+liveError:'Connecting to Nebula…');const m=current();if(m){$('#character-presence').textContent=presence(m)+(m.issue?' · '+(m.issue.key||'Assigned task')+' · '+(m.issue.title||''):'');$('#character-presence').style.color=colors[presence(m)];}for(const o of $('#character-list').options){const a=members.find(m=>m.id===o.value);if(a)o.textContent=a.name+' · '+presence(a);}}
@@ -8561,9 +10346,9 @@ $('#save').onclick=()=>{if(Screens.pending()){message('Finish the screen outline
 $('#export').onclick=()=>{if(Screens.pending()){message('Finish the screen outline, or press Escape before exporting.');return;}if(polygon.length){message('Finish your polygon first.');return;}const data={...snapshot(),floors,starts},url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='nebula-expanded-grid-and-masks.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};$('#load').onclick=()=>$('#map-file').click();$('#map-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const v=checked(JSON.parse(await file.text()));if(dirty&&!confirm('Replace current unsaved edits?'))return;remember();applyState(v);message('Grid, masks, seats, screens and characters loaded. Save & lock to keep them.');}catch(error){message(error.message);}finally{e.target.value='';}};
 document.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>ride(b.dataset.floor));$('#cancel-lift').onclick=()=>{liftOpen=false;$('#lift').hidden=true;canvas.focus();};window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 function tick(now){const dt=Math.min(.04,(now-last)/1000||0);last=now;if(ready){Lift.tick(dt);Seating.tick(dt);Portal.tick(dt);RoomLighting.tick(dt);Turbines.tick(dt);Screens.tick(dt);StarTwinkle.tick(dt);HardwareActivity.tick(dt);AmbientDetails.tick(dt);Characters.tick(dt);RoomStates.tick();WorldHUD.tick(dt);if(mode==='walk'&&!Lift.controlsLocked()&&!Seating.controlsLocked()){const[dx,dy]=movement(),n=Math.hypot(dx,dy);if(n){player.dir=Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up';const s=scale(player.floor,player.x,player.y);move(dx/n*85*s*dt,dy/n*57*s*dt);player.step+=dt;if(view.zoom>1)view.follow=true;}}render();$('#state').textContent=`${floors[player.floor].name} · feet ${Math.round(player.x)}, ${Math.round(player.y)} · ${masks.length} masks · ${seats.length} seats · ${screens.length} screens`;$('#hint').textContent=pickDepth?'Click the floor at the furniture base':mode==='characters'?'Live Nebula roster · choose an agent to customize · pick a map position or edit sprite pixels':mode==='screens'?'Draw rectangles or four corners · drag handles to fit · click a screen to select · Escape cancels drawing':mode==='seats'?'Fit the pose · drag markers · link a chair mask · test sitting':mode==='mask'?'Trace only furniture pixels · Enter finishes polygon · right-drag to pan':mode==='grid'?'Paint walking cells · furniture overlap is edited in Furniture masks':Seating.hint()||Lift.hint()||'WASD / arrows walk · E elevator · G grid · wheel zoom';}requestAnimationFrame(tick);}
-if(approvedMap){const owner=checked(approvedMap);edits=owner.overrides;masks=owner.masks;selected=masks.find(m=>m.floor===player.floor)?.id;$('#status').textContent='World ready';}
+if(approvedMap){const owner=checked(approvedMap);edits=owner.overrides;masks=owner.masks;screens=clone(owner.screens||[]);seats=clone(owner.seats||seats);characterOverrides=clone(owner.characters||characterOverrides);selected=masks.find(m=>m.floor===player.floor)?.id;$('#status').textContent='World ready';}
 restore();refreshMasks();Seating.init();Portal.init();RoomLighting.init();Screens.init();WorldHUD.init();Characters.init();HardwareActivity.init();
-window.__worldEffects={setRoomState:RoomStates.setRoomState,setAgentStates:RoomStates.updateAgents,setRoomPreview:HardwareActivity.setPreview,clearRoomPreviews:HardwareActivity.clearPreviews,roomStates:RoomStates.snapshot,setScreenData:Screens.setData};
-window.__walk={get rooms(){return RoomStates.snapshot();},get ambient(){return AmbientDetails.info();},get hardware(){return HardwareActivity.info();},get characters(){return Characters.info();},get characterOverrides(){return clone(characterOverrides);},get stars(){return StarTwinkle.info();},get screens(){return clone(screens);},get screenEditor(){return Screens.info();},get turbines(){return Turbines.info();},get lighting(){return RoomLighting.info();},get portal(){return Portal.info();},get seats(){return clone(seats);},get seating(){return Seating.info();},get elevator(){return Lift.info();},get ready(){return ready;},get player(){return{...player};},get mode(){return mode;},get masks(){return clone(masks);},get edits(){return clone(edits);},get dirty(){return dirty;},get locked(){return locked;},get polygon(){return clone(polygon);},get travel(){return travel?{...travel}:null;},get selected(){return selected;},get view(){return{...view};},navigation:{floors,point,stand,inside,scale},starts,image:imageInfo};
+window.__worldEffects={setRoomState:RoomStates.setRoomState,setAgentStates:RoomStates.updateAgents,setRoomPreview:HardwareActivity.setPreview,clearRoomPreviews:HardwareActivity.clearPreviews,roomStates:RoomStates.snapshot,setScreenData:Screens.setData,setScreenTelemetry:ScreenPrograms.ingest,setAudioTelemetry:ScreenPrograms.setAudioTelemetry};
+window.__walk={get rooms(){return RoomStates.snapshot();},get ambient(){return AmbientDetails.info();},get hardware(){return HardwareActivity.info();},get characters(){return Characters.info();},get characterOverrides(){return clone(characterOverrides);},get stars(){return StarTwinkle.info();},get screenPrograms(){return ScreenPrograms.info();},get screens(){return clone(screens);},get screenEditor(){return Screens.info();},get turbines(){return Turbines.info();},get lighting(){return RoomLighting.info();},get portal(){return Portal.info();},get seats(){return clone(seats);},get seating(){return Seating.info();},get elevator(){return Lift.info();},get ready(){return ready;},get player(){return{...player};},get mode(){return mode;},get masks(){return clone(masks);},get edits(){return clone(edits);},get dirty(){return dirty;},get locked(){return locked;},get polygon(){return clone(polygon);},get travel(){return travel?{...travel}:null;},get selected(){return selected;},get view(){return{...view};},navigation:{floors,point,stand,inside,scale},starts,image:imageInfo};
 Promise.all([art.decode(),sprite.decode()]).then(()=>{ready=true;const q=new URLSearchParams(location.search);if(starts[q.get('start')]){$('#start').value=q.get('start');spawn(q.get('start'));}if(q.get('grid')==='1'){grid=true;$('#grid').checked=true;}if(q.has('zoom'))setZoom(Number(q.get('zoom'))||1);if(['grid','mask','seats','screens','characters'].includes(q.get('mode')))setMode(q.get('mode'));if(q.get('seat')&&seats.some(s=>s.id===q.get('seat')))Seating.choose(q.get('seat'));if(q.get('twinkle')==='preview'){$('#motion').checked=true;$('#motion').dispatchEvent(new Event('change'));setZoom(1);view.x=W/2;view.y=H/2;view.follow=false;message('Vivid starfield preview · Ambient motion enabled');}canvas.focus();});requestAnimationFrame(tick);
 </script></html>

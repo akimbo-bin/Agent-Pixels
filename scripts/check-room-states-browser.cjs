@@ -6,6 +6,8 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  p.on('pageerror',e=>errors.push(e.message));
  const base='http://127.0.0.1:8790/review/illustrated-walk/index.html';
  const live=await(await p.request.get('http://127.0.0.1:8790/live')).json();
+ // Isolate agent aggregation from independent real training/render jobs.
+ for(const id of ['nebula.training','paperclip.renders.vm116'])if(live.tasks[id])live.tasks[id]={...live.tasks[id],state:'idle',updatedAt:Date.now()};
  const roster=live.org.paperclip.agents;
  for(const a of roster){a.status='idle';a.issue=null;}
  const data=roster.find(a=>a.name==='Data'),training=roster.find(a=>a.name==='Training');

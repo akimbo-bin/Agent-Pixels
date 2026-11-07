@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 5,
   "image": {
     "name": "8a8c2bde-8bc6-4103-91c2-5f257de3e645.png",
     "sha256": "df38dd974bffc108ab6595a34ca132d5c3cb1facaae9a96ab7b692af049f1539",
@@ -6470,7 +6470,1695 @@
       ]
     }
   ],
-  "savedAt": 1793992056017,
+  "seats": [
+    {
+      "id": "review-front",
+      "name": "Review · front left",
+      "floor": "ground",
+      "x": 371,
+      "y": 754,
+      "depth": 781,
+      "approach": [
+        386,
+        793
+      ],
+      "exit": [
+        386,
+        793
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": []
+    },
+    {
+      "id": "data-front",
+      "name": "Data · left workstation",
+      "floor": "middle",
+      "x": 559,
+      "y": 602,
+      "depth": 629,
+      "approach": [
+        559,
+        641
+      ],
+      "exit": [
+        559,
+        641
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": []
+    },
+    {
+      "id": "training-front",
+      "name": "Training · left workstation",
+      "floor": "middle",
+      "x": 785,
+      "y": 609,
+      "depth": 631,
+      "approach": [
+        785,
+        641
+      ],
+      "exit": [
+        785,
+        641
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": [
+        "mask-fa73615b-fac5-4549-ba01-9ccdd2cbd0ae"
+      ]
+    },
+    {
+      "id": "music-console",
+      "name": "Music · mixing console",
+      "floor": "middle",
+      "x": 1118,
+      "y": 603,
+      "depth": 638,
+      "approach": [
+        1118,
+        642
+      ],
+      "exit": [
+        1118,
+        642
+      ],
+      "facing": "up",
+      "animation": "typing",
+      "height": 34,
+      "width": 100,
+      "offsetX": 0,
+      "offsetY": 0,
+      "autoScale": false,
+      "maskIds": [
+        "mixing"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "id": "screen-5b78bf42-de06-4400-8c25-28e2eac2c759",
+      "name": "Lead Main screen Left",
+      "room": "lead",
+      "points": [
+        [
+          330.2671561841906,
+          335.6310693015205
+        ],
+        [
+          347.76865721914174,
+          335.6310693015205
+        ],
+        [
+          347.76865721914174,
+          350.0964092917595
+        ],
+        [
+          330.2671561841906,
+          350.0964092917595
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "lead",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2af87d1e-d139-4199-b747-40651349609e",
+      "name": "Lead Main screen Right",
+      "room": "lead",
+      "points": [
+        [
+          431.89100039089345,
+          336.30111653954225
+        ],
+        [
+          447.8290468469908,
+          336.30111653954225
+        ],
+        [
+          447.8290468469908,
+          350.3197610975293
+        ],
+        [
+          431.89100039089345,
+          350.3197610975293
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "lead",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-6f7c7a20-0225-4360-8ade-3b363d816616",
+      "name": "Lead Second Screen Left",
+      "room": "second",
+      "points": [
+        [
+          612.870268868717,
+          324.25948882774435
+        ],
+        [
+          626.3514861727467,
+          324.25948882774435
+        ],
+        [
+          626.3514861727467,
+          335.59794443364433
+        ],
+        [
+          612.870268868717,
+          335.59794443364433
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "second",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7c838d00-729b-47e7-ad0a-67684e2ab7b2",
+      "name": "Lead Second screen Right",
+      "room": "second",
+      "points": [
+        [
+          665.8040046591807,
+          324.25948882774435
+        ],
+        [
+          679.7319092498174,
+          324.25948882774435
+        ],
+        [
+          679.7319092498174,
+          335.15124900139233
+        ],
+        [
+          665.8040046591807,
+          335.15124900139233
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "second",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-06d757c4-6565-40eb-a311-d94281744fa6",
+      "name": "Admin / Clerk screen 5",
+      "room": "clerk",
+      "points": [
+        [
+          608.1651889896925,
+          407.251474346638
+        ],
+        [
+          625.2199863794601,
+          407.251474346638
+        ],
+        [
+          625.2199863794601,
+          419.25997719055965
+        ],
+        [
+          608.1651889896925,
+          419.25997719055965
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "clerk",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-21838d19-7852-4807-aed5-410ca67467cb",
+      "name": "Admin / Clerk screen 6",
+      "room": "clerk",
+      "points": [
+        [
+          672.7130723277369,
+          407.4748261524078
+        ],
+        [
+          689.544526074201,
+          407.4748261524078
+        ],
+        [
+          689.544526074201,
+          419.7066808020993
+        ],
+        [
+          672.7130723277369,
+          419.7066808020993
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "clerk",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-bc2bde6b-30f0-4631-b04f-9af2e0bb4fe8",
+      "name": "Observatory screen 7",
+      "room": "observatory",
+      "points": [
+        [
+          845.0341496244985,
+          360.32862249117164
+        ],
+        [
+          872.4215600530708,
+          360.32862249117164
+        ],
+        [
+          872.4215600530708,
+          376.8975507383839
+        ],
+        [
+          845.0341496244985,
+          376.8975507383839
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-5493b042-5e46-4288-a1ee-533b2d277913",
+      "name": "Observatory screen 8",
+      "room": "observatory",
+      "points": [
+        [
+          898.0115391848396,
+          362.8838755520027
+        ],
+        [
+          920.6500748843825,
+          362.8838755520027
+        ],
+        [
+          920.6500748843825,
+          377.12586373647196
+        ],
+        [
+          898.0115391848396,
+          377.12586373647196
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-854b1001-ed3d-4d45-ae4c-9b8b1182d992",
+      "name": "Observatory screen 9",
+      "room": "observatory",
+      "points": [
+        [
+          1052.2655121836988,
+          372.9869315627999
+        ],
+        [
+          1074.2339842361782,
+          372.9869315627999
+        ],
+        [
+          1074.2339842361782,
+          386.1121770769954
+        ],
+        [
+          1052.2655121836988,
+          386.1121770769954
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8c9d9238-928c-44b0-ab9f-c73e0a1b8938",
+      "name": "Observatory screen 10",
+      "room": "observatory",
+      "points": [
+        [
+          1143.008040347451,
+          387.1626184421983
+        ],
+        [
+          1164.08312146814,
+          387.1626184421983
+        ],
+        [
+          1164.08312146814,
+          401.8513020589196
+        ],
+        [
+          1143.008040347451,
+          401.8513020589196
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "observatory",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a924db5e-7f02-4045-913f-ae406e8c44ad",
+      "name": "Engine screen 11",
+      "room": "engine",
+      "points": [
+        [
+          301.9033228187168,
+          560.67691264349
+        ],
+        [
+          316.50129105641685,
+          560.67691264349
+        ],
+        [
+          316.50129105641685,
+          572.2387118758722
+        ],
+        [
+          301.9033228187168,
+          572.2387118758722
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c61f176a-ee22-4259-80ae-aaa46b5543c6",
+      "name": "Engine screen 12",
+      "room": "engine",
+      "points": [
+        [
+          319.99459960786265,
+          560.67691264349
+        ],
+        [
+          334.1458642003793,
+          560.67691264349
+        ],
+        [
+          334.1458642003793,
+          571.7920246229078
+        ],
+        [
+          319.99459960786265,
+          571.7920246229078
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-f019c237-1561-45ae-8cc1-6b2641b49fcb",
+      "name": "Engine screen 13",
+      "room": "engine",
+      "points": [
+        [
+          379.62880828319527,
+          529.6313960680056
+        ],
+        [
+          394.8968238093823,
+          529.6313960680056
+        ],
+        [
+          394.8968238093823,
+          540.076452630114
+        ],
+        [
+          379.62880828319527,
+          540.076452630114
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-16a2d13a-83f5-4afa-8edd-019aac3c2d4d",
+      "name": "Engine screen 14",
+      "room": "engine",
+      "points": [
+        [
+          403.8307822030153,
+          529.3556968217654
+        ],
+        [
+          420.80530805849077,
+          529.4080442622359
+        ],
+        [
+          420.80530805849077,
+          540.076452630114
+        ],
+        [
+          404.27748584819864,
+          540.076452630114
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-52cfaf31-0d6c-4db7-8566-43b337bc93d3",
+      "name": "Engine screen 15",
+      "room": "engine",
+      "points": [
+        [
+          289.61912798264933,
+          504.39294464965997
+        ],
+        [
+          365.6380867592629,
+          504.39294464965997
+        ],
+        [
+          365.6380867592629,
+          552.8073419732403
+        ],
+        [
+          289.61912798264933,
+          552.8073419732403
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "engine",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2a64d833-a780-4f1f-8c1e-a3a1ce53266d",
+      "name": "Data screen 16",
+      "room": "data",
+      "points": [
+        [
+          548.7823121236895,
+          491.1044503103569
+        ],
+        [
+          623.2378163214494,
+          491.1044503103569
+        ],
+        [
+          623.2378163214494,
+          541.9756847802548
+        ],
+        [
+          548.7823121236895,
+          541.9756847802548
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-1f45efb3-4501-483c-84e4-e7ee0f1a5a9f",
+      "name": "Data screen 17",
+      "room": "data",
+      "points": [
+        [
+          498.75210913047664,
+          563.022856584458
+        ],
+        [
+          516.4769538087312,
+          563.022856584458
+        ],
+        [
+          516.4769538087312,
+          576.1480939193659
+        ],
+        [
+          498.75210913047664,
+          576.1480939193659
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-52e4b8b4-2ccb-488c-ab6a-8af6e8f0f5f4",
+      "name": "Data screen 18",
+      "room": "data",
+      "points": [
+        [
+          523.0971633385961,
+          563.6929038224797
+        ],
+        [
+          540.5986561942591,
+          563.6929038224797
+        ],
+        [
+          540.5986561942591,
+          575.7014066664016
+        ],
+        [
+          523.0971633385961,
+          575.7014066664016
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d11119ed-c47c-4a77-a8eb-283b1426241f",
+      "name": "Data screen 19",
+      "room": "data",
+      "points": [
+        [
+          508.57947481447644,
+          584.2410082160978
+        ],
+        [
+          525.4109203816524,
+          584.2410082160978
+        ],
+        [
+          525.4109203816524,
+          597.5896055360631
+        ],
+        [
+          508.57947481447644,
+          597.5896055360631
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a1f75684-296f-42a0-ab23-7a96d958a3fb",
+      "name": "Data screen 20",
+      "room": "data",
+      "points": [
+        [
+          531.1377308004387,
+          584.2410082160978
+        ],
+        [
+          547.0757854358244,
+          586.1988024896928
+        ],
+        [
+          547.0757854358244,
+          598.7063563856244
+        ],
+        [
+          531.1377308004387,
+          598.7063563856244
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-1e879ebb-abae-44d5-be18-23635abc39d7",
+      "name": "Data screen 21",
+      "room": "data",
+      "points": [
+        [
+          635.8884596269843,
+          563.2462002109402
+        ],
+        [
+          653.6133043052389,
+          563.2462002109402
+        ],
+        [
+          653.6133043052389,
+          575.9247502928837
+        ],
+        [
+          635.8884596269843,
+          575.9247502928837
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-0a2d9850-7f7e-4dfc-b91d-b15dc3a2e304",
+      "name": "Data screen 22",
+      "room": "data",
+      "points": [
+        [
+          660.0101620125122,
+          563.2462002109402
+        ],
+        [
+          677.7350066907668,
+          563.2462002109402
+        ],
+        [
+          677.7350066907668,
+          575.7014066664016
+        ],
+        [
+          660.0101620125122,
+          575.7014066664016
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-f6a5e957-a1bf-4d81-897a-655ff25533cb",
+      "name": "Data screen 23",
+      "room": "data",
+      "points": [
+        [
+          652.4162818372765,
+          584.6877118276374
+        ],
+        [
+          669.694439228924,
+          584.6877118276374
+        ],
+        [
+          669.694439228924,
+          598.2596527740849
+        ],
+        [
+          652.4162818372765,
+          598.2596527740849
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-a389d20e-4217-45f6-b3e2-a24dddcd8557",
+      "name": "Data screen 24",
+      "room": "data",
+      "points": [
+        [
+          633.4316141163404,
+          587.5912444062068
+        ],
+        [
+          648.029565995464,
+          585.3054116251886
+        ],
+        [
+          647.8062223521604,
+          597.8129655211204
+        ],
+        [
+          633.4316141163404,
+          598.7063563856244
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "data",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-db523a20-f7bd-4633-9d54-1f4e3d4b2f4d",
+      "name": "Training screen 25",
+      "room": "training",
+      "points": [
+        [
+          798.7402241403383,
+          504.0364707265206
+        ],
+        [
+          905.7971708586736,
+          504.0364707265206
+        ],
+        [
+          905.7971708586736,
+          554.9989942250263
+        ],
+        [
+          798.7402241403383,
+          554.9989942250263
+        ]
+      ],
+      "kind": "data",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c853ccc6-4e16-469b-8007-b369473037eb",
+      "name": "Training screen 26",
+      "room": "training",
+      "points": [
+        [
+          800.3859485827354,
+          564.2231642616092
+        ],
+        [
+          811.7554518986115,
+          563.227650256373
+        ],
+        [
+          811.520353326713,
+          572.3967177240395
+        ],
+        [
+          800.4704449346218,
+          573.1020306061677
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-16316ece-82d4-4046-ac81-2a5bac6cc3d5",
+      "name": "Training screen 27",
+      "room": "training",
+      "points": [
+        [
+          894.5121638946839,
+          562.5223373742447
+        ],
+        [
+          906.7375995853754,
+          563.4627488105647
+        ],
+        [
+          906.032286650126,
+          572.8669148324232
+        ],
+        [
+          894.8978819061485,
+          572.8669148324232
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-efc9d3f2-2b99-4739-ae5c-3bf74d9dbfb1",
+      "name": "Training screen 28",
+      "room": "training",
+      "points": [
+        [
+          768.6468751062916,
+          583.7368264070069
+        ],
+        [
+          789.3360574101982,
+          583.0315135248787
+        ],
+        [
+          789.1854379706322,
+          598.7283929169746
+        ],
+        [
+          768.6468751062916,
+          598.7283929169746
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8dc67d05-6b71-4974-8acc-5114fe39581d",
+      "name": "Training screen 29",
+      "room": "training",
+      "points": [
+        [
+          794.7434451007406,
+          586.3229621617751
+        ],
+        [
+          810.3448260281127,
+          588.3837982392434
+        ],
+        [
+          810.8150403914638,
+          600.1390186812309
+        ],
+        [
+          794.7434451007406,
+          600.1390186812309
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-3980d174-1cf4-41cd-995e-d66a6051a976",
+      "name": "Training screen 30",
+      "room": "training",
+      "points": [
+        [
+          893.2486679211163,
+          587.6497958602179
+        ],
+        [
+          910.3034653108841,
+          585.5873067056821
+        ],
+        [
+          910.0801053090042,
+          597.6481569900742
+        ],
+        [
+          893.1055794535287,
+          599.8816586891969
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d7f015ee-4efc-4c5c-9a4e-d0b3917e21a6",
+      "name": "Training screen 31",
+      "room": "training",
+      "points": [
+        [
+          914.7704363284124,
+          582.4604305006304
+        ],
+        [
+          935.7652622733856,
+          583.3538213651344
+        ],
+        [
+          935.5419022715057,
+          598.0948606016137
+        ],
+        [
+          914.7704363284124,
+          597.424813363592
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "sweep",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "training",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-95b0ccce-2ac5-407b-9f1a-a47df6475caa",
+      "name": "Music Studio screen 32",
+      "room": "music",
+      "points": [
+        [
+          1054.1296013052756,
+          505.84964945194537
+        ],
+        [
+          1189.1639582519094,
+          505.84964945194537
+        ],
+        [
+          1189.1639582519094,
+          559.6334330887404
+        ],
+        [
+          1054.1296013052756,
+          559.6334330887404
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "music",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-8018e28f-770f-42c0-b55c-f6e8d392ed7e",
+      "name": "Doctor screen 33",
+      "room": "doctor",
+      "points": [
+        [
+          244.18214036207877,
+          692.0891196508446
+        ],
+        [
+          271.2876470791498,
+          692.0891196508446
+        ],
+        [
+          271.2876470791498,
+          715.2650737353669
+        ],
+        [
+          244.18214036207877,
+          715.2650737353669
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7287338f-dfba-46d9-8a36-57f613c34c10",
+      "name": "Doctor screen 34",
+      "room": "doctor",
+      "points": [
+        [
+          285.5017122463857,
+          704.5966653674888
+        ],
+        [
+          301.8864623476665,
+          704.5966653674888
+        ],
+        [
+          301.8864623476665,
+          713.9249792593233
+        ],
+        [
+          285.5017122463857,
+          713.9249792593233
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-ba1262e6-e619-43b3-9a0c-020304461cec",
+      "name": "Doctor screen 35",
+      "room": "doctor",
+      "points": [
+        [
+          277.2378011412396,
+          725.3681297461642
+        ],
+        [
+          296.0793967531645,
+          725.3681297461642
+        ],
+        [
+          296.0793967531645,
+          741.6202596446989
+        ],
+        [
+          277.2378011412396,
+          741.6202596446989
+        ]
+      ],
+      "kind": "indicator",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "doctor",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-7f1de894-d188-447c-8838-43c92499fd7d",
+      "name": "Operations screen RED",
+      "room": "operations",
+      "points": [
+        [
+          637.3219092135869,
+          697.4878911308889
+        ],
+        [
+          691.4526552030809,
+          697.4878911308889
+        ],
+        [
+          691.4526552030809,
+          746.1256320809515
+        ],
+        [
+          637.3219092135869,
+          746.1256320809515
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-3fd71bca-f243-4e90-bacc-f2ed078f81eb",
+      "name": "Operations screen BLUE",
+      "room": "operations",
+      "points": [
+        [
+          717.727579742369,
+          697.9345865631409
+        ],
+        [
+          769.1781324882713,
+          697.9345865631409
+        ],
+        [
+          769.1781324882713,
+          745.678944827987
+        ],
+        [
+          717.727579742369,
+          745.678944827987
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-cbd00a14-fb53-4111-a3c9-f4c2234bc9aa",
+      "name": "Operations screen ORANGE",
+      "room": "operations",
+      "points": [
+        [
+          794.9261063859483,
+          698.4336294358633
+        ],
+        [
+          846.8233627770339,
+          698.4336294358633
+        ],
+        [
+          846.8233627770339,
+          745.9546358949398
+        ],
+        [
+          794.9261063859483,
+          745.9546358949398
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "red",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-c54e1bea-3d1f-4a92-8ae7-50046faed8cb",
+      "name": "Operations screen PURPLE",
+      "room": "operations",
+      "points": [
+        [
+          874.0545033606961,
+          697.8682770787824
+        ],
+        [
+          926.8451670421487,
+          697.8682770787824
+        ],
+        [
+          926.8451670421487,
+          745.8359707908234
+        ],
+        [
+          874.0545033606961,
+          745.8359707908234
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "purple",
+      "opacity": 0.9,
+      "channel": "operations",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-d72ba980-15d9-45f1-ba51-851b92b81654",
+      "name": "Ticket Queue screen ORANGE",
+      "room": "queue",
+      "points": [
+        [
+          1008.7165660144956,
+          751.852442068419
+        ],
+        [
+          1054.136693164016,
+          751.852442068419
+        ],
+        [
+          1054.136693164016,
+          772.3482153801417
+        ],
+        [
+          1008.7165660144956,
+          772.3482153801417
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-2c482766-0b28-4588-9adc-bab3877b34df",
+      "name": "Ticket Queue screen VIOLET",
+      "room": "queue",
+      "points": [
+        [
+          1079.2146115939179,
+          751.4580858973499
+        ],
+        [
+          1123.7413396323598,
+          751.4580858973499
+        ],
+        [
+          1123.7413396323598,
+          772.6239064470943
+        ],
+        [
+          1079.2146115939179,
+          772.6239064470943
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    },
+    {
+      "id": "screen-e8bccf9d-24c0-4ed5-bcf8-3a7e1221394c",
+      "name": "Ticket Queue screen PINK",
+      "room": "queue",
+      "points": [
+        [
+          1148.6761777739623,
+          751.4580858973499
+        ],
+        [
+          1194.3196649253623,
+          751.4580858973499
+        ],
+        [
+          1194.3196649253623,
+          772.1772028355548
+        ],
+        [
+          1148.6761777739623,
+          772.1772028355548
+        ]
+      ],
+      "kind": "data",
+      "effect": "chase",
+      "color": "green",
+      "opacity": 0.9,
+      "channel": "queue",
+      "url": "",
+      "interval": 5,
+      "poll": false,
+      "visible": true
+    }
+  ],
+  "characters": {
+    "3ef85421-09a9-4a3f-828a-29513c05c65f": {
+      "skin": 11,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "engine",
+      "x": 285,
+      "y": 640,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "e7f4a9e1-b56b-47b5-b193-51d61c4809ed": {
+      "skin": 39,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "engine",
+      "x": 325,
+      "y": 640,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "ecd3cbaf-c405-4dc0-b83a-1caf46bb7459": {
+      "skin": 61,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "clerk",
+      "x": 642,
+      "y": 423,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "0f0300e1-dd24-4730-a29e-21893947aaa0": {
+      "skin": 67,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "data",
+      "x": 559,
+      "y": 641,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "f7f568e8-ee08-46f3-be89-eb0a16f5a481": {
+      "skin": 17,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "doctor",
+      "x": 253,
+      "y": 748,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "f50c7658-254b-46ab-94de-68abe9990255": {
+      "skin": 76,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "observatory",
+      "x": 1010,
+      "y": 433,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "77b41f73-5f28-48bb-9011-0d481936dc9e": {
+      "skin": 40,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "lead",
+      "x": 375,
+      "y": 363,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "bd01ea5e-0f61-4e04-bf0a-ef61293793f7": {
+      "skin": 81,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "second",
+      "x": 640,
+      "y": 337,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "2e806341-34b9-40f9-9273-14c7c618efe9": {
+      "skin": 10,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "clerk",
+      "x": 565,
+      "y": 460,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "ab19de07-cc8e-4c7f-bebe-ac4b1a0101b7": {
+      "skin": 40,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 385,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "86bac1d2-a575-4971-86d8-b1a825752aca": {
+      "skin": 33,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 440,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "35f1840a-63ec-4463-8c4b-50cc737b63e6": {
+      "skin": 2,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 495,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "11998dd6-aed1-40d7-89e4-282731458ff8": {
+      "skin": 79,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "review",
+      "x": 550,
+      "y": 793,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    },
+    "abe2420a-f7ae-460f-ae5d-b75bdc956a12": {
+      "skin": 59,
+      "customSheet": null,
+      "frameW": 16,
+      "frameH": 32,
+      "room": "training",
+      "x": 785,
+      "y": 641,
+      "height": 34,
+      "width": 100,
+      "facing": "down",
+      "visible": true,
+      "seatId": "",
+      "offsetX": 0,
+      "offsetY": 0,
+      "wander": true
+    }
+  },
+  "savedAt": 1794021836922,
   "floors": {
     "upper": {
       "name": "Upper floor",
@@ -7773,6 +9461,48 @@
     }
   },
   "starts": {
+    "music": {
+      "label": "Music Studio",
+      "floor": "middle",
+      "x": 1118,
+      "y": 642
+    },
+    "engine": {
+      "label": "Engine room",
+      "floor": "middle",
+      "x": 290,
+      "y": 640
+    },
+    "data": {
+      "label": "Data room",
+      "floor": "middle",
+      "x": 590,
+      "y": 640
+    },
+    "training": {
+      "label": "Training room",
+      "floor": "middle",
+      "x": 850,
+      "y": 641
+    },
+    "portal": {
+      "label": "Observatory portal",
+      "floor": "upper",
+      "x": 1193,
+      "y": 437
+    },
+    "lift-upper": {
+      "label": "Upper elevator",
+      "floor": "upper",
+      "x": 1300,
+      "y": 463
+    },
+    "lift-ground": {
+      "label": "Ground elevator",
+      "floor": "ground",
+      "x": 1300,
+      "y": 799
+    },
     "entry": {
       "label": "Main entrance",
       "floor": "ground",
