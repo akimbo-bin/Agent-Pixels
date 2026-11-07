@@ -41,6 +41,9 @@ text=text.replace('@@PIXEL_FONT@@','data:font/ttf;base64,'+base64.b64encode((roo
 font_license=(root/'public/assets/fonts/silkscreen/OFL.txt').read_text(encoding='utf-8')
 text=text.replace('</head>','<script type="text/plain" id="pixel-font-license">'+font_license+'</script>\n</head>')
 
+text=text.replace('@@MOBILE@@',(root/'dev/engine/illustrated-touch.js').read_text(encoding='utf-8'))
+text=text.replace('</style>',(root/'dev/engine/illustrated-mobile.css').read_text(encoding='utf-8')+'\n</style>',1)
+
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
 if '--serve-copy' in sys.argv:

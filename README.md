@@ -1,4 +1,18 @@
-# Agent Pixels
+# Nebula Illustrated World
+
+The illustrated campus is now the official Nebula world. The original plugin and procedural prototypes remain in this repository for reference.
+
+**Open:** https://akimb0-pc-1.sphinx-scylla.ts.net:8443/ (connect your phone/computer to Tailscale).
+
+**Update:** `npm run world:deploy` builds and promotes a versioned release to `C:/NebulaWorld`. The running host picks it up without restarting. **Undo a release:** `npm run world:rollback`.
+
+Phone controls: hold/drag the direction pad to walk (diagonals supported), **A / USE** interacts with seats/elevators, **ME** follows your character. Drag the world to look around; pinch or use ± to zoom. Both portrait and landscape are supported.
+
+See [the deployment guide](ops/ILLUSTRATED_WORLD.md) for installation, moving to a Linux server, live feeds, and preserving editor saves.
+
+---
+
+# Original Agent Pixels plugin
 
 ![Agent Pixels logo banner](public/assets/brand/agent-pixels-logo-banner.jpg)
 

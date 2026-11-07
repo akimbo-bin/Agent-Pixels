@@ -13,7 +13,13 @@
     "build": "node build.mjs",
     "clean": "rm -rf dist",
     "package:release": "node scripts/package-release.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "world:build": "python scripts/build-illustrated-editor.py --serve-copy",
+    "world:release": "node scripts/deploy-illustrated-world.mjs",
+    "world:deploy": "node scripts/deploy-illustrated-world.mjs --root C:/NebulaWorld",
+    "world:serve": "node scripts/nebula-world-server.mjs",
+    "world:check-mobile": "node scripts/check-mobile-world.cjs",
+    "world:rollback": "node scripts/rollback-illustrated-world.mjs --root C:/NebulaWorld"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

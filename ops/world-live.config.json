@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "id": "nebula.training",
+      "title": "Nebula training queue",
+      "kind": "module",
+      "module": "./live/adapters/nebula-training.mjs",
+      "options": {
+        "base": "C:/NebulaResearch/train",
+        "queue": "neb318"
+      }
+    },
+    {
+      "id": "host.gpu",
+      "title": "GPU",
+      "kind": "module",
+      "module": "./live/adapters/host-gpu.mjs"
+    },
+    {
+      "id": "paperclip",
+      "title": "Paperclip organisation",
+      "kind": "module",
+      "module": "./live/adapters/paperclip-org.mjs",
+      "options": {
+        "host": "192.168.8.105",
+        "user": "root",
+        "key": "~/.ssh/agentpixels_status"
+      }
+    }
+  ]
+}
