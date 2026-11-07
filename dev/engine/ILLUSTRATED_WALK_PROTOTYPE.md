@@ -852,3 +852,10 @@ Validation: `node scripts/check-smooth-camera.cjs` checks intermediate and settl
 ### Running uses Working animations — 2026-11-07
 
 Fixed character presence dropping a running heartbeat to Idle when no issue was linked. Running/Working heartbeats now contribute to the shared room Working state; direct room feeds also normalize running to working. Existing training job telemetry remains an independent source of room activity. Regression checks cover running agents without tickets and running Training jobs with idle agents, including lighting, machine hardware, screens and room labels. Paused/error precedence, previews and saved map data are unchanged.
+
+
+### Paused roaming and shared NPC elevator — 2026-11-07
+
+Paused is a live work status, not a movement lock. Paused agents now wander/read like idle agents without altering their source status. Non-working agents occasionally take path-checked trips to other floors, wait for the actual shared elevator, board through its animated doors, hide during shaft travel, exit at the destination and walk to a visit spot. Working agents return to their assigned office before docking. Player elevator interaction has priority; NPC calls do not open player controls. Door occlusion, sprite scale, name tags and actor collision use the current physical floor. World and per-agent roaming toggles remain available; saved home positions and room work-state aggregation are unchanged.
+
+Validation: `check-agent-elevator.cjs` covers Paused walking frames/labels, navigable routes, floor changes only at cabin arrival, a cross-floor Working return, queued trips across all three levels, closed doors during transit, player priority and preserved 599 overrides / 18 masks / 4 seats / 42 screens. Shared room states, compact tags and smooth camera regressions also pass.
