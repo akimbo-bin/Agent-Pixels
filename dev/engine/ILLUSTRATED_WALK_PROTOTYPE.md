@@ -735,3 +735,22 @@ Verified the 42-screen regression and actual fit/180% map screenshots. Added
 a native 44-by-21-pixel Queue check requiring strong title and count strokes,
 including seven retained rows of count glyphs after downsampling. Saved
 outlines/599 walking overrides and Idle/Working animations remain intact.
+
+## Fix screen blur at maximum zoom (2026-11-07)
+
+The previous readability pass changed artwork but missed the actual blur:
+source art was projected into fixed 2× world textures, then enlarged at up to
+5× zoom. A real draw-call regression failed at density 2 when density 10 was
+required. Source artwork, perspective projection and foreground masks now
+share zoom-dependent density. The short-screen fallback (notably Music) also
+honors source density. Off-camera screens are culled to bound CPU/memory cost.
+
+Removed the oversized bitmap glance/scoreboard style and restored consistent
+instrument layouts. Queue now uses clean type, restrained separators and a
+small breathing freshness indicator. Glass tint is reduced. This supersedes
+the preceding zoomed-out readability entry's style and cache-level approach.
+
+check-screen-resolution.cjs reproduces the old bug and now passes at actual
+5× draw density 10. The 42-screen/live-data regression passes, preserving saved
+outlines and 599 overrides. The maximum-zoom Training screenshot was visually
+inspected for crisp text and diagram strokes.

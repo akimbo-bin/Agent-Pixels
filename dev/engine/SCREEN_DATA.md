@@ -2,11 +2,12 @@
 
 ## Room programs and connected readings
 
-Screens narrower than 110 CSS pixels use a high-contrast glance layout with
-large bitmap readings and bold diagrams. Zooming in restores the detailed
-program; this level is included in the surface cache key. Tiny monitors omit
-microtext. Queue uses dedicated READY / ACTIVE / REVIEW scoreboards at every
-zoom, retaining real counts or a dash with an amber unavailable marker.
+Screen textures and their source artwork are rendered at the current zoom
+pixel density instead of enlarging a fixed 2× texture. Perspective sampling
+and foreground masks use that same density, including short-screen layouts.
+Off-camera surfaces are culled. Layouts stay consistent while zooming; the
+oversized bitmap glance layouts were removed. Queue uses clean READY / ACTIVE /
+REVIEW headings and counts with a small freshness indicator.
 
 All 42 owner-authored screen outlines are included in the approved map. Their
 geometry, masks, 599 walking overrides, seats and character settings are kept
