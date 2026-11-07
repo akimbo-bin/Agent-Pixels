@@ -716,3 +716,22 @@ Expanded browser verification to paint a contact sheet and test narrow/short
 screens. All original 42 outlines and 599 overrides retained; Idle/Working
 animation, live/stale readings and audio/board contracts pass. Representative
 actual-room screenshots and the full profile contact sheet visually inspected.
+
+## Zoomed-out screen readability (2026-11-07)
+
+Added a glance/detail level based on each screen's actual CSS width. Below
+110 pixels, screens show high-contrast instrument graphics and large bitmap
+labels/readings instead of shrunken desktop layouts. Zooming back in restores
+the detailed program. Surface cache keys include the detail level so zoom
+changes immediately repaint the screens. Tiny monitors use bold diagrams
+without unreadable header text.
+
+Ticket Queue always uses a dedicated compact scoreboard: READY, ACTIVE,
+REVIEW and large real counts, with a dash and amber missing-feed marker for
+unconnected totals. Removed microtext, list cards and glass shading from this
+view. Existing live metrics, room state and saved geometry are unchanged.
+
+Verified the 42-screen regression and actual fit/180% map screenshots. Added
+a native 44-by-21-pixel Queue check requiring strong title and count strokes,
+including seven retained rows of count glyphs after downsampling. Saved
+outlines/599 walking overrides and Idle/Working animations remain intact.
