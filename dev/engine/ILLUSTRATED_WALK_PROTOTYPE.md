@@ -840,3 +840,10 @@ stable room IDs and retain custom names, Statistical status and plaque opacity.
 Inspected a 12-emblem contact sheet; checked all icons are distinct and present
 in the directory, no page errors or map mutations. Existing office name
 editing/save/import regression passed.
+
+
+### Smooth camera — 2026-11-07
+
+Camera zoom, right/Space dragging, room navigation, editor selection, reset, character following and elevator following share an exponential easing destination. Wheel input accumulates against the intended zoom and keeps the world point under the pointer fixed through the transition. Fit also eases; initial URL framing starts settled. Rendering and hit testing continue to use the same actual camera position. Saved map content is unchanged.
+
+Validation: `node scripts/check-smooth-camera.cjs` checks intermediate and settled positions, pointer anchoring, real drag input, 30/120 Hz equivalence and preserved 599 cells / 18 masks / 4 seats / 42 screens. Screen-resolution and office-label regressions pass.
