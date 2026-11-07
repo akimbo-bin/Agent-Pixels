@@ -647,3 +647,15 @@ brightness quantization, existing lamp footprints and colored Idle standby.
 Extended check-effects-preview.cjs to measure simultaneous active lights and
 cycling for all three rooms. Samples exceed 40% active lamps and verify
 visible rendered animation, state controls, motion resume, steam and map edits.
+
+## Music Studio Eurorack activity (2026-11-07)
+
+Added four authored hardware light panels over both vertical Eurorack module
+banks and their angled controls. Teal/pink sequencer LEDs share room Working
+state, smooth quantized row chases and staggered bursts. Idle removes the
+additional overlays exactly. Music panels participate in middle-floor
+foreground masks; room preview and direct Music start URL are supported.
+
+check-music-lights.cjs verifies four panels, visible animated pixels, exact
+Idle restoration, no page errors and unchanged 599 grid overrides. Working
+screenshot inspected for module placement.
