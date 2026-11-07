@@ -659,3 +659,13 @@ foreground masks; room preview and direct Music start URL are supported.
 check-music-lights.cjs verifies four panels, visible animated pixels, exact
 Idle restoration, no page errors and unchanged 599 grid overrides. Working
 screenshot inspected for module placement.
+
+## Eurorack LED alignment refinement (2026-11-07)
+
+Recalibrated all four Music hardware panels against a magnified coordinate
+overlay of the actual artwork. Moved lights off cables and blank areas onto
+painted knobs, module indicators and angled console controls. Music LEDs now
+use centered five-source-pixel round falloffs instead of the wider fitted
+rectangular lamp-bank masks. Shared Working timing and Idle restoration remain.
+Verified animated rendered pixels and exact Idle restoration with
+check-music-lights.cjs; screenshot inspected and saved grid unchanged.

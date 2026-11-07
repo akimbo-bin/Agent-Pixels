@@ -4,10 +4,10 @@ const HardwareActivity=(()=>{
 
  // Authored LED positions follow the individual synth modules and angled panels.
  for(const [id,box,points]of [
-  ['music-left-rack',[1002,540,48,44],[[14,7],[20,12],[26,7],[35,10],[39,16],[12,28],[22,29],[31,26],[38,32]]],
-  ['music-right-rack',[1200,540,48,44],[[12,6],[18,13],[27,9],[37,12],[11,28],[20,25],[29,31],[38,29]]],
-  ['music-left-console',[1006,586,56,21],[[9,6],[17,5],[26,9],[34,12],[41,10],[46,13]]],
-  ['music-right-console',[1196,585,51,22],[[10,8],[17,10],[25,11],[31,13],[39,15],[44,13]]]
+  ['music-left-rack',[1002,540,48,44],[[15.5,6.5],[15,12.5],[26,4.5],[32,10],[37,5],[29,13],[6,29],[28,28],[29,34],[37,30]]],
+  ['music-right-rack',[1200,540,48,44],[[8,5],[7,11],[24,7],[27,10],[40,7],[40,13],[20,28],[31,30],[30,34]]],
+  ['music-left-console',[1006,586,56,21],[[9,3],[23,2],[15,11],[25,10],[31,9],[37,8],[43,7]]],
+  ['music-right-console',[1196,585,51,22],[[31,4],[36,5],[41,5],[20,11],[30,13]]]
  ])devices.push({id,room:'music',box,lights:points.map(([x,y])=>({x:x*2+.5,y:y*2+.5,pixels:[[x*2,y*2],[x*2+1,y*2],[x*2,y*2+1],[x*2+1,y*2+1]]}))});
  let time=0,prepared=false;
  const phase=id=>[...id].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
@@ -22,6 +22,8 @@ const HardwareActivity=(()=>{
   const groups=[];for(const light of d.lights){const near=groups.find(g=>Math.hypot(g.x-light.x,g.y-light.y)<3);if(near){near.pixels.push(...light.pixels);near.x=near.pixels.reduce((n,p)=>n+p[0],0)/near.pixels.length;near.y=near.pixels.reduce((n,p)=>n+p[1],0)/near.pixels.length;}else groups.push({x:light.x,y:light.y,pixels:[...light.pixels]});}d.lights=groups.filter(l=>l.pixels.length>=3).sort((a,b)=>a.y-b.y||a.x-b.x);
   const[x,y,w,h]=d.box,c=document.createElement('canvas');c.width=w*2;c.height=h*2;const g=c.getContext('2d');g.drawImage(art,x*2,y*2,w*2,h*2,0,0,w*2,h*2);d.original=g.getImageData(0,0,c.width,c.height);
   for(const l of d.lights){const xs=l.pixels.map(p=>p[0]),ys=l.pixels.map(p=>p[1]);l.px=Math.max(0,Math.floor(Math.min(...xs)/2)*2-2);l.py=Math.max(0,Math.floor(Math.min(...ys)/2)*2-2);l.w=Math.min(c.width-l.px,Math.ceil((Math.max(...xs)+3-l.px)/2)*2);l.h=Math.min(c.height-l.py,Math.ceil((Math.max(...ys)+3-l.py)/2)*2);l.mask=[];for(let yy=0;yy<l.h;yy++)for(let xx=0;xx<l.w;xx++){const nx=Math.abs((xx+.5-l.w/2)/(l.w/2)),ny=Math.abs((yy+.5-l.h/2)/(l.h/2)),edge=Math.max(0,Math.min(1,(1-Math.max(nx,ny))/.65)),soft=edge*edge*(3-2*edge);l.mask.push(Math.round(soft*4)/4);}}
+  // Tiny module LEDs need a centered round footprint, rather than a fitted bank.
+  if(d.room==='music')for(const l of d.lights){l.px=Math.floor(l.x)-2;l.py=Math.floor(l.y)-2;l.w=5;l.h=5;l.mask=[];for(let yy=0;yy<5;yy++)for(let xx=0;xx<5;xx++){const distance=Math.hypot(l.px+xx+.5-l.x,l.py+yy+.5-l.y);l.mask.push(Math.round(Math.max(0,1-distance/2.3)*4)/4);}}
   d.frame=document.createElement('canvas');d.frame.width=c.width;d.frame.height=c.height;d.key='';d.masked=new Map();
  }prepared=true;}
  function surface(d){const current=state(d.room),moving=current==='working'&&Portal.info().enabled,values=levels(d),key=current+':'+(moving?Math.floor(time*10):'still');if(d.key!==key){d.key=key;d.masked.clear();const g=d.frame.getContext('2d'),out=g.createImageData(d.frame.width,d.frame.height),coverage=new Float32Array(d.frame.width*d.frame.height);for(const[i,l]of d.lights.entries()){const color=lampColor(d,i,values[i]);for(let yy=0;yy<l.h;yy++)for(let xx=0;xx<l.w;xx++){const weight=l.mask[yy*l.w+xx]*.75;if(!weight)continue;const index=((l.py+yy)*d.frame.width+l.px+xx)*4;if(weight<=coverage[index/4])continue;coverage[index/4]=weight;for(let k=0;k<3;k++)out.data[index+k]=Math.round(d.original.data[index+k]*(1-weight)+color[k]*weight);out.data[index+3]=255;}}g.putImageData(out,0,0);}return d.frame;}
