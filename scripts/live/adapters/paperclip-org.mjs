@@ -1,12 +1,14 @@
 // Live adapter: the Paperclip organisation snapshot (ops/agentpixels-status), read over a
 // dedicated SSH key whose only permitted command prints that file.
 // options: { host: "192.168.8.105", user: "root", key: "~/.ssh/agentpixels_status", staleAfterMs: 180000 }
+import { readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { homedir } from 'node:os';
 
 const JOB_STATE = { running: 'running', done: 'done', completed: 'done', failed: 'failed', error: 'failed', paused: 'paused', idle: 'idle', queued: 'waiting', waiting: 'waiting' };
 
-function snapshot({ host = '192.168.8.105', user = 'root', key = '~/.ssh/agentpixels_status' }) {
+function snapshot({ file, host = '192.168.8.105', user = 'root', key = '~/.ssh/agentpixels_status' }) {
+  if(file)return readFile(file,'utf8').then(JSON.parse);
   return new Promise((res, rej) => execFile('ssh', ['-i', key.replace(/^~/, homedir()), '-o', 'IdentitiesOnly=yes', '-o', 'BatchMode=yes',
     '-o', 'ConnectTimeout=5', `${user}@${host}`], { timeout: 15000, maxBuffer: 4 << 20 }, (err, out) => {
     if (err) return rej(new Error(`snapshot unavailable (${err.code ?? err.signal ?? 'ssh'})`));

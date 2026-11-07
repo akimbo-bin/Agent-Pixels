@@ -2,9 +2,9 @@
 
 The illustrated campus is now the official Nebula world. The original plugin and procedural prototypes remain in this repository for reference.
 
-**Open:** https://akimb0-pc-1.sphinx-scylla.ts.net:8443/ (connect your phone/computer to Tailscale).
+**Open:** https://rehoboam-proxmox.sphinx-scylla.ts.net:8444/ (connect your phone/computer to Tailscale).
 
-**Update:** `npm run world:deploy` builds and promotes a versioned release to `C:/NebulaWorld`. The running host picks it up without restarting. **Undo a release:** `npm run world:rollback`.
+**Update:** `npm run world:deploy` builds and promotes a versioned release to CT125. The running host picks it up without restarting. **Undo a release:** `npm run world:rollback`.
 
 Phone controls: hold/drag the direction pad to walk (diagonals supported), **A / USE** interacts with seats/elevators, **ME** follows your character. Drag the world to look around; pinch or use ± to zoom. Both portrait and landscape are supported.
 

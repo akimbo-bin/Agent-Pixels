@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';import {mkdir,writeFile} from 'node:fs/promises';import path from 'node:path';import {read} from './live/adapters/workstation-file.mjs';
+const dir=path.resolve('artifacts/workstation-feed-check');await mkdir(dir,{recursive:true});const file=path.join(dir,'feed.json'),task={state:'running',updatedAt:Date.now(),progress:{done:60,total:92}};
+await writeFile(file,JSON.stringify({publishedAt:Date.now(),tasks:{'nebula.training':task}}));assert.deepEqual(await read({file,id:'nebula.training'}),task);
+await writeFile(file,JSON.stringify({publishedAt:Date.now()-181000,tasks:{'nebula.training':task}}));const stale=await read({file,id:'nebula.training'});assert.equal(stale.state,'unknown');assert.equal(stale.updatedAt,task.updatedAt);assert.equal(stale.progress,undefined);console.log('PASS fresh workstation task and offline expiry without inventing fresh readings');

@@ -868,3 +868,8 @@ The illustrated campus is the official entry point at `https://akimb0-pc-1.sphin
 Phone HUD has safe-area/dynamic-height handling, portrait/landscape layouts, a pixel direction pad with diagonals, USE for elevators/chairs, ME for following, single-finger pan and two-finger pinch (including when the second finger lands on a name tag). Editor controls use a bottom sheet and a separate Move camera toggle to avoid painting while navigating. Source save geometry is preserved. Browser saves remain origin/device specific; exports transfer them to the official URL.
 
 Checks: actual emulated touch input, press/release, pinch, pan, Fit, follow, elevator call, menus, editor, portrait/landscape; official server release identity, gzip, ETag, HEAD, legacy redirect, excluded host config/development APIs, 14 live agents and actual Training state. Existing smooth-camera, Paused roaming/elevator and shared room-state checks pass.
+
+
+### Official host moved to CT125 — 2026-11-07
+
+Owner selected Paperclip CT125. Official URL: https://rehoboam-proxmox.sphinx-scylla.ts.net:8444/. The actual map runs in a Node systemd service on CT125 and reads Paperclip status locally. Proxmox forwards its existing Tailscale connection through a loopback socket proxy, preserving port 8443. Workstation Training/GPU observations are published once per minute and become stale after three minutes offline. `npm run world:deploy` and `world:rollback` now target CT125. Local hosting is retained as `world:deploy-local`. Tailscale hosting and phone checks pass with 14 live agents and real Training telemetry.
