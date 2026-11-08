@@ -139,12 +139,12 @@ function layer(m){if(cache.has(m.id))return cache.get(m.id);const b=bounds(m);if
  const tint=document.createElement('canvas');tint.width=matte.width;tint.height=matte.height;const z=tint.getContext('2d');z.drawImage(matte,0,0);z.globalCompositeOperation='source-in';z.fillStyle='#f36bd9';z.fillRect(0,0,tint.width,tint.height);const value={...b,texture,tint};cache.set(m.id,value);return value;}
 // One eased camera for navigation, editing and character following.
 const Camera=(()=>{
- const target={x:view.x,y:view.y,zoom:view.zoom};let anchor=null,previous={...view};
- const mobile=()=>matchMedia('(max-width:700px), (pointer:coarse) and (max-height:600px)').matches;
+ const target={x:view.x,y:view.y,zoom:view.zoom};let anchor=null,previous={...view},layoutWidth=0,layoutHeight=0;
+ function layout(){const stage=$('#stage'),w=stage.clientWidth,h=stage.clientHeight;if(!w||!h||w===layoutWidth&&h===layoutHeight)return;layoutWidth=w;layoutHeight=h;const k=Math.max(w/W,h/H);canvas.style.width=(W*k)+'px';canvas.style.height=(H*k)+'px';canvas.style.maxWidth='none';canvas.style.maxHeight='none';canvas.style.flexShrink='0';anchor=null;}
  // The phone crops the canvas, so bounds must use the visible viewport, not its full backing size.
- function visible(){const b=canvas.getBoundingClientRect(),s=$('#stage');return{x:Math.min(1,s.clientWidth/Math.max(1,b.width)),y:Math.min(1,s.clientHeight/Math.max(1,b.height))};}
- const clamp=(v,size,z,axis)=>{const half=size*visible()[axis]/(2*z);if(mode!=='walk')return Math.max(-half,Math.min(size+half,v));return half>=size/2?size/2:Math.max(half,Math.min(size-half,v));};
- const fitZoom=()=>mobile()?visible().y:1;
+ function visible(){layout();const b=canvas.getBoundingClientRect(),s=$('#stage');return{x:Math.min(1,s.clientWidth/Math.max(1,b.width)),y:Math.min(1,s.clientHeight/Math.max(1,b.height))};}
+ const clamp=(v,size,z,axis)=>{const half=size*visible()[axis]/(2*z);return half>=size/2?size/2:Math.max(half,Math.min(size-half,v));};
+ const fitZoom=()=>{const v=visible();return Math.max(v.x,v.y);};
  function move(x,y){target.x=x;target.y=y;anchor=null;}
  function zoom(z,p){target.zoom=Math.max(fitZoom(),Math.min(5,z));anchor=null;if(p){const b=canvas.getBoundingClientRect(),sx=(p.clientX-b.left)/b.width*W-W/2,sy=(p.clientY-b.top)/b.height*H-H/2;anchor={sx,sy,x:view.x+sx/view.zoom,y:view.y+sy/view.zoom};view.follow=false;}}
  function tick(dt){
@@ -159,10 +159,11 @@ const Camera=(()=>{
  }
  function settle(){tick(10);previous={...view};}
  function bounds(){const v=visible(),rx=W*v.x/(2*view.zoom),ry=H*v.y/(2*view.zoom);return{left:view.x-rx,right:view.x+rx,top:view.y-ry,bottom:view.y+ry};}
- return{move,zoom,tick,settle,fitZoom,bounds,get target(){return{...target};}};
+ return{layout,move,zoom,tick,settle,fitZoom,bounds,get target(){return{...target};}};
 })();
 function drawGrid(){const f=floors[player.floor];ctx.lineWidth=.6;for(let y=Math.floor(f.min/8)*8;y<f.max;y+=8)for(let x=0;x<W;x+=12){const k=`${player.floor}:${x/12}:${y/8}`;if(edits[k]===undefined&&!f.areas.some(p=>inside(x+6,y+4,p))&&Lift.pointOverride(player.floor,x+6,y+4)===undefined)continue;const open=point(player.floor,x+6,y+4);ctx.fillStyle=open?'#5de6b72c':'#ff4e7870';ctx.strokeStyle=open?'#9cf6cf66':'#ff90a080';ctx.fillRect(x,y,12,8);ctx.strokeRect(x,y,12,8);}ctx.strokeStyle='#d8b7f7b0';ctx.setLineDash([3,4]);for(const p of f.areas){path(ctx,p);ctx.stroke();}ctx.setLineDash([]);}
 function actor(){if(Seating.drawActor())return;Characters.drawPlayer();}
+Camera.layout();new ResizeObserver(()=>{Camera.layout();Camera.tick(0);}).observe($('#stage'));
 function render(){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W*P,H*P);ctx.setTransform(P*view.zoom,0,0,P*view.zoom,P*(W/2-view.x*view.zoom),P*(H/2-view.y*view.zoom));ctx.imageSmoothingEnabled=false;ctx.drawImage(art,0,0,W,H);AmbientDetails.drawSky();StarTwinkle.draw();Portal.draw();RoomLighting.draw();HardwareActivity.draw();AmbientDetails.drawWorld();Turbines.draw();Screens.draw();Paperwork.draw();Lift.drawCabins();if(grid)drawGrid();Lift.drawDoors('back');Characters.drawWorld();Lift.drawDoors('front');Seating.markers();Screens.markers();Characters.markers();Paperwork.markers();WorldHUD.draw();
  SmartMasks.draw();if(mode==='mask'){const m=chosen(),l=m&&layer(m);if(m?.footprint){ctx.save();path(ctx,m.footprint);ctx.fillStyle='#ff636c66';ctx.fill();ctx.strokeStyle='#ff9a9f';ctx.lineWidth=1/view.zoom;ctx.stroke();ctx.restore();}if(l){ctx.globalAlpha=.4;ctx.drawImage(l.tint,l.x,l.y,l.w,l.h);ctx.globalAlpha=1;ctx.setLineDash([4,3]);ctx.strokeStyle='#ffe29e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(l.x-10,m.depth);ctx.lineTo(l.x+l.w+10,m.depth);ctx.stroke();ctx.setLineDash([]);}if(polygon.length){ctx.strokeStyle='#ffb5ed';ctx.fillStyle='#f093d5';ctx.lineWidth=1/view.zoom;ctx.beginPath();polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));if(cursor)ctx.lineTo(...cursor);ctx.stroke();for(const[x,y]of polygon){ctx.beginPath();ctx.arc(x,y,2.5/view.zoom,0,Math.PI*2);ctx.fill();}}if(cursor&&(tool==='brush'||tool==='erase')&&!pickDepth){ctx.strokeStyle=tool==='erase'?'#ffad8d':'#ffb7f2';ctx.lineWidth=1/view.zoom;ctx.beginPath();ctx.arc(...cursor,Number($('#brush-size').value)/2,0,Math.PI*2);ctx.stroke();}}
  ctx.setTransform(1,0,0,1,0,0);}
