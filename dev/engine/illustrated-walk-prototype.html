@@ -10924,7 +10924,8 @@ const Camera=(()=>{
  function zoom(z,p){target.zoom=Math.max(fitZoom(),Math.min(5,z));anchor=null;if(p){const b=canvas.getBoundingClientRect(),sx=(p.clientX-b.left)/b.width*W-W/2,sy=(p.clientY-b.top)/b.height*H-H/2;anchor={sx,sy,x:view.x+sx/view.zoom,y:view.y+sy/view.zoom};view.follow=false;}}
  function tick(dt){
   for(const k of ['x','y','zoom'])if(view[k]!==previous[k])target[k]=view[k];
-  if(view.follow&&mode==='walk'&&!anchor){const pose=Seating.visual(),car=Lift.cameraPoint()||(pose?[pose.x,pose.y]:null);target.x=car?car[0]:player.x;target.y=car?car[1]:player.y;}
+  // Frame the room above the actor; cap the offset so the actor stays visible at tight zooms.
+  if(view.follow&&mode==='walk'&&!anchor){const pose=Seating.visual(),car=Lift.cameraPoint()||(pose?[pose.x,pose.y]:null),lookUp=Math.min(85,H*visible().y/Math.max(fitZoom(),target.zoom)/3);target.x=car?car[0]:player.x;target.y=(car?car[1]:player.y)-lookUp;}
   target.zoom=Math.max(fitZoom(),target.zoom);
   const ease=1-Math.exp(-12*dt),z=view.zoom+(target.zoom-view.zoom)*ease;view.zoom=Math.abs(z-target.zoom)<.0001?target.zoom:z;
   if(anchor){view.x=anchor.x-anchor.sx/view.zoom;view.y=anchor.y-anchor.sy/view.zoom;target.x=anchor.x-anchor.sx/target.zoom;target.y=anchor.y-anchor.sy/target.zoom;}
