@@ -111,3 +111,8 @@ host. Existing map geometry, masks, seats, screens and character customization
 remain browser-save/export data and are not overwritten by deployment.
 
 Deployment preflight requires at least 512 MiB free on CT125 before writing a release. On 7 November the container root disk was expanded online from 100 GiB to 110 GiB using available local-lvm capacity after only 11 MiB free remained. Existing data and services were preserved.
+
+
+Furniture masks now include **Auto object**: drag a tight rectangle with background margins, adjust background removal, review the pink preview, then Apply. This local color-based selector makes no uploads and may need Brush/Erase cleanup. Click an existing silhouette to select its mask. Optional base footprints block movement independently from visual silhouettes; Pick line moves the footprint with its depth. Preview selections must be applied or cancelled before saving/exporting.
+
+The ground terrace includes twelve additive prop layers and narrow lamp/planter footprints. Older saves import these once (`terracePropsVersion: 1`) without replacing existing grid cells, sprites, seats or mask shapes. Deletions and refinements persist on subsequent saves.
