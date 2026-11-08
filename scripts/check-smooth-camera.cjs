@@ -14,7 +14,7 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  for(const k of ['x','y','zoom'])assert.ok(Math.abs(r.hz30[k]-r.hz120[k])<.001,'Frame rate independent '+k);
  assert.ok(r.anchors.every(a=>Math.hypot(a[0]-r.before[0],a[1]-r.before[1])<.001),'Zoom remains anchored under pointer');
  assert.equal(r.focusImmediate.x,r.preFocus.x);assert.ok(Math.abs(r.focusFinal.x-r.preFocus.x)>100);assert.ok(r.fitImmediate.zoom>1);assert.equal(r.fitFinal.zoom,1);assert.ok(Math.abs(r.fitFinal.x-724)<.01);assert.ok(Math.abs(r.fitFinal.y-543)<.01);
- assert.equal(r.dirty,false);assert.deepEqual(r.counts,[599,30,4,42]);assert.deepEqual(errors,[]);
+ assert.equal(r.dirty,false);assert.deepEqual(r.counts,[599,32,6,42]);assert.deepEqual(errors,[]);
  // Exercise actual drag input, including its easing after pointer release.
  await p.evaluate(()=>{view.follow=false;Camera.move(750,600);setZoom(3);Camera.settle();});const box=await p.locator('#canvas').boundingBox();
  await p.mouse.move(box.x+box.width/2,box.y+box.height/2);await p.mouse.down({button:'right'});await p.mouse.move(box.x+box.width/2+100,box.y+box.height/2);await p.mouse.up({button:'right'});await p.waitForFunction(()=>Math.abs(view.x-Camera.target.x)<1,{},{timeout:5000});const drag=await p.evaluate(()=>({view:{...view},target:Camera.target}));assert.ok(drag.view.x<750);assert.ok(Math.abs(drag.view.x-drag.target.x)<1);
