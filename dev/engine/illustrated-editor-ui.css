@@ -26,3 +26,20 @@ button,input,select,textarea{font-family:var(--ui-font)}button{transition:backgr
 #handoff-panel .editor-group>button{margin-top:10px;width:100%}#handoff-status{padding:10px;background:#24334a;border-left:2px solid #b89bce;color:#e4d4ee}#handoff-preview{border-color:#c9aa78!important;color:#f1d6a1}#handoff-detail{left:14px;top:14px;width:320px}#handoff-detail p{overflow-wrap:anywhere}#handoff-panel .row input{flex:1;width:0;min-width:55px}#handoff-panel>p{line-height:1.6}
 
 .handoff-report{padding:12px 0;border-top:1px solid #c0a4db33}.handoff-report strong{display:block;color:#e1c795;font-size:12px}.handoff-report p{margin:7px 0}.handoff-report small{display:block;color:#b9b0ce;line-height:1.5}.handoff-report a{display:inline-block;margin-top:9px;color:#9adddf}#handoff-detail{max-width:calc(100% - 28px);max-height:calc(100% - 28px);overflow-y:auto}#handoff-recipient,#handoff-kind{width:100%}
+
+/* Keep the selected object in the exposed canvas, with a compact, collapsible inspector. */
+#editor-panel-toggle,#editor-recenter,#editor-gesture-hint{display:none}
+@media(max-width:700px),(pointer:coarse) and (max-height:600px){
+ #panel{height:49%;max-height:calc(100% - 8px)}#editor-panel-head{min-height:57px;padding:8px 10px;gap:6px}#editor-panel-head>div{flex:1;min-width:0}#editor-panel-head small{display:none}#editor-panel-head h2{font-size:16px;margin:0}#editor-panel-toggle{display:block;min-height:42px;max-width:96px;padding:6px 8px;font-size:11px;background:#252e48;border-color:#8d789f;color:#ead4ad}#editor-panel-head #mobile-editor-close{min-width:48px;padding:6px 9px}
+ .editor-controls-collapsed #panel{height:64px;max-height:64px;top:auto}.editor-controls-collapsed #editor-panel-content,.editor-controls-collapsed #editor-panel-footer{display:none}
+ .editing .camera-dock{top:10px;bottom:auto;left:8px;z-index:8;display:flex}.editing .camera-dock button{min-width:42px;min-height:42px;font-size:22px}.editing #editor-recenter{display:block}.editing .hud-utilities{display:none}.editing #toast{top:10px;left:58px;right:8px;max-width:none}
+ #editor-gesture-hint{display:block;position:absolute;top:8px;left:62px;right:12px;pointer-events:none;text-align:right;font-size:10px;line-height:1.4;color:#e3d5ec;text-shadow:0 1px 3px #000;background:#12162b99;padding:6px 8px;border-radius:3px;z-index:4}#editor-gesture-hint[hidden]{display:none}
+ body.keyboard-open #panel{height:calc(100% - 8px);max-height:none}body.keyboard-open #editor-panel-content{display:block}body.keyboard-open #editor-panel-toggle,body.keyboard-open #editor-gesture-hint,body.keyboard-open .camera-dock{display:none}
+}
+@media(pointer:coarse) and (max-height:600px){#panel{height:auto;width:310px!important;max-height:calc(100% - 10px)}.editor-controls-collapsed #panel{left:auto;right:5px;width:310px!important}#editor-gesture-hint{right:330px;font-size:9px}}
+
+@media(pointer:coarse) and (max-height:600px){.editing #toast{right:330px}}
+
+#seat-panel [data-seat-nudge]{flex:1;min-height:44px;font-size:18px;padding:6px}#seat-panel .editor-group>.row:has([data-seat-nudge]){margin-top:8px}
+
+button{touch-action:manipulation}

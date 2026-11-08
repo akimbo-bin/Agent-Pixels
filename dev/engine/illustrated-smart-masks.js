@@ -19,5 +19,5 @@ const SmartMasks=(()=>{
  function sync(){if($('#auto-apply'))$('#auto-apply').disabled=!preview;}
  function draw(){if(mode!=='mask'||tool!=='auto')return;if(preview){ctx.drawImage(preview.tint,preview.x,preview.y,preview.w,preview.h);}if(start&&end){ctx.save();ctx.strokeStyle='#80f0df';ctx.lineWidth=1/view.zoom;ctx.setLineDash([4/view.zoom,3/view.zoom]);ctx.strokeRect(start[0],start[1],end[0]-start[0],end[1]-start[1]);ctx.restore();}}
  function init(){$('#auto-apply').onclick=apply;$('#auto-cancel').onclick=cancel;$('#auto-tolerance').oninput=()=>{if(start&&end)finish();};$('#mask-block-base').onchange=e=>{const m=chosen();if(!m)return;remember();if(e.target.checked)m.footprint=footprint(m);else delete m.footprint;dirtyNow();};}
- return{init,pointer,drag,finish,apply,cancel,draw,segment,selectAt,footprint,pending:()=>!!preview};
+ return{touchState:()=>({start,end,preview}),restoreTouch:s=>{start=s.start;end=s.end;preview=s.preview;sync();},init,pointer,drag,finish,apply,cancel,draw,segment,selectAt,footprint,pending:()=>!!preview};
 })();
