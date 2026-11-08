@@ -1,0 +1,17 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({structuredClone,Date,screens:[],RoomStates:{setRoomState(){}}});vm.runInContext(fs.readFileSync('dev/engine/illustrated-screen-programs.js','utf8')+';globalThis.programs=ScreenPrograms',ctx);
+const now=Date.now(),stamp=new Date(now).toISOString();
+const feed={tasks:{
+ 'nebula.training':{id:'nebula.training',state:'running',updatedAt:now,progress:{done:103,total:95},activity:{job:'oa_held',kind:'oracle',label:'Fitting'}},
+ 'paperclip.job.NEB-318':{id:'paperclip.job.NEB-318',state:'running',updatedAt:now},
+ 'paperclip.machine.pc':{id:'paperclip.machine.pc',title:'PC',state:'failed',detail:'Process check unavailable',updatedAt:now}
+},org:{paperclip:{company:{name:'Nebula'},exportedAt:stamp,agents:[{id:'a',name:'Data',status:'running',issue:null}],liveRuns:[{id:'one',agentId:'a',status:'running'},{id:'two',agentId:'a',status:'running'},{id:'three',agentId:'a',status:'queued'}],workboard:{complete:true,updatedAt:stamp,counts:{in_review:1,blocked:1},issues:[{key:'NEB-1',title:'Review me',status:'in_review'},{key:'NEB-2',title:'Blocked work',status:'blocked'}]}}}};
+ctx.programs.ingest(feed);
+assert.equal(ctx.programs.model('training').fraction,null,'Impossible queue progress is unavailable, not 108%');
+let work=ctx.programs.model('work');assert.equal(work.runCount,2);assert.equal(work.jobCount,1,'Direct training and its Paperclip job are one external job');assert.equal(work.value,'3');
+assert.match(ctx.programs.model('health').note,/check|probe/i);assert.equal(ctx.programs.model('health').value,'0 / 1');assert.equal(ctx.programs.model('blockers').value,'1','Service check failure is not a blocked ticket');assert.equal(ctx.programs.model('reviews').value,'1');
+feed.tasks['nebula.training'].progress={done:89,total:95};feed.tasks['nebula.training'].activity.progress={done:7,total:74,unit:'fit units',updatedAt:now,source:'oracle events'};ctx.programs.ingest(feed);
+let t=ctx.programs.model('training');assert.equal(t.primaryLabel,'CURRENT FIT');assert.equal(t.value,'9.5%');assert.equal(t.currentProgress.done,7);assert.equal(t.queueProgress.done,89);assert.ok(t.lines.some(l=>l.includes('89 / 95')));
+feed.tasks['paperclip.machine.pc'].updatedAt=now-4*60000;feed.tasks['paperclip.machine.pc'].freshForMs=600000;ctx.programs.ingest(feed);assert.equal(ctx.programs.model('health').value,'0 / 1','Five-minute probes stay valid after minute three');feed.tasks['paperclip.machine.pc'].updatedAt=now-11*60000;assert.equal((ctx.programs.ingest(feed),ctx.programs.model('health').value),'—','Stale probes do not show zero online machines');feed.tasks['nebula.training'].updatedAt=0;feed.org.paperclip.exportedAt='2000-01-01';ctx.programs.ingest(feed);assert.equal(ctx.programs.model('training').fraction,null);assert.equal(ctx.programs.model('work').value,'—');assert.equal(ctx.programs.model('blockers').value,'—');
+feed.org.paperclip.exportedAt=stamp;delete feed.org.paperclip.liveRuns;ctx.programs.ingest(feed);assert.equal(ctx.programs.model('work').value,'—','Missing runs are unavailable, not zero');
+console.log('PASS measured current fit versus queue, impossible/stale readings, actual agent runs, deduplicated external jobs, service checks and separate ticket totals');

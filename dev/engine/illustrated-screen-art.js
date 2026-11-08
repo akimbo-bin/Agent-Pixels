@@ -34,9 +34,10 @@ const ScreenArtwork=(()=>{
    if(profile==='training'){
     const r=Math.min(43,(h-72)/2),y=34+r;ring(58,y,r,m.fraction,m.value);
     text(m.fresh?m.status.toUpperCase():'NO SIGNAL',115,49,14,!m.fresh?'#e0b7a1':/waiting|paused/i.test(m.status)?'#ffd292':/failed|error/i.test(m.status)?'#ff9fae':accent);
-    network(126,58,170,Math.max(25,h-122));
-    text(m.lines[0],115,h-43,12,'#dae7ff',w-125);text(m.lines[1],115,h-28,10,ink,w-125);
-    text('QUEUE JOBS',18,h-24,10,ink,90);rail(h-14);text('Queue completion · not epochs',10,h-3,8,'#a9aac5');
+    text(m.lines[0],115,72,17,'#dae7ff',w-125);
+    text(m.lines[1],115,91,12,ink,w-125);text(m.lines[2],115,110,12,'#dae7ff',w-125);
+    if(h>160)text(m.lines[3],115,h-29,10,ink,w-125);
+    text(m.primaryLabel||'QUEUE JOBS',18,h-24,10,ink,90);rail(h-14);text(m.note,10,h-3,8,'#a9aac5');
    }else if(profile==='engineering'){
     grid();panel(w-106,33,96,h-61);rocket(w-99,38,82,h-78);
     text(m.value,12,59,25,'#e7f6ff',w-124);text(m.status.toUpperCase(),12,79,13,accent,w-124);

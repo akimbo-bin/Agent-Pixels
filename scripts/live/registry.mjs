@@ -26,15 +26,19 @@ export function normalize(id, title, raw) {
   const state = STATES.includes(raw?.state) ? raw.state : 'unknown';
   const num = v => (typeof v === 'number' && Number.isFinite(v) ? v : null);
   const p = raw?.progress;
-  const progress = p && num(p.done) != null && num(p.total) ? { done: num(p.done), total: num(p.total) } : null;
+  const validProgress=p=>p&&num(p.done)!=null&&num(p.total)!=null&&p.done>=0&&p.total>0&&p.done<=p.total;
+  const progress=validProgress(p)?{done:p.done,total:p.total}:null;
+  const current=raw?.activity?.progress;
+  const activityProgress=validProgress(current)?{done:current.done,total:current.total,unit:String(current.unit||'units').slice(0,40),updatedAt:num(current.updatedAt),source:String(current.source||'').slice(0,80)}:null;
   const metrics = Array.isArray(raw?.metrics) ? raw.metrics.filter(m => m && typeof m.label === 'string' && num(m.value) != null)
     .map(m => ({ label: m.label, value: num(m.value), max: num(m.max) ?? 100, ...(m.unit ? { unit: String(m.unit) } : {}) })) : [];
   return {
     id, title: raw?.title ?? title ?? id, state,
     detail: typeof raw?.detail === 'string' ? raw.detail : '',
     progress, metrics,
+    ...(num(raw?.freshForMs)>=5000&&num(raw?.freshForMs)<=900000?{freshForMs:raw.freshForMs}:{}),
     ...(raw?.coverage?{coverage:raw.coverage}:{}),
-    ...(raw?.activity?{activity:{job:raw.activity.job,kind:raw.activity.kind,label:raw.activity.label,progress:null,reason:raw.activity.reason,attempt:raw.activity.attempt}}:{}),
+    ...(raw?.activity?{activity:{job:raw.activity.job,kind:raw.activity.kind,label:raw.activity.label,progress:activityProgress,reason:raw.activity.reason,attempt:raw.activity.attempt}}:{}),
     ...(raw?.queue?{queue:{counts:raw.queue.counts,admissionHours:raw.queue.admissionHours,hardStopHours:raw.queue.hardStopHours,recordedHours:raw.queue.recordedHours}}:{}),
     updatedAt: num(raw?.updatedAt),
     ...(state === 'unknown' ? { why: typeof raw?.why === 'string' ? raw.why : 'source reported no state' } : {}),

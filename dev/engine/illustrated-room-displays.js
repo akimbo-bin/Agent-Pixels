@@ -58,9 +58,12 @@ const RoomDisplays=(()=>{
    text(m?.spectrum?.length?'DEMO SESSION / LIVE SPECTRUM':m?.waveform?.length?'DEMO SESSION / LIVE WAVEFORM':'DEMO SESSION / VISUALIZER',5,h-5,8,'#b9b9c6',w*.6);text(m?.lines?.[1]||'Samples —',w*.61,h-5,8,'#b9b9c6');return done();
   }
   if(['work','health','blockers','reviews'].includes(profile)){
-   const c={work:'#ed9baf',health:'#8bd8e2',blockers:'#ebc18b',reviews:'#c6aaeb'}[profile],label={work:'ACTIVE RUNS',health:'SYSTEMS',blockers:'ATTENTION',reviews:'REVIEW'}[profile];fill(0,0,w,h,'#121722');fill(0,0,6,h,c);text(label,17,33,29,c);line(17,46,w-16,46,c,1,.35);
-   const value=profile==='blockers'?String(m.value).split(' ')[0]:m.value;text(value,16,121,78,'#f2f3f3',w-24);text(m.fresh?(profile==='health'?'ONLINE / TOTAL':m.status.toUpperCase()):'NO LIVE FEED',18,150,17,c,w-33);
-   const rows=Math.max(1,Math.floor((h-182)/27)+1),offset=m.lines.length>rows?Math.floor(t/8)*rows%m.lines.length:0;for(let i=0;i<rows&&m.lines[offset+i];i++){const y=172+i*27;fill(17,y-14,5,14,c);text(m.lines[offset+i],31,y,16,'#d3d9e2',w-48);}for(let i=0;i<3;i++)dot(w-18-i*12,37,2.5,c,.25+.6*Math.sin(t*(active?3:1)+i)**2);return done();
+   const c={work:'#ed9baf',health:'#8bd8e2',blockers:'#ebc18b',reviews:'#c6aaeb'}[profile],compact=h<190;
+   fill(0,0,w,h,'#121722');fill(0,0,6,h,c);text(m.title,17,compact?28:33,compact?23:25,c);line(17,compact?38:46,w-16,compact?38:46,c,1,.35);
+   text(m.value,16,compact?88:119,compact?52:74,'#f2f3f3',w-24);text(m.fresh?m.status.toUpperCase():'NO LIVE FEED',18,compact?108:145,compact?12:14,c,w-33);
+   const top=compact?128:168,pitch=compact?18:24,rows=Math.max(0,Math.floor((h-25-top)/pitch)+1),offset=m.lines.length>rows&&rows>0?Math.floor(t/8)*rows%m.lines.length:0;
+   for(let i=0;i<rows&&m.lines[offset+i];i++){const y=top+i*pitch;fill(17,y-12,4,12,c);text(m.lines[offset+i],29,y,compact?12:14,'#d3d9e2',w-45);}
+   text(m.note,17,h-5,8,'#98a4b5',w-30);for(let i=0;i<3;i++)dot(w-18-i*12,compact?34:40,2,c,.25+.6*Math.sin(t*(active?3:1)+i)**2);return done();
   }
   // Small screens: strong silhouettes, with different layouts within a room.
   if(profile==='admin'){
