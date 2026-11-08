@@ -33,3 +33,6 @@
 }
 
 @media(max-width:700px),(pointer:coarse) and (max-height:600px){.dashboard-open .hud-utilities{visibility:hidden}}
+
+/* Scale the bars and their contents together, reclaiming layout space for the map. */
+.command-header,.dashboard-footer{zoom:.8}

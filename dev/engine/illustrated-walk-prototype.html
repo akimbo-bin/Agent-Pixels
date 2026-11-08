@@ -93,6 +93,9 @@ button,select,input,textarea{font-family:inherit}textarea{font-family:system-ui,
 
 @media(max-width:700px),(pointer:coarse) and (max-height:600px){.dashboard-open .hud-utilities{visibility:hidden}}
 
+/* Scale the bars and their contents together, reclaiming layout space for the map. */
+.command-header,.dashboard-footer{zoom:.8}
+
 /* Shared game frames and a touch-friendly inspector. */
 :root{--hud-shape:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);--ui-line:#756487;--ui-gold:#efcc84;--ui-inset:#0d1429;--ui-font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 button,input,select,textarea{font-family:var(--ui-font)}button{transition:background .12s,border-color .12s}button:disabled{cursor:default;opacity:.4}input[type=text],input[type=number],textarea,select{background:#0b1429!important;color:#eae6f5!important;border:1px solid #5c5a7c!important;border-radius:3px;padding:9px 10px;min-height:38px;box-shadow:inset 0 2px 4px #0003}input:focus,textarea:focus,select:focus{outline:2px solid #b9a0e5;outline-offset:1px}input[type=checkbox]{width:17px;height:17px;vertical-align:middle;margin:0 7px 0 0;flex-shrink:0}input[type=range]{min-height:32px;max-width:100%;accent-color:#c4a6e9}summary{cursor:pointer}
