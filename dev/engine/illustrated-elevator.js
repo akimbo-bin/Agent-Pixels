@@ -35,7 +35,7 @@ const Lift=(()=>{
   for(const f of ids)if(f!==car)doors[f]=0;
   const travelling=phase==='moving',direction=target?Math.sign(ids.indexOf(target)-ids.indexOf(car)):0;
   $('#lift-status').textContent=passenger?'Travelling to '+floors[target||car].name:ready()?'Doors open · choose a floor or walk into the cabin':pending.has(player.floor)?'Elevator called · please wait':travelling?'Elevator travelling to '+floors[target].name:'Cabin at '+floors[car].name;
-  for(const b of document.querySelectorAll('[data-floor]'))b.disabled=!ready()||b.dataset.floor===car;
+  $('#lift').dataset.phase=phase;for(const b of document.querySelectorAll('[data-floor]')){b.disabled=!ready()||b.dataset.floor===car;b.dataset.current=String(b.dataset.floor===car);const icon=b.querySelector('.lift-direction');if(icon)icon.textContent=b.dataset.floor===car?'●':'›';}
   $('#start').disabled=passenger;$('#reset').disabled=passenger;
  }
  function drawCabins(){const s=ELEVATOR_SLICES.cabinSource;for(const f of ids){const a=ap(f);ctx.save();ctx.beginPath();ctx.rect(...a);ctx.clip();ctx.drawImage(art,s[0]*P,s[1]*P,s[2]*P,s[3]*P,...a);ctx.restore();}}

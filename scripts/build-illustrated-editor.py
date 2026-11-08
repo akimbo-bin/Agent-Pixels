@@ -44,10 +44,13 @@ font_license=(root/'public/assets/fonts/silkscreen/OFL.txt').read_text(encoding=
 text=text.replace('</head>','<script type="text/plain" id="pixel-font-license">'+font_license+'</script>\n</head>')
 
 text=text.replace('@@DASHBOARD@@',(root/'dev/engine/illustrated-dashboard.js').read_text(encoding='utf-8'))
+text=text.replace('@@EDITOR_UI@@',(root/'dev/engine/illustrated-editor-ui.js').read_text(encoding='utf-8'))
 text=text.replace('@@MOBILE@@',(root/'dev/engine/illustrated-touch.js').read_text(encoding='utf-8'))
 text=text.replace('</style>',(root/'dev/engine/illustrated-mobile.css').read_text(encoding='utf-8')+'\n</style>',1)
 
 text=text.replace('</style>',(root/'dev/engine/illustrated-dashboard.css').read_text(encoding='utf-8')+'\n</style>',1)
+
+text=text.replace('</style>',(root/'dev/engine/illustrated-editor-ui.css').read_text(encoding='utf-8')+'\n</style>',1)
 
 target=root/'dev/engine/illustrated-walk-prototype.html'
 target.write_text(text,encoding='utf-8')
