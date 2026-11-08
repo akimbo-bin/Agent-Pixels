@@ -21,9 +21,9 @@ http.createServer(async(req,res)=>{try{
  const dir=path.join(root,'releases',selected.release);
  if(url.pathname==='/health'){await stat(path.join(dir,'index.html'));res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({status:'ok',application:'nebula-illustrated-world',release:selected.release}));return;}
  if(['/review/illustrated-walk/index.html','/index.html','/world','/world/'].includes(url.pathname)){res.writeHead(307,{Location:'/'+url.search});res.end();return;}
- const files={'/':'index.html','/release.json':'release.json','/previous.html':'previous.html'};const file=files[url.pathname];if(!file){res.writeHead(404);res.end('Not found');return;}
+ const files={'/':'index.html','/release.json':'release.json','/previous.html':'previous.html','/apple-touch-icon.png':'apple-touch-icon.png','/icon-192.png':'icon-192.png','/icon-512.png':'icon-512.png','/manifest.webmanifest':'manifest.webmanifest'};const file=files[url.pathname];if(!file){res.writeHead(404);res.end('Not found');return;}
  const etag='\"'+selected.release+'-'+file+'\"';res.setHeader('ETag',etag);if(req.headers['if-none-match']===etag){res.writeHead(304);res.end();return;}
  const gz=file.endsWith('.html')&&/\bgzip\b/.test(req.headers['accept-encoding']||'');let body;try{body=await readFile(path.join(dir,file+(gz?'.gz':'')));}catch{if(file==='previous.html'){res.writeHead(404);res.end('The previous map is available in the desktop editor.');return;}throw Error('Release file missing');}
- res.writeHead(200,{'Content-Type':file.endsWith('.json')?'application/json':'text/html; charset=utf-8',...(gz?{'Content-Encoding':'gzip'}:{}),Vary:'Accept-Encoding','Content-Length':body.length});res.end(req.method==='HEAD'?undefined:body);
+ res.writeHead(200,{'Content-Type':file.endsWith('.png')?'image/png':file.endsWith('.webmanifest')?'application/manifest+json':file.endsWith('.json')?'application/json':'text/html; charset=utf-8',...(gz?{'Content-Encoding':'gzip'}:{}),Vary:'Accept-Encoding','Content-Length':body.length});res.end(req.method==='HEAD'?undefined:body);
  }catch{res.writeHead(503,{'Content-Type':'text/plain'});res.end('Nebula is updating. Please retry shortly.');}
 }).listen(port,host,()=>console.log(`Nebula official world: http://${host}:${port}`));
