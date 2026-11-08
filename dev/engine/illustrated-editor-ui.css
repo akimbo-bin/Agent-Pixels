@@ -24,3 +24,5 @@ button,input,select,textarea{font-family:var(--ui-font)}button{transition:backgr
 @media(max-width:700px),(pointer:coarse) and (max-height:600px){body.keyboard-open{height:var(--editor-viewport-height,100dvh)}}
 
 #handoff-panel .editor-group>button{margin-top:10px;width:100%}#handoff-status{padding:10px;background:#24334a;border-left:2px solid #b89bce;color:#e4d4ee}#handoff-preview{border-color:#c9aa78!important;color:#f1d6a1}#handoff-detail{left:14px;top:14px;width:320px}#handoff-detail p{overflow-wrap:anywhere}#handoff-panel .row input{flex:1;width:0;min-width:55px}#handoff-panel>p{line-height:1.6}
+
+.handoff-report{padding:12px 0;border-top:1px solid #c0a4db33}.handoff-report strong{display:block;color:#e1c795;font-size:12px}.handoff-report p{margin:7px 0}.handoff-report small{display:block;color:#b9b0ce;line-height:1.5}.handoff-report a{display:inline-block;margin-top:9px;color:#9adddf}#handoff-detail{max-width:calc(100% - 28px);max-height:calc(100% - 28px);overflow-y:auto}#handoff-recipient,#handoff-kind{width:100%}
