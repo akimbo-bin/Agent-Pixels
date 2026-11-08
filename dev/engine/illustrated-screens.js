@@ -35,7 +35,14 @@ const Screens=(()=>{
  return c;}
  // Spread refreshes across frames; every display retains its original animation rate.
  function phase(s){let hash=0;for(const ch of s.id)hash=(Math.imul(hash,31)+ch.charCodeAt(0))|0;return (hash>>>0)%997/997;}
- function surface(s){const density=densityFor(),key=JSON.stringify(s)+':'+density+':'+(ScreenPrograms.resolve(s)!=='generic'?Math.floor(time*(roomState(s.room)==='working'?10:2)+phase(s)):s.kind==='indicator'&&roomState(s.room)==='working'?Math.floor(time*12+phase(s)):'static')+':'+ScreenPrograms.revision()+':'+Math.floor(Date.now()/5000)+':'+roomState(s.room),old=surfaces.get(s.id);if(old?.key===key)return old;const b=bbox(s.points),img=paint(s,old?.paintCanvas),geometry=JSON.stringify(s.points)+':'+density+':'+img.width+':'+img.height;let raster=old?.raster;
+ // Small monitors need fewer new frames at their on-map size; large live displays keep their cadence.
+ function refreshFrame(s){
+  const themed=ScreenPrograms.resolve(s)!=='generic',working=roomState(s.room)==='working',small=s.kind==='indicator';
+  if(!themed&&(!small||!working))return'static';
+  const hz=small?(working?4:1):(working?10:2);
+  return Math.floor(time*hz+phase(s));
+ }
+ function surface(s){const density=densityFor(),key=JSON.stringify(s)+':'+density+':'+refreshFrame(s)+':'+ScreenPrograms.revision()+':'+Math.floor(Date.now()/5000)+':'+roomState(s.room),old=surfaces.get(s.id);if(old?.key===key)return old;const b=bbox(s.points),img=paint(s,old?.paintCanvas),geometry=JSON.stringify(s.points)+':'+density+':'+img.width+':'+img.height;let raster=old?.raster;
  // Geometry never changes during animation: reuse the exact nearest-pixel sampling map.
  if(!raster||raster.geometry!==geometry){const c=document.createElement('canvas');c.width=Math.ceil(b.w*density)+2;c.height=Math.ceil(b.h*density)+2;const g=c.getContext('2d'),output=g.createImageData(c.width,c.height),samples=new Int32Array(c.width*c.height),inv=inverse(s.points);samples.fill(-1);
  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){const wx=b.x+(x+.5)/density,wy=b.y+(y+.5)/density,z=inv[6]*wx+inv[7]*wy+inv[8],u=(inv[0]*wx+inv[1]*wy+inv[2])/z,v=(inv[3]*wx+inv[4]*wy+inv[5])/z;if(u<0||u>1||v<0||v>1||!Number.isFinite(u+v))continue;samples[y*c.width+x]=Math.min(img.height-1,Math.floor(v*img.height))*img.width+Math.min(img.width-1,Math.floor(u*img.width));}
