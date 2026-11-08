@@ -26,8 +26,10 @@
  .brand-mark{width:30px;height:34px}
  .command-nav{width:auto;flex:1;min-width:0;height:46px;margin:0;gap:2px}
  .command-nav>button{flex-direction:column;font-size:9px;min-height:44px;padding:4px 1px;gap:3px}
- .hud-utilities{position:absolute;top:calc(100% + 8px);right:8px;gap:6px;opacity:.6;z-index:16}
+ .hud-utilities{position:absolute;top:8px;right:8px;gap:6px;opacity:.6;z-index:8}
  .hud-utilities:hover,.hud-utilities:focus-within{opacity:1}
  .hud-utilities button{width:44px;height:44px;background:#10172bbd}
  #touch-controls{bottom:max(14px,env(safe-area-inset-bottom))}
 }
+
+@media(max-width:700px),(pointer:coarse) and (max-height:600px){.dashboard-open .hud-utilities{visibility:hidden}}
