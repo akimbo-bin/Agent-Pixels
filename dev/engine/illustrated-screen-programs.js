@@ -11,6 +11,12 @@ const ScreenPrograms=(()=>{
  function board(){const o=organization(),b=o.workboard;return o.fresh&&b&&b.complete===true&&Date.now()-Date.parse(b.updatedAt)<180000?b:null;}
  function slot(s){return screens.filter(x=>x.room===s.room&&x.kind===s.kind).findIndex(x=>x.id===s.id);}
  function resolve(s){if(s.profile&&s.profile!=='auto')return s.profile;if(s.url||s.channel&&!['',s.room].includes(s.channel))return'generic';const index=slot(s);if(s.room==='operations')return['work','health','blockers','reviews'][Math.max(0,index)%4];if(s.room==='queue')return['ready','progress','review'][Math.max(0,index)%3];if(s.kind==='data')return{engine:'engineering',data:'math',training:'training',music:'audio'}[s.room]||'generic';return{lead:'admin',second:'admin',clerk:'inbox',observatory:'stars',engine:'blueprint',data:'code',training:'matrix',doctor:'medical'}[s.room]||'generic';}
+ // One workload may be reported both by a machine channel and a ticket registration.
+ function workloads(){
+  const ids=Object.keys(feed?.tasks||{}).filter(id=>id==='nebula.training'||id==='paperclip.renders.vm116'||id.startsWith('paperclip.job.')).sort((a,b)=>(a==='nebula.training'?-1:b==='nebula.training'?1:a==='paperclip.renders.vm116'?-1:b==='paperclip.renders.vm116'?1:0));
+  const chosen=new Map();for(const id of ids){const t={...task(id),id},key=t.workloadKey||(id.startsWith('paperclip.job.')&&(id.includes('NEB-318')||id.toLowerCase().includes('training'))&&feed?.tasks?.['nebula.training']?feed.tasks['nebula.training'].workloadKey||'nebula.training':id),old=chosen.get(key),rank=t.fresh&&t.state!=='unknown'?2:t.fresh?1:0,oldRank=old?.fresh&&old.state!=='unknown'?2:old?.fresh?1:0;if(!old||rank>oldRank)chosen.set(key,t);}
+  return[...chosen.values()];
+ }
  function liveModel(profile){const o=organization(),b=board(),assigned=o.agents.filter(a=>a.issue),jobs=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.job.')),machines=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.machine.')),agent=o.agents.find(a=>a.name==='Engine');
   if(profile==='training'){
    const t=task('nebula.training'),p=t.progress,current=t.activity?.progress,gpu=task('host.gpu');
@@ -30,16 +36,16 @@ const ScreenPrograms=(()=>{
   }
   if(profile==='work'){
    const runs=o.fresh&&Array.isArray(o.liveRuns)?o.liveRuns.filter(r=>r.status==='running'):null;
-   const external=Object.values(feed?.tasks||{}).filter(t=>t.id==='nebula.training'||t.id==='paperclip.renders.vm116'||t.id?.startsWith('paperclip.job.')&&!((t.id.includes('NEB-318')||t.id.toLowerCase().includes('training'))&&feed?.tasks?.['nebula.training'])).filter(t=>task(t.id).state==='running');
+   const external=workloads().filter(t=>t.state==='running');
    const runLines=(runs||[]).map(r=>{const a=o.agents.find(a=>a.id===r.agentId),i=b?.issues?.find(i=>i.id===r.issueId);return(a?.name||'Agent')+' · '+(i?.key||a?.issue?.key||'running');});
-   return{title:'ACTIVE WORK',fresh:!!runs,runCount:runs?.length??null,jobCount:external.length,value:runs?String(runs.length+external.length):'—',status:runs?runs.length+' RUN'+(runs.length===1?'':'S')+' · '+external.length+' JOB'+(external.length===1?'':'S'):'Agent run feed unavailable',lines:[...runLines,...external.map(t=>(t.id==='nebula.training'?'AKIMB0':t.title)+' · '+clean(t.detail||'running')),...(!runs?['Agent runs unavailable']:[])].filter(Boolean),note:'Running agent sessions + external jobs · no duplicate Training job'};
+   return{title:'ACTIVE WORK',fresh:!!runs,runCount:runs?.length??null,jobCount:external.length,value:runs?String(runs.length+external.length):'—',status:runs?runs.length+' RUN'+(runs.length===1?'':'S')+' · '+external.length+' JOB'+(external.length===1?'':'S'):'Agent run feed unavailable',lines:[...runLines,...external.map(t=>(t.id==='nebula.training'?'AKIMB0':t.title||t.id)+' · '+clean(t.detail||'running')),...(!runs?['Agent runs unavailable']:[])].filter(Boolean),note:'Running agent sessions + external jobs · no duplicate Training job'};
   }
   if(profile==='blockers'){
    const failed=machines.filter(m=>!task(m.id).fresh||['failed','unknown'].includes(task(m.id).state)),blocked=b?.issues?.filter(i=>i.status==='blocked')||[];
-   return{title:'BLOCKED TICKETS',fresh:!!b,status:'BLOCKED ISSUES',value:b?String(b.counts?.blocked??blocked.length):'—',lines:b?blocked.map(i=>i.key+' · '+i.title):['Ticket board unavailable'],note:failed.length+' service checks need attention · counted separately'};
+   return{title:'BLOCKED TICKETS',fresh:!!b,status:'BLOCKED ISSUES',value:b?String(b.counts?.blocked??blocked.length):'—',lines:b?blocked.map(i=>i.key+' · '+i.title):['Ticket board unavailable'],note:failed.length+' service check'+(failed.length===1?' needs':'s need')+' attention · counted separately'};
   }
   const category=profile==='ready'?'todo':profile==='progress'?'in_progress':'in_review',title=profile==='ready'?'READY QUEUE':profile==='progress'?'IN PROGRESS':profile==='reviews'?'TICKETS IN REVIEW':'NEEDS REVIEW',issues=b?.issues?.filter(i=>i.status===category)||[];return{title,fresh:!!b,status:b?(category==='in_review'?'TICKETS IN REVIEW':'Live ticket board'):'Board feed unavailable',value:b?String(b.counts?.[category]??issues.length):'—',lines:b?issues.map(i=>i.key+' · '+i.title):profile==='progress'?assigned.map(a=>a.issue.key+' · '+a.name):['Full ticket summary not connected'],note:b?'NEB tickets · '+(b.counts?.blocked??0)+' blocked':'Assigned tickets are not queue totals'};
  }
  function paint(s,g,w,h,time,active){const profile=resolve(s),live=['engineering','training','audio','work','health','blockers','reviews','ready','progress','review'].includes(profile);const options={id:s.id,profile,variant:Math.max(0,slot(s)),room:s.room,kind:s.kind,theme:themes[s.room]||themes.operations,model:live?liveModel(profile):null};return RoomDisplays.paint(options,g,w,h,time,active)||ScreenArtwork.paint(options,g,w,h,time,active);}
- return{profiles,resolve,paint,ingest,setAudioTelemetry,revision:()=>revision,model:liveModel,info:()=>({received,revision,organizationFresh:organization().fresh,boardConnected:!!board(),training:liveModel('training'),audio:liveModel('audio')})};
+ return{profiles,resolve,paint,workloads,ingest,setAudioTelemetry,revision:()=>revision,model:liveModel,info:()=>({received,revision,organizationFresh:organization().fresh,boardConnected:!!board(),training:liveModel('training'),audio:liveModel('audio')})};
 })();

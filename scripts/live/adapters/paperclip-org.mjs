@@ -23,7 +23,7 @@ export async function read(options = {}) {
   const tasks = {};
   for (const j of snap.jobs ?? []) {
     const state = JOB_STATE[j.state] ?? 'unknown';
-    tasks[`job.${j.ticket}`] = { title: `${j.ticket} (${j.agent})`, state, detail: `${j.agent} on ${j.machine}`,
+    tasks[`job.${j.ticket}`] = { workloadKey: `${String(j.machine||'').toLowerCase()}/${j.ticket}`, title: `${j.ticket} (${j.agent})`, state, detail: `${j.agent} on ${j.machine}`,
       updatedAt: Date.parse(j.checked), freshForMs: 600000, ...(state === 'unknown' ? { why: `${j.state}: ${j.detail ?? ''}`.slice(0, 120) } : {}) };
   }
   for (const [name, m] of Object.entries(snap.machines ?? {})) {
@@ -33,7 +33,7 @@ export async function read(options = {}) {
   const vmJobs = (snap.jobs ?? []).filter(j => j.machine === 'vm116');
   const vm = snap.machines?.vm116;
   tasks['renders.vm116'] = vmJobs.length
-    ? { title: 'VM116 renders', state: JOB_STATE[vmJobs[0].state] ?? 'unknown', detail: `${vmJobs[0].ticket} ${vmJobs[0].agent}`, updatedAt: Date.parse(vmJobs[0].checked), freshForMs: 600000,
+    ? { workloadKey: `vm116/${vmJobs[0].ticket}`, title: 'VM116 renders', state: JOB_STATE[vmJobs[0].state] ?? 'unknown', detail: `${vmJobs[0].ticket} ${vmJobs[0].agent}`, updatedAt: Date.parse(vmJobs[0].checked), freshForMs: 600000,
         why: `${vmJobs[0].state}` }
     : vm ? { title: 'VM116 renders', state: vm.ok ? 'idle' : 'failed', detail: vm.ok ? 'no render job running' : (vm.detail ?? 'unhealthy'), updatedAt: Date.parse(vm.checked), freshForMs: 600000 }
       : { title: 'VM116 renders', state: 'unknown', why: 'vm116 not in snapshot' };

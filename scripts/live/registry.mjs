@@ -36,6 +36,7 @@ export function normalize(id, title, raw) {
     id, title: raw?.title ?? title ?? id, state,
     detail: typeof raw?.detail === 'string' ? raw.detail : '',
     progress, metrics,
+    ...(typeof raw?.workloadKey==='string'&&raw.workloadKey?{workloadKey:raw.workloadKey.slice(0,160)}:{}),
     ...(num(raw?.freshForMs)>=5000&&num(raw?.freshForMs)<=900000?{freshForMs:raw.freshForMs}:{}),
     ...(raw?.coverage?{coverage:raw.coverage}:{}),
     ...(raw?.activity?{activity:{job:raw.activity.job,kind:raw.activity.kind,label:raw.activity.label,progress:activityProgress,reason:raw.activity.reason,attempt:raw.activity.attempt}}:{}),
