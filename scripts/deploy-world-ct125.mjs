@@ -11,14 +11,14 @@ await copyFile(path.join(repo,'ops/ct125-world-live.config.json'),path.join(stag
 for(const name of ['install-ct125-world.sh','install-world-tailnet-proxy.sh'])await writeFile(path.join(stage,name),(await readFile(path.join(repo,'ops',name),'utf8')).replace(/^\uFEFF/,'').replace(/\r\n/g,'\n'));
 const selected=JSON.parse(await readFile(path.join(stage,'current.json'),'utf8'));if(!/^[a-zA-Z0-9._-]+$/.test(selected.release))throw Error('Invalid release ID');
 const bundle=path.join(repo,'artifacts','nebula-world-'+selected.release+'.tar.gz'),remote='/var/tmp/nebula-world-'+selected.release+'.tar.gz';
-run('tar',['-czf',bundle,'-C',stage,'current.json','server.mjs','listening-api.mjs','handoff-journal.mjs','rollback.mjs','live','live.config.json','releases/'+selected.release]);
+run('tar',['-czf',bundle,'-C',stage,'current.json','server.mjs','listening-api.mjs','listening-review.mjs','handoff-journal.mjs','rollback.mjs','live','live.config.json','releases/'+selected.release]);
 run('scp',['-o','BatchMode=yes',bundle,host+':'+remote]);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-ct125-world.sh'),host+':/var/tmp/install-ct125-world.sh']);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-world-tailnet-proxy.sh'),host+':/var/tmp/install-world-tailnet-proxy.sh']);
-// Media is a separately hashed package so frequent UI releases do not re-upload audio (scripts/publish-listening.mjs).
-run('node',['scripts/publish-listening.mjs']);
 run('scp',['-o','BatchMode=yes',path.join(repo,'ops/agentpixels-status/export.py'),host+':/var/tmp/nebula-dashboard-export.py']);
 run('ssh',['-o','BatchMode=yes',host,'pct push 125 /var/tmp/nebula-dashboard-export.py /tmp/nebula-dashboard-export.py && pct exec 125 -- install -m 0755 /tmp/nebula-dashboard-export.py /usr/local/lib/agentpixels/export.py && pct exec 125 -- systemctl start agentpixels-status.service']);
 run('ssh',['-o','BatchMode=yes',host,`pct push 125 ${remote} /tmp/nebula-world-release.tar.gz && pct push 125 /var/tmp/install-ct125-world.sh /tmp/install-ct125-world.sh && pct exec 125 -- /bin/sh /tmp/install-ct125-world.sh /tmp/nebula-world-release.tar.gz && /bin/sh /var/tmp/install-world-tailnet-proxy.sh`]);
+// Promote compatible review code before exposing a catalog with a new form type.
+run('node',['scripts/publish-listening.mjs']);
 if(process.platform==='win32')run('powershell',['-NoProfile','-ExecutionPolicy','Bypass','-File','scripts/install-world-telemetry.ps1']);
 console.log('Official CT125 campus: https://rehoboam-proxmox.sphinx-scylla.ts.net:8444/');

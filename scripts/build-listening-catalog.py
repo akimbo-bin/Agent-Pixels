@@ -32,7 +32,14 @@ for pid,title,folder,reviewed in inputs:
  packets.append({'id':pid,'title':title,'revision':revision,'historicalReview':{'status':'completed' if reviewed else 'unknown','date':reviewed},'trials':trials})
 # Published packets (Nebula-owned input; ops/CLAUDE_LISTENING_COORDINATION.md): ops/listening/publications/*.json,
 # with audio from the publication store by sha256. Every byte is verified; withdrawn packets are left out.
-import os
+import os,re
+def review_config(value):
+ if not isinstance(value,dict) or value.get('mode') not in ('pick','rate'):raise ValueError('Unsupported listening review form')
+ if value['mode']=='rate':
+  if value.get('scale')!='1-5':raise ValueError('Ratings require the 1-5 scale')
+  return {'mode':'rate','scale':'1-5'}
+ return {'mode':'pick','confidence':[1,3]}
+verified=set()
 store=Path(os.environ.get('NEBULA_LISTENING_STORE','//192.168.8.106/Files/Projects/Nebula/listening-published/audio'))
 for manifest in sorted((root/'ops/listening/publications').glob('*.json')):
  pub=json.loads(manifest.read_text(encoding='utf-8'))
@@ -41,11 +48,14 @@ for manifest in sorted((root/'ops/listening/publications').glob('*.json')):
  for trial in pub['trials']:
   for clip in trial['clips']:
    name=clip['audio']
-   if not name.endswith('.wav') or len(name)!=68:sys.exit(f"{manifest.name}: bad audio name {name}")
+   if not re.fullmatch(r'[0-9a-f]{64}\.wav',name):sys.exit(f"{manifest.name}: bad audio name {name}")
    dest=out/'audio'/name
    if not dest.exists():
     data=(store/name).read_bytes()
     if hashlib.sha256(data).hexdigest()!=name[:-4]:sys.exit(f"{manifest.name}: {name} does not match its hash")
     dest.write_bytes(data)
- packets.append({'id':pub['id'],'title':pub['title'],'revision':pub['revision'],'historicalReview':pub.get('historicalReview') or {'status':'unknown','date':None},'trials':pub['trials']})
+   if name not in verified:
+    if hashlib.sha256(dest.read_bytes()).hexdigest()!=name[:-4]:sys.exit(f"{manifest.name}: cached audio hash mismatch")
+    verified.add(name)
+ packets.append({'id':pub['id'],'title':pub['title'],'revision':pub['revision'],'historicalReview':pub.get('historicalReview') or {'status':'unknown','date':None},'trials':pub['trials'],**({'review':review_config(pub['review'])} if pub.get('review') else {}),**({'requestedReview':review_config(pub['requestedReview'])} if pub.get('requestedReview') else {}),**({'derivedFrom':{k:pub['derivedFrom'][k] for k in ('packetId','packetRevision')}} if pub.get('derivedFrom') else {})})
 (out/'catalog.json').write_text(json.dumps({'packets':packets},indent=2),encoding='utf-8');print('Blinded listening catalog:',[(p['id'],len(p['trials'])) for p in packets])

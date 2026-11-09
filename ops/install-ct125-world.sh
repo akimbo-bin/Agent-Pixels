@@ -4,7 +4,7 @@ bundle=$1
 root=/srv/nebula-world
 id nebula-world >/dev/null 2>&1 || useradd --system --home-dir /var/lib/nebula-world --shell /usr/sbin/nologin nebula-world
 install -d -m 0755 "$root" /var/lib/nebula-world
-runtime_hash(){ (find "$root/live" -type f 2>/dev/null; printf '%s\n' "$root/server.mjs" "$root/listening-api.mjs" "$root/handoff-journal.mjs" "$root/live.config.json") | sort | xargs -r sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1; }
+runtime_hash(){ (find "$root/live" -type f 2>/dev/null; printf '%s\n' "$root/server.mjs" "$root/listening-api.mjs" "$root/listening-review.mjs" "$root/handoff-journal.mjs" "$root/live.config.json") | sort | xargs -r sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1; }
 old_server=$(runtime_hash)
 # The active pointer is promoted separately after all referenced files exist.
 tar -xzf "$bundle" -C "$root" --exclude=current.json

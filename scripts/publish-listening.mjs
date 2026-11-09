@@ -14,6 +14,9 @@ const media=path.join(repo,'artifacts/listening-bundle'),mediaHash=createHash('s
 await writeFile(path.join(media,'catalog.sha256'),mediaHash);
 const check=spawnSync('ssh',['-o','BatchMode=yes',host,'pct exec 125 -- cat /srv/nebula-world/listening/catalog.sha256'],{encoding:'utf8'});
 if(check.stdout?.trim()===mediaHash){console.log('Listening catalog unchanged:',mediaHash.slice(0,12));process.exit(0);}
+// Reject publication of a form the deployed API cannot validate.
+const catalog=JSON.parse(await readFile(path.join(media,'catalog.json'),'utf8')),modes=new Set(catalog.packets.map(p=>p.review?.mode||'pick'));
+if([...modes].some(m=>m!=='pick')){const r=await fetch('https://rehoboam-proxmox.sphinx-scylla.ts.net:8444/api/listening',{signal:AbortSignal.timeout(8000)});if(!r.ok)throw Error('Cannot verify listening review capabilities');const live=await r.json();if([...modes].some(m=>!(live.reviewModes||['pick']).includes(m)))throw Error('Deploy the compatible listening review API before publishing this catalog');}
 const remote=`set -eu
 B=/tmp/nebula-listening.tar.gz; L=/srv/nebula-world/listening; S=$(mktemp -d /tmp/nebula-listening-stage.XXXXXX)
 trap 'rm -rf "$S"' EXIT
