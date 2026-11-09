@@ -1,0 +1,220 @@
+{
+ "schemaVersion": "nebula.listening-publication/1",
+ "id": "neb318-results",
+ "title": "NEB-318 post-run: which take is closer?",
+ "issueKey": "NEB-318",
+ "revision": "5d4e5d6b8bb12701ee11fc896d0a93945c4acc959a9c3374dc79cf997918e7cb",
+ "state": "ready",
+ "publishedAt": "2026-11-09T20:29:44Z",
+ "historicalReview": {
+  "status": "completed",
+  "date": "2026-11-09"
+ },
+ "review": {
+  "mode": "pick",
+  "confidence": [
+   1,
+   3
+  ]
+ },
+ "requestedReview": null,
+ "trials": [
+  {
+   "id": "t01",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "7a61ee1c49daf0a594377ca3ea33eb6a06ea8a298ac99dc4729f5102b59f639e.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "4479be19cc02c8651be7491c416120a85387744f8eb020826d8770aacf1686cf.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "3dbe1b2b81ab3e4611ce808a0b97a5b195320b41b38ed6139fc93fce3a48fe2c.wav"
+    }
+   ]
+  },
+  {
+   "id": "t02",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "dc169cce65127bf356007371bc06dc023c59e4a8b87979de038ebad1522c83b0.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "75813167c05e1eff24fcd810be65f2b4094a11d1565f3b241c628fdae32489c0.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "e75b2fb229d26ea9c99fa83d7ca5f7eb557bd933158752b03fc75e75c2778161.wav"
+    }
+   ]
+  },
+  {
+   "id": "t03",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "669affe96c36b33cfadf37d9c716c718731d1321c862ac7d41d4372e5e4cd6e6.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "b5a7460f7bb9edd7c23892accb094fb9d404e5e9b865f244d3a64679e71fded1.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "4213007058d9ec9266e88745a0b2e2d82cc298a2ecd81e03d95947a25c5b559d.wav"
+    }
+   ]
+  },
+  {
+   "id": "t04",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words. This trial stops at note-off on purpose: judge only what plays.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "324d114b25e27924af41b03fc14f0b2085c9435ff4b17e792c5d54212f2f6e2b.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "bffebe85fa584964e7dd00204ca31f093596969674251ac06aa83c77f232919e.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "5fd49e5c424dffdb32aa84e7700838b1cd3a69d63eff3c1ffcca0796ac8376db.wav"
+    }
+   ]
+  },
+  {
+   "id": "t05",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "bcbec875ac959eda8f584adbd20d4f7ba7525bde54b68d467779cd9e4bbc8970.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "f93fef63664f963d06f12282c951eeb2c54da10826e74f7a2c2b0b44eb5d7349.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "131e214175127d104f6d0b9e4e16fce5a19998669e897f664e20a3adcd9c1569.wav"
+    }
+   ]
+  },
+  {
+   "id": "t06",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "e84bcfa8b26763381aeddb11feb534e89651b64d765f5f52b6a37c563cfbb770.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "5ee4a568a56ccc1730762373f0d643a3b8572459ed2395794e4de41532556251.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "82d90dbf6516f9cee83ca93601b933779d26121fd49ab41beb2c16c51d0c2785.wav"
+    }
+   ]
+  },
+  {
+   "id": "t07",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words. This trial stops at note-off on purpose: judge only what plays.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "bcc02e380aaea4c86b09a11e9ef8f226a49767ae1963cd256371b49aee974f7c.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "7007af31c7f198a7df8d539e8585baf5bed21d6e2d3423e0dbfec710e3c91bd1.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "d5bb8a56c2475362d0a127f50c16e83e8b7c2dee0109e7433c04e60f19887a01.wav"
+    }
+   ]
+  },
+  {
+   "id": "t08",
+   "prompt": "Listen to the Reference, then A and B. Which is closer to the Reference? Choose None if neither is, and add a few words.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "422222a59f23a370724fa0a5ba9cb42057a7253ad10cb13ad369c810994e6a0c.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "8a6af63a211b0b338df12259fda577cd3c972ae39c4080c63e1b2028d548a094.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "e2b63e27003395a15451fbced11e744e4d4f5bdb053c40fcf7355a65c0054d49.wav"
+    }
+   ]
+  }
+ ],
+ "source": {
+  "store": "\\\\192.168.8.106\\Files\\Projects\\Nebula\\listening-published\\audio",
+  "files": [
+   "131e214175127d104f6d0b9e4e16fce5a19998669e897f664e20a3adcd9c1569.wav",
+   "324d114b25e27924af41b03fc14f0b2085c9435ff4b17e792c5d54212f2f6e2b.wav",
+   "3dbe1b2b81ab3e4611ce808a0b97a5b195320b41b38ed6139fc93fce3a48fe2c.wav",
+   "4213007058d9ec9266e88745a0b2e2d82cc298a2ecd81e03d95947a25c5b559d.wav",
+   "422222a59f23a370724fa0a5ba9cb42057a7253ad10cb13ad369c810994e6a0c.wav",
+   "4479be19cc02c8651be7491c416120a85387744f8eb020826d8770aacf1686cf.wav",
+   "5ee4a568a56ccc1730762373f0d643a3b8572459ed2395794e4de41532556251.wav",
+   "5fd49e5c424dffdb32aa84e7700838b1cd3a69d63eff3c1ffcca0796ac8376db.wav",
+   "669affe96c36b33cfadf37d9c716c718731d1321c862ac7d41d4372e5e4cd6e6.wav",
+   "7007af31c7f198a7df8d539e8585baf5bed21d6e2d3423e0dbfec710e3c91bd1.wav",
+   "75813167c05e1eff24fcd810be65f2b4094a11d1565f3b241c628fdae32489c0.wav",
+   "7a61ee1c49daf0a594377ca3ea33eb6a06ea8a298ac99dc4729f5102b59f639e.wav",
+   "82d90dbf6516f9cee83ca93601b933779d26121fd49ab41beb2c16c51d0c2785.wav",
+   "8a6af63a211b0b338df12259fda577cd3c972ae39c4080c63e1b2028d548a094.wav",
+   "b5a7460f7bb9edd7c23892accb094fb9d404e5e9b865f244d3a64679e71fded1.wav",
+   "bcbec875ac959eda8f584adbd20d4f7ba7525bde54b68d467779cd9e4bbc8970.wav",
+   "bcc02e380aaea4c86b09a11e9ef8f226a49767ae1963cd256371b49aee974f7c.wav",
+   "bffebe85fa584964e7dd00204ca31f093596969674251ac06aa83c77f232919e.wav",
+   "d5bb8a56c2475362d0a127f50c16e83e8b7c2dee0109e7433c04e60f19887a01.wav",
+   "dc169cce65127bf356007371bc06dc023c59e4a8b87979de038ebad1522c83b0.wav",
+   "e2b63e27003395a15451fbced11e744e4d4f5bdb053c40fcf7355a65c0054d49.wav",
+   "e75b2fb229d26ea9c99fa83d7ca5f7eb557bd933158752b03fc75e75c2778161.wav",
+   "e84bcfa8b26763381aeddb11feb534e89651b64d765f5f52b6a37c563cfbb770.wav",
+   "f93fef63664f963d06f12282c951eeb2c54da10826e74f7a2c2b0b44eb5d7349.wav"
+  ]
+ }
+}

@@ -30,4 +30,22 @@ for pid,title,folder,reviewed in inputs:
   if clips:trials.append({'id':'t'+str(index+1).zfill(2),'prompt':'Compare the clips at a comfortable volume. Which sounds better or closer to the reference?','clips':clips})
  revision=hashlib.sha256(json.dumps(trials,sort_keys=True).encode()).hexdigest()
  packets.append({'id':pid,'title':title,'revision':revision,'historicalReview':{'status':'completed' if reviewed else 'unknown','date':reviewed},'trials':trials})
+# Published packets (Nebula-owned input; ops/CLAUDE_LISTENING_COORDINATION.md): ops/listening/publications/*.json,
+# with audio from the publication store by sha256. Every byte is verified; withdrawn packets are left out.
+import os
+store=Path(os.environ.get('NEBULA_LISTENING_STORE','//192.168.8.106/Files/Projects/Nebula/listening-published/audio'))
+for manifest in sorted((root/'ops/listening/publications').glob('*.json')):
+ pub=json.loads(manifest.read_text(encoding='utf-8'))
+ if pub.get('state')!='ready':continue
+ if any(p['id']==pub['id'] for p in packets):sys.exit(f"{manifest.name}: packet id {pub['id']} already in the catalog")
+ for trial in pub['trials']:
+  for clip in trial['clips']:
+   name=clip['audio']
+   if not name.endswith('.wav') or len(name)!=68:sys.exit(f"{manifest.name}: bad audio name {name}")
+   dest=out/'audio'/name
+   if not dest.exists():
+    data=(store/name).read_bytes()
+    if hashlib.sha256(data).hexdigest()!=name[:-4]:sys.exit(f"{manifest.name}: {name} does not match its hash")
+    dest.write_bytes(data)
+ packets.append({'id':pub['id'],'title':pub['title'],'revision':pub['revision'],'historicalReview':pub.get('historicalReview') or {'status':'unknown','date':None},'trials':pub['trials']})
 (out/'catalog.json').write_text(json.dumps({'packets':packets},indent=2),encoding='utf-8');print('Blinded listening catalog:',[(p['id'],len(p['trials'])) for p in packets])

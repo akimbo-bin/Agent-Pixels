@@ -1,0 +1,283 @@
+{
+ "schemaVersion": "nebula.listening-publication/1",
+ "id": "neb618-oracle",
+ "title": "How close is close? Four takes of seven notes",
+ "issueKey": "NEB-618",
+ "revision": "35964547519cc49e4b5eb2554d929c4d5fc5aafd99be2961635864b83e17a62d",
+ "state": "ready",
+ "publishedAt": "2026-11-09T20:29:43Z",
+ "historicalReview": {
+  "status": "completed",
+  "date": "2026-11-09"
+ },
+ "review": {
+  "mode": "pick",
+  "confidence": [
+   1,
+   3
+  ]
+ },
+ "requestedReview": {
+  "mode": "rate",
+  "scale": "1-5"
+ },
+ "trials": [
+  {
+   "id": "g01",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "a72017ff06393dec773a9b96c55081164745f12a160c5241c9905f0e8f8e48b9.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "5651404bfec8713bc918b1ed32170344f8d8fa8d417280f09b94f3081cb3391c.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "2a249d30b8923b8299ea49ec9e8ff2c549e06047dbaa2b8b0c62b757321357f3.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "a9bfa1ce1c6c8d86cfb3d2845fdf202751902f6bc64e5ec0947b4c70cf172bf9.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "e4e931e8fd7c8014785a74ebeaac87fbdbb9dcdc35cd62cf6f526b3c3c92c397.wav"
+    }
+   ]
+  },
+  {
+   "id": "g02",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "d5a75a5dbc585da0a9d886e07d42adf4696eac916108dcaec6042e58482b26ab.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "0ba333973296199f7a5a661747db0d3bffe7a1dcfc3b4f0c56860eb8a549b11c.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "f762199a654471794f4a4d5957788f7151996d698ddd3429dc9d96969131decf.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "bee4dd631a31399b561019be1d9c2b3b0dcb4911caebb54c3a1a45db56e07d92.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "8f22a377386348012a60a2b4014d9d54b052fadd6339d3243d98e9f497a8e848.wav"
+    }
+   ]
+  },
+  {
+   "id": "g03",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "06de0074bd2490d6c3385857a0dffa7e7f620125d431ea3a100c49ec883ef31f.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "63beb633620b2b64cfe0811d9716515486d9dc5b81d8128f106a45e6aff5bcfe.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "2a4cc2f658492889a4ac3e14967a0e3de464f60a854cc27228196a8d288637ab.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "c0ecb1fe7d1c0723a916463c7c6376c72c3a9154db1730bc59002c8018db1221.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "c444390574c1d5bb10e5a5c200745c8f60515666160570db824ae9614c4d14f5.wav"
+    }
+   ]
+  },
+  {
+   "id": "g04",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "fc737386d18f9f230958f07ea7e0db9f5add280172e1959b18c15963242cff6f.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "e7e39a1a4a587596663806b17f9d30cb74ad4cf322bb01393818f1b8bfd15f99.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "8a0d2fbf5ee5bbbeb65e64a9f90df1694aad2b688854f7d4390e501e05927543.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "fe9c0eed1c548856b4d6c9c618499c61519880759b6f63cd62537207b0081201.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "943b0238f3f15cefcaa9548e15991d6dc3df340baf3a6ee31046d0278dd99f67.wav"
+    }
+   ]
+  },
+  {
+   "id": "g05",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "12fef0b2b8f6cda3a2505c679ce724525f2c9f282b61fff7ced2cc6cc5e5430b.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "30639ee0d094c5b273f1dda5e64d871effc4d29d7bfb8efd875e6177b2597054.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "ec543da363b35fe998abe4fd823688739d0c5bcbb8a981171b48a28665594b80.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "df560cbad6258987afec92aad85862f7795d26acebb5d529c962cac4a319de71.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "09ea4a4bf89217a7971aa48bef71dc0ddf978c3c5b8315a5a3a7ced55a562cd3.wav"
+    }
+   ]
+  },
+  {
+   "id": "g06",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "2968b519ff45d5dda10b9733143c3b9f9aeddc17c132c782b4627c18be296398.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "fb9ce6938ed831289c2ff05153334bc19a640cc95c26d6cad871b6dbe6222740.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "5d759f649ab61cf32873c4cd4cbec785930baeb32fb462b702f3658cbe75fb36.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "7aea8230ed769d2796e56be083522fb4309ec5ef4633d7fa67f3b1c43d952054.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "885357ca984a8d38a77ba2e9b0d24a831c5884f583d9ecb5150f24e6d13ba2a5.wav"
+    }
+   ]
+  },
+  {
+   "id": "g07",
+   "prompt": "Listen to the Reference, then the four clips. Pick the clip closest to the Reference and say how sure you are. In the note, rate every clip from 1 (a different sound) to 5 (cannot tell it from the Reference), for example A4 B1 C3 D4.",
+   "clips": [
+    {
+     "id": "reference",
+     "label": "Reference",
+     "audio": "2b09edc17cd1398b14693ee36b155691b8f7a39c898552dd3fa64a2e099cb796.wav"
+    },
+    {
+     "id": "a",
+     "label": "A",
+     "audio": "e4d9a442b3b8b23263b111c683aa2e9e8e0569d4a653cde0d11e18894a197e41.wav"
+    },
+    {
+     "id": "b",
+     "label": "B",
+     "audio": "5e24760b03c70acd9cec9c6aaea16eff0d00eb872f15131a623c596586b73357.wav"
+    },
+    {
+     "id": "c",
+     "label": "C",
+     "audio": "4b0b1b2e1e6bdf9a5f0939a97451b7a1f43ed4a18a1e27f4e1a207163fe52c43.wav"
+    },
+    {
+     "id": "d",
+     "label": "D",
+     "audio": "99cbf07d38b62bc983eb7dea02f75d11254504cd15b1db1e3d6d92638769f615.wav"
+    }
+   ]
+  }
+ ],
+ "source": {
+  "store": "\\\\192.168.8.106\\Files\\Projects\\Nebula\\listening-published\\audio",
+  "files": [
+   "06de0074bd2490d6c3385857a0dffa7e7f620125d431ea3a100c49ec883ef31f.wav",
+   "09ea4a4bf89217a7971aa48bef71dc0ddf978c3c5b8315a5a3a7ced55a562cd3.wav",
+   "0ba333973296199f7a5a661747db0d3bffe7a1dcfc3b4f0c56860eb8a549b11c.wav",
+   "12fef0b2b8f6cda3a2505c679ce724525f2c9f282b61fff7ced2cc6cc5e5430b.wav",
+   "2968b519ff45d5dda10b9733143c3b9f9aeddc17c132c782b4627c18be296398.wav",
+   "2a249d30b8923b8299ea49ec9e8ff2c549e06047dbaa2b8b0c62b757321357f3.wav",
+   "2a4cc2f658492889a4ac3e14967a0e3de464f60a854cc27228196a8d288637ab.wav",
+   "2b09edc17cd1398b14693ee36b155691b8f7a39c898552dd3fa64a2e099cb796.wav",
+   "30639ee0d094c5b273f1dda5e64d871effc4d29d7bfb8efd875e6177b2597054.wav",
+   "4b0b1b2e1e6bdf9a5f0939a97451b7a1f43ed4a18a1e27f4e1a207163fe52c43.wav",
+   "5651404bfec8713bc918b1ed32170344f8d8fa8d417280f09b94f3081cb3391c.wav",
+   "5d759f649ab61cf32873c4cd4cbec785930baeb32fb462b702f3658cbe75fb36.wav",
+   "5e24760b03c70acd9cec9c6aaea16eff0d00eb872f15131a623c596586b73357.wav",
+   "63beb633620b2b64cfe0811d9716515486d9dc5b81d8128f106a45e6aff5bcfe.wav",
+   "7aea8230ed769d2796e56be083522fb4309ec5ef4633d7fa67f3b1c43d952054.wav",
+   "885357ca984a8d38a77ba2e9b0d24a831c5884f583d9ecb5150f24e6d13ba2a5.wav",
+   "8a0d2fbf5ee5bbbeb65e64a9f90df1694aad2b688854f7d4390e501e05927543.wav",
+   "8f22a377386348012a60a2b4014d9d54b052fadd6339d3243d98e9f497a8e848.wav",
+   "943b0238f3f15cefcaa9548e15991d6dc3df340baf3a6ee31046d0278dd99f67.wav",
+   "99cbf07d38b62bc983eb7dea02f75d11254504cd15b1db1e3d6d92638769f615.wav",
+   "a72017ff06393dec773a9b96c55081164745f12a160c5241c9905f0e8f8e48b9.wav",
+   "a9bfa1ce1c6c8d86cfb3d2845fdf202751902f6bc64e5ec0947b4c70cf172bf9.wav",
+   "bee4dd631a31399b561019be1d9c2b3b0dcb4911caebb54c3a1a45db56e07d92.wav",
+   "c0ecb1fe7d1c0723a916463c7c6376c72c3a9154db1730bc59002c8018db1221.wav",
+   "c444390574c1d5bb10e5a5c200745c8f60515666160570db824ae9614c4d14f5.wav",
+   "d5a75a5dbc585da0a9d886e07d42adf4696eac916108dcaec6042e58482b26ab.wav",
+   "df560cbad6258987afec92aad85862f7795d26acebb5d529c962cac4a319de71.wav",
+   "e4d9a442b3b8b23263b111c683aa2e9e8e0569d4a653cde0d11e18894a197e41.wav",
+   "e4e931e8fd7c8014785a74ebeaac87fbdbb9dcdc35cd62cf6f526b3c3c92c397.wav",
+   "e7e39a1a4a587596663806b17f9d30cb74ad4cf322bb01393818f1b8bfd15f99.wav",
+   "ec543da363b35fe998abe4fd823688739d0c5bcbb8a981171b48a28665594b80.wav",
+   "f762199a654471794f4a4d5957788f7151996d698ddd3429dc9d96969131decf.wav",
+   "fb9ce6938ed831289c2ff05153334bc19a640cc95c26d6cad871b6dbe6222740.wav",
+   "fc737386d18f9f230958f07ea7e0db9f5add280172e1959b18c15963242cff6f.wav",
+   "fe9c0eed1c548856b4d6c9c618499c61519880759b6f63cd62537207b0081201.wav"
+  ]
+ }
+}

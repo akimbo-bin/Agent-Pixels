@@ -15,16 +15,8 @@ run('tar',['-czf',bundle,'-C',stage,'current.json','server.mjs','listening-api.m
 run('scp',['-o','BatchMode=yes',bundle,host+':'+remote]);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-ct125-world.sh'),host+':/var/tmp/install-ct125-world.sh']);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-world-tailnet-proxy.sh'),host+':/var/tmp/install-world-tailnet-proxy.sh']);
-// Media is a separately hashed package so frequent UI releases do not re-upload audio.
-run(process.env.NEBULA_PYTHON||'python',['scripts/build-listening-catalog.py']);
-const media=path.join(repo,'artifacts/listening-bundle'),mediaHash=createHash('sha256').update(await readFile(path.join(media,'catalog.json'))).digest('hex');
-await writeFile(path.join(media,'catalog.sha256'),mediaHash);
-const check=spawnSync('ssh',['-o','BatchMode=yes',host,'pct exec 125 -- cat /srv/nebula-world/listening/catalog.sha256'],{encoding:'utf8'});
-if(check.stdout?.trim()!==mediaHash){
- const audioBundle=path.join(repo,'artifacts','nebula-listening-'+mediaHash.slice(0,12)+'.tar.gz');run('tar',['-czf',audioBundle,'-C',media,'audio','catalog.json','catalog.sha256']);
- run('scp',['-o','BatchMode=yes',audioBundle,host+':/var/tmp/nebula-listening.tar.gz']);
- run('ssh',['-o','BatchMode=yes',host,'pct push 125 /var/tmp/nebula-listening.tar.gz /tmp/nebula-listening.tar.gz && pct exec 125 -- mkdir -p /srv/nebula-world/listening && pct exec 125 -- tar -xzf /tmp/nebula-listening.tar.gz -C /srv/nebula-world/listening']);
-}
+// Media is a separately hashed package so frequent UI releases do not re-upload audio (scripts/publish-listening.mjs).
+run('node',['scripts/publish-listening.mjs']);
 run('scp',['-o','BatchMode=yes',path.join(repo,'ops/agentpixels-status/export.py'),host+':/var/tmp/nebula-dashboard-export.py']);
 run('ssh',['-o','BatchMode=yes',host,'pct push 125 /var/tmp/nebula-dashboard-export.py /tmp/nebula-dashboard-export.py && pct exec 125 -- install -m 0755 /tmp/nebula-dashboard-export.py /usr/local/lib/agentpixels/export.py && pct exec 125 -- systemctl start agentpixels-status.service']);
 run('ssh',['-o','BatchMode=yes',host,`pct push 125 ${remote} /tmp/nebula-world-release.tar.gz && pct push 125 /var/tmp/install-ct125-world.sh /tmp/install-ct125-world.sh && pct exec 125 -- /bin/sh /tmp/install-ct125-world.sh /tmp/nebula-world-release.tar.gz && /bin/sh /var/tmp/install-world-tailnet-proxy.sh`]);

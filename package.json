@@ -17,6 +17,7 @@
     "world:build": "node scripts/build-telemetry-validator.mjs && python scripts/build-illustrated-editor.py --serve-copy",
     "world:release": "node scripts/deploy-illustrated-world.mjs",
     "world:deploy": "node scripts/deploy-world-ct125.mjs",
+    "world:publish-listening": "node scripts/publish-listening.mjs",
     "world:serve": "node scripts/nebula-world-server.mjs",
     "world:check-mobile": "node scripts/check-mobile-world.cjs",
     "world:rollback": "node scripts/rollback-world-ct125.mjs",
