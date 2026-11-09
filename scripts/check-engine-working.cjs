@@ -6,7 +6,7 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
  try{
  const page=await browser.newPage({viewport:{width:997,height:985}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8790/review/illustrated-walk/index.html?start=engine&zoom=3&hardware=working&rev=engine-power');
+ await page.goto((process.env.DASHBOARD_URL||'http://127.0.0.1:8790/review/illustrated-walk/index.html')+'?start=engine&zoom=3&hardware=working&rev=engine-power');
  await page.waitForFunction(()=>window.__walk?.ready);
  const result=await page.evaluate(()=>{
   HardwareActivity.setPreview('engine','idle',false);
@@ -23,15 +23,15 @@ const {chromium}=require(require.resolve('playwright',{paths:[process.cwd(),path
   HardwareActivity.setPreview('engine','working',false);
   return{idle,quiet,working,busy,changed,back,dirty:__walk.dirty,grid:Object.keys(__walk.edits).length};
  });
- assert.equal(result.quiet.puffs.length,0);assert.equal(result.quiet.sirens.length,0);
+ assert.equal(result.quiet.puffs.length,14);assert.equal(result.quiet.sirens.length,0);
  assert.ok(result.idle.speedScale<1.01);assert.ok(result.working.speedScale>3.9);
- assert.equal(result.busy.puffs.length,14);assert.equal(result.busy.sirens.length,2);
+ assert.equal(result.busy.puffs.length,28);assert.equal(result.busy.sirens.length,2);assert.ok(Math.max(...result.busy.puffs.map(p=>p.w))>Math.max(...result.quiet.puffs.map(p=>p.w))*1.35,'Working exhaust is larger');assert.ok(Math.min(...result.busy.puffs.map(p=>p.y))<Math.min(...result.quiet.puffs.map(p=>p.y))-12,'Working plumes rise higher');
  assert.ok(result.changed>100,'Rotating beacon pixels must visibly change');
  assert.ok(result.back.fans.speedScale<1.01);assert.equal(result.back.ambient.sirens.length,0);
- assert.equal(result.back.ambient.puffs.length,0);assert.equal(result.dirty,false);assert.equal(result.grid,599);
+ assert.equal(result.back.ambient.puffs.length,14);assert.equal(result.dirty,false);assert.equal(result.grid,599);
  await page.waitForTimeout(1200);
  await page.screenshot({path:path.resolve(__dirname,'../artifacts/illustrated-map/engine-working-beacons.png')});
  assert.deepEqual(errors,[]);
- console.log('PASS 4x Working turbine ramp, 14 steam puffs, rotating beacons, Idle recovery, preserved map. Beacon pixels changed:',result.changed);
+ console.log('PASS 4x Working turbine ramp, 28 Working / 14 Idle steam puffs, rotating beacons, Idle recovery, preserved map. Beacon pixels changed:',result.changed);
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});
