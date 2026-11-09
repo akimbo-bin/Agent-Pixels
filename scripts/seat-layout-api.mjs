@@ -1,9 +1,10 @@
-// Dashboard-owned seat fits and chair cutouts. No organization or workload writes.
+// Versioned dashboard editor documents, with a read-compatible legacy seat endpoint.
+// No organization or workload writes.
 import {readFile,writeFile,mkdir,rename,copyFile} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-export function seatLayoutApi(root,{imageSha}={}){
- const file=path.join(root,'seat-state/layout.json');let serial=Promise.resolve();
+export function seatLayoutApi(root,{imageSha,scope='seats'}={}){
+ const wholeMap=scope==='map',endpoint=wholeMap?'/api/map-layout':'/api/seat-layout',file=path.join(root,wholeMap?'map-state/layout.json':'seat-state/layout.json');let serial=Promise.resolve();
  const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
  async function expected(){if(imageSha)return imageSha;const pointer=JSON.parse(await readFile(path.join(root,'current.json'),'utf8'));if(!/^[\w.-]+$/.test(pointer.release))throw Error('Invalid release');return JSON.parse(await readFile(path.join(root,'releases',pointer.release,'release.json'),'utf8')).mapImageSha256;}
  async function load(image){try{const saved=JSON.parse(await readFile(file,'utf8'));if(saved.imageSha!==image)return{revision:0,imageSha:image,layout:null};return saved;}catch(e){if(e.code!=='ENOENT')throw e;return{revision:0,imageSha:image,layout:null};}}
@@ -11,20 +12,33 @@ export function seatLayoutApi(root,{imageSha}={}){
   const finite=(n,min,max)=>typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max,point=p=>Array.isArray(p)&&p.length===2&&finite(p[0],0,1448)&&finite(p[1],0,1086),id=x=>typeof x==='string'&&/^[\w.-]{1,100}$/.test(x),text=x=>typeof x==='string'&&x.length<=160;
   if(!Array.isArray(body.seats)||body.seats.length>500||!Array.isArray(body.masks)||body.masks.length>500)throw Error('Invalid seat layout');
   const seen=new Set();for(const s of body.seats){if(!id(s.id)||seen.has(s.id)||!text(s.name)||!['upper','middle','ground'].includes(s.floor)||!point([s.x,s.y])||!finite(s.depth,0,1086)||!point(s.approach)||!point(s.exit)||!finite(s.height,8,100)||!finite(s.width,30,200)||!finite(s.offsetX,-150,150)||!finite(s.offsetY,-150,150)||typeof s.autoScale!=='boolean'||!['up','down','left','right'].includes(s.facing)||!['typing','reading','idle'].includes(s.animation)||!Array.isArray(s.maskIds)||s.maskIds.some(x=>!id(x))||s.room!==undefined&&!id(s.room)||s.access!==undefined&&!['room','shared'].includes(s.access))throw Error('Invalid seat');seen.add(s.id);}
-  const linked=new Set(body.seats.flatMap(s=>s.maskIds)),maskIds=new Set();for(const m of body.masks){if(!id(m.id)||maskIds.has(m.id)||!linked.has(m.id)||!text(m.name)||!['upper','middle','ground'].includes(m.floor)||!finite(m.depth,0,1086)||!Array.isArray(m.ops)||m.ops.length>10000)throw Error('Invalid chair cutout');maskIds.add(m.id);if(m.footprint&&(!Array.isArray(m.footprint)||!m.footprint.every(point)))throw Error('Invalid footprint');for(const op of m.ops){if(!['polygon','brush'].includes(op.type)||!Array.isArray(op.points)||op.points.length>20000||!op.points.every(point)||op.type==='brush'&&!finite(op.width,.1,500))throw Error('Invalid cutout outline');}}
-  return{seats:body.seats,masks:body.masks};
+  const linked=new Set(body.seats.flatMap(s=>s.maskIds)),maskIds=new Set();for(const m of body.masks){if(!id(m.id)||maskIds.has(m.id)||(!wholeMap&&!linked.has(m.id))||!text(m.name)||!['upper','middle','ground'].includes(m.floor)||!finite(m.depth,0,1086)||!Array.isArray(m.ops)||m.ops.length>10000)throw Error('Invalid chair cutout');maskIds.add(m.id);if(m.footprint&&(!Array.isArray(m.footprint)||m.footprint.length<3||m.footprint.length>12||!m.footprint.every(point)))throw Error('Invalid footprint');for(const op of m.ops){if(!['polygon','brush'].includes(op.type)||!Array.isArray(op.points)||op.points.length>20000||!op.points.every(point)||op.type==='brush'&&!finite(op.width,1,120))throw Error('Invalid cutout outline');}}
+  return wholeMap?validateMap(body,finite,point,id,text):{seats:body.seats,masks:body.masks};
+ }
+ function validateMap(b,finite,point,id,text){
+  const object=v=>v&&typeof v==='object'&&!Array.isArray(v),rooms=['lead','second','clerk','observatory','engine','data','training','music','doctor','review','operations','queue'],fail=()=>{throw Error('Invalid map');};
+  if(b.version!==5||!object(b.image)||b.image.sha256!==b.imageSha||b.grid?.width!==12||b.grid?.height!==8||!object(b.overrides)||Object.keys(b.overrides).length>50000)fail();
+  for(const[k,v]of Object.entries(b.overrides)){const m=/^(ground|middle|upper):(\d+):(\d+)$/.exec(k);if(!m||+m[2]>=121||+m[3]>=136||typeof v!=='boolean')fail();}
+  if(!Array.isArray(b.screens)||b.screens.length>200)fail();const screens=new Set(),profiles=['auto','generic','admin','inbox','stars','blueprint','code','math','matrix','medical','engineering','training','audio','work','health','blockers','reviews','ready','progress','review'];for(const s of b.screens){if(s.profile&&!profiles.includes(s.profile)||!id(s.id)||screens.has(s.id)||!rooms.includes(s.room)||!Array.isArray(s.points)||s.points.length!==4||!s.points.every(point)||!['indicator','data'].includes(s.kind)||!['chase','sweep','pulse'].includes(s.effect)||!['green','red','cyan','purple'].includes(s.color)||!finite(s.opacity,.1,1)||!finite(s.interval,2,300)||typeof s.channel!=='string'||typeof s.url!=='string'||s.url.length>2048)fail();if(s.url){const u=new URL(s.url,'http://localhost');if(!['http:','https:'].includes(u.protocol)||u.username||u.password)fail();}const cross=s.points.map((a,i)=>{const b=s.points[(i+1)%4],c=s.points[(i+2)%4];return(b[0]-a[0])*(c[1]-b[1])-(b[1]-a[1])*(c[0]-b[0]);});if(!cross.every(v=>v>.5)&&!cross.every(v=>v<-.5))fail();screens.add(s.id);}
+  if(!object(b.characters)||Object.keys(b.characters).length>500)fail();for(const[k,c]of Object.entries(b.characters)){if(!/^[a-zA-Z0-9-]{1,80}$/.test(k)||['__proto__','constructor','prototype'].includes(k)||!rooms.concat('unassigned').includes(c.room)||!Number.isInteger(c.skin)||c.skin<0||c.skin>=82||!point([c.x,c.y])||!finite(c.height,8,100)||!finite(c.width,30,200)||![c.offsetX,c.offsetY].every(Number.isFinite)||![c.frameW,c.frameH].every(n=>Number.isInteger(n)&&n>=1&&n<=256)||!['up','down','left','right'].includes(c.facing)||typeof c.seatId!=='string'||c.customSheet!==null&&(typeof c.customSheet!=='string'||!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(c.customSheet)||c.customSheet.length>3000000))fail();}
+  if(!object(b.roomLabels)||!object(b.roomTypes)||Object.keys(b.roomLabels).length>12||Object.keys(b.roomTypes).length>12||!object(b.handoffPoints)||Object.keys(b.handoffPoints).length>100)fail();
+  for(const[k,v]of Object.entries(b.roomLabels))if(!rooms.includes(k)||typeof v?.name!=='string'||!v.name.trim()||v.name.length>40||typeof v.sub!=='string'||v.sub.length>80||/[\x00-\x1f]/.test(v.name+v.sub))fail();
+  for(const[k,v]of Object.entries(b.roomTypes))if(!rooms.includes(k)||!['activity','statistical'].includes(v))fail();
+  for(const[k,v]of Object.entries(b.handoffPoints))if(!/^[a-f0-9-]{36}$/i.test(k)||!['upper','middle','ground'].includes(v?.floor)||!point(v.drop)||!point(v.approach))fail();
+  const keys=['version','terracePropsVersion','sharedWorkspacesVersion','reviewWorkstationsVersion','image','grid','handoffPoints','overrides','masks','seats','screens','characters','roomLabels','roomTypes'];return Object.fromEntries(keys.filter(k=>b[k]!==undefined).map(k=>[k,b[k]]));
  }
  return async(req,res,url)=>{
-  if(url.pathname!=='/api/seat-layout')return false;
+  if(url.pathname!==endpoint)return false;
   const send=(code,value)=>{res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(value));};
   try{const image=await expected();if(!image)throw Error('Map identity unavailable');
    if(req.method==='GET'){await serial;send(200,await load(image));return true;}
+   if(req.method==='POST'&&!wholeMap){try{await readFile(path.join(root,'map-state/layout.json'));send(409,{error:'The full map now syncs. Refresh the office before saving.',...await load(image)});return true;}catch(e){if(e.code!=='ENOENT')throw e;}}
    if(req.method!=='POST'){send(405,{error:'Use GET or POST'});return true;}
    let origin;try{origin=new URL(req.headers.origin);}catch{}
    if(req.headers['x-nebula-layout']!=='1'||!origin||(origin.host!==req.headers.host&&origin.origin!=='https://rehoboam-proxmox.sphinx-scylla.ts.net:8444')||!String(req.headers['content-type']).startsWith('application/json')){send(403,{error:'Save from the office page'});return true;}
-   let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>8*1024*1024){send(413,{error:'Seat layout too large'});return true;}}
+   let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>32*1024*1024){send(413,{error:'Map layout too large'});return true;}}
    let body,layout;try{body=JSON.parse(raw);layout=validate(body);if(body.imageSha!==image||!Number.isSafeInteger(body.baseRevision)||body.baseRevision<0)throw Error('Map changed');}catch{send(400,{error:'Invalid layout or different map image'});return true;}
-   const operation=serial.catch(()=>{}).then(async()=>{const current=await load(image),digest=hash(layout);if(current.layout&&hash(current.layout)===digest){send(200,current);return;}if(current.revision!==body.baseRevision){send(409,{error:'Another device saved newer seats',...current});return;}const next={revision:current.revision+1,imageSha:image,savedAt:new Date().toISOString(),layout};await mkdir(path.dirname(file),{recursive:true});await writeFile(file+'.next',JSON.stringify(next));try{await copyFile(file,file+'.prev');}catch(e){if(e.code!=='ENOENT')throw e;}await rename(file+'.next',file);send(200,next);});serial=operation.catch(()=>{});await operation;
-  }catch{send(503,{error:'Shared seats unavailable; your local save is safe'});}return true;
+   const operation=serial.catch(()=>{}).then(async()=>{const current=await load(image),digest=hash(layout);if(current.layout&&hash(current.layout)===digest){send(200,current);return;}if(current.revision!==body.baseRevision){send(409,{error:'Another device saved a newer layout',...current});return;}const next={revision:current.revision+1,imageSha:image,savedAt:new Date().toISOString(),layout};await mkdir(path.dirname(file),{recursive:true});await writeFile(file+'.next',JSON.stringify(next));try{await copyFile(file,file+'.prev');}catch(e){if(e.code!=='ENOENT')throw e;}await rename(file+'.next',file);send(200,next);});serial=operation.catch(()=>{});await operation;
+  }catch{send(503,{error:'Shared map unavailable; your local save is safe'});}return true;
  };
 }

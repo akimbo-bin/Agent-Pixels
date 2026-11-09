@@ -19,4 +19,3 @@ await copyFile(path.join(repo,'scripts/seat-layout-api.mjs'),path.join(root,'sea
 let previous=null;try{const old=JSON.parse(await readFile(path.join(root,'current.json'),'utf8'));previous=old.release===id?old.previous:old.release;}catch{}
 await writeFile(path.join(root,'current.next.json'),JSON.stringify({release:id,previous}));await rename(path.join(root,'current.next.json'),path.join(root,'current.json'));
 console.log(`Official release ${id}\nHost: node "${path.join(root,'server.mjs')}" --root "${root}"\nNo server restart needed for future artwork/UI updates.`);
-

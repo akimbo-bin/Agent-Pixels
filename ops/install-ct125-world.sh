@@ -27,6 +27,8 @@ install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/telemet
 if [ ! -e "$root/handoff-state" ]; then ln -s /var/lib/nebula-world/handoff-state "$root/handoff-state"; fi
 install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/seat-state
 if [ ! -e "$root/seat-state" ]; then ln -s /var/lib/nebula-world/seat-state "$root/seat-state"; fi
+install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/map-state
+if [ ! -e "$root/map-state" ]; then ln -s /var/lib/nebula-world/map-state "$root/map-state"; fi
 cat >/etc/systemd/system/nebula-world.service <<'UNIT'
 [Unit]
 Description=Nebula illustrated campus (official)
@@ -41,7 +43,7 @@ RestartSec=3
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/nebula-world/seat-state /var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state /var/lib/nebula-world/telemetry-state
+ReadWritePaths=/var/lib/nebula-world/map-state /var/lib/nebula-world/seat-state /var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state /var/lib/nebula-world/telemetry-state
 PrivateTmp=yes
 [Install]
 WantedBy=multi-user.target

@@ -2,6 +2,8 @@
 
 2026-11-09 — Codex
 
+Update: full editor map sync now supersedes the seat-only scope below. See CODEX_FULL_MAP_SYNC.md.
+
 Reproduced two independent failures: isolated device A saved Review x=377 while device B loaded x=371; Data editor pose was (559,602,34) while the occupied agent drew at (566,597,46) with character overrides.
 
 Seat fitting now has one authoritative transform for editor/player/NPC, including perspective scaling. Standing character size/offset settings no longer override an authored seated fit. Older local maps on the same image are restored rather than silently ignored based on the approved-map timestamp.

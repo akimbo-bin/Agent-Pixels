@@ -10,11 +10,12 @@ const args=process.argv.slice(2),arg=(name,fallback)=>{const i=args.indexOf(name
 const root=path.resolve(arg('--root',path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../release/world'))),host=arg('--host','127.0.0.1'),port=Number(arg('--port','8791')),upstream=new URL(arg('--live-upstream','http://127.0.0.1:8790/live'));
 if(!['http:','https:'].includes(upstream.protocol))throw Error('Live upstream must use HTTP(S)');
 const localLive=args.includes('--live-upstream')?null:await import(pathToFileURL(path.join(root,'live/registry.mjs')).href);
-const handleSeats=seatLayoutApi(root),handleListening=listeningApi(root),handoffs=handoffJournal(root);
+const handleMap=seatLayoutApi(root,{scope:'map'}),handleSeats=seatLayoutApi(root),handleListening=listeningApi(root),handoffs=handoffJournal(root);
 let cached=null,inflight=null;
 async function live(){if(cached&&Date.now()-cached.at<4000)return cached.body;if(!inflight)inflight=(async()=>{if(localLive){const body=await localLive.liveTasks(path.join(root,'live.config.json'));await handoffs.observe(body);cached={at:Date.now(),body:JSON.stringify(body)};return cached.body;}const r=await fetch(upstream,{signal:AbortSignal.timeout(8000),headers:{accept:'application/json'}});if(!r.ok)throw Error('Telemetry upstream unavailable');const body=await r.json();if(!body.tasks||typeof body.tasks!=='object')throw Error('Invalid telemetry');await handoffs.observe(body);cached={at:Date.now(),body:JSON.stringify(body)};return cached.body;})().finally(()=>inflight=null);return inflight;}
 http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('Cache-Control','no-cache');
+ if(await handleMap(req,res,url))return;
  if(await handleSeats(req,res,url))return;
  if(await handleListening(req,res,url))return;
  if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'});res.end();return;}
