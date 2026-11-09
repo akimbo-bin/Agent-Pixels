@@ -1,0 +1,574 @@
+{
+ "artifacts": [
+  {
+   "artifactId": "sha256:2cc0ddac20d3c93404da1392d93273485552c68c9df2707abfb71b521217c284",
+   "attemptId": "fixture-a1",
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "completedAt": "2026-11-09T19:14:30Z",
+   "count": null,
+   "issueKey": null,
+   "kind": "fixture",
+   "location": "<temp>\nebula-fixture-artifact.txt",
+   "machineId": "akimb0-pc",
+   "recordType": "artifact",
+   "renderCountEligible": false,
+   "schemaVersion": "nebula.telemetry/1",
+   "sha256": "2cc0ddac20d3c93404da1392d93273485552c68c9df2707abfb71b521217c284",
+   "validatedAt": null,
+   "workloadId": "akimb0-pc/fixture-live-office"
+  }
+ ],
+ "collector": {
+  "cadenceS": 120,
+  "eventsSeq": 13,
+  "expiresAt": "2026-11-09T19:35:05Z",
+  "finishedAt": "2026-11-09T19:29:05Z",
+  "sourceId": "ct125/telemetry-collector",
+  "startedAt": "2026-11-09T19:28:33Z"
+ },
+ "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+ "conflicts": [],
+ "listening": [],
+ "recordType": "snapshot",
+ "rejected": [],
+ "schemaVersion": "nebula.telemetry/1",
+ "sources": [
+  {
+   "complete": true,
+   "error": null,
+   "fileErrors": [],
+   "files": 11,
+   "lastSuccessAt": "2026-11-09T19:28:33Z",
+   "machineId": "akimb0-pc",
+   "path": "C:\\NebulaResearch\\telemetry\\v1",
+   "sourceId": "akimb0-pc/spool",
+   "status": "ok",
+   "transport": "machine-portal"
+  },
+  {
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "detail": "7 keeper jobs",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "machineId": "akimb0-pc",
+   "observed": {
+    "ageS": 5,
+    "expired": false
+   },
+   "producer": "nebula_keeper.py",
+   "recordType": "source",
+   "schemaVersion": "nebula.telemetry/1",
+   "sourceId": "akimb0-pc/keeper"
+  },
+  {
+   "complete": true,
+   "error": null,
+   "fileErrors": [],
+   "files": 2,
+   "lastSuccessAt": "2026-11-09T19:28:33Z",
+   "machineId": "vm116",
+   "path": "C:\\NebulaRender\\telemetry\\v1",
+   "sourceId": "vm116/spool",
+   "status": "ok",
+   "transport": "machine-portal"
+  },
+  {
+   "cadenceS": 60,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "detail": "1 watched workloads",
+   "expiresAt": "2026-11-09T19:31:25Z",
+   "heartbeatAt": "2026-11-09T19:28:25Z",
+   "machineId": "vm116",
+   "observed": {
+    "ageS": 9,
+    "expired": false
+   },
+   "producer": "tools/telemetry/observer.py",
+   "recordType": "source",
+   "schemaVersion": "nebula.telemetry/1",
+   "sourceId": "vm116/observer"
+  },
+  {
+   "cadenceS": 120,
+   "error": null,
+   "expiresAt": "2026-11-09T19:34:43Z",
+   "gaps": null,
+   "heartbeatAt": "2026-11-09T19:28:43Z",
+   "historyStartsAt": "2026-11-09T12:59:02Z",
+   "lastPoll": {
+    "appended": 19,
+    "droppedPrivate": 0,
+    "pageLimit": 500,
+    "returned": 500
+   },
+   "lastSuccessAt": "2026-11-09T19:28:43Z",
+   "machineId": "ct125",
+   "observed": {
+    "ageS": -9,
+    "expired": false
+   },
+   "path": "/var/lib/nebula-telemetry/v1/activity/activity.jsonl",
+   "producer": "nebula-activity-collect",
+   "seq": 451,
+   "sourceId": "ct125/paperclip-activity",
+   "status": "ok",
+   "watermark": "2026-11-09T19:28:32Z"
+  }
+ ],
+ "unreported": [],
+ "workloads": [
+  {
+   "agentId": "f7f568e8-ee08-46f3-be89-eb0a16f5a481",
+   "agentName": "Doctor",
+   "attemptId": "fixture-a1",
+   "cadenceS": 10,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "evidence": {
+    "type": "self"
+   },
+   "evidenceAt": "2026-11-09T19:14:30Z",
+   "expiresAt": "2026-11-09T19:15:00Z",
+   "heartbeatAt": "2026-11-09T19:14:30Z",
+   "issueId": null,
+   "issueKey": null,
+   "kind": "fixture",
+   "machineId": "akimb0-pc",
+   "observationSource": "runner",
+   "observed": {
+    "ageS": 844,
+    "expired": true,
+    "path": "workloads/akimb0-pc_fixture-live-office_fixture-a1~e68b513613.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [
+    {
+     "done": 3,
+     "measuredAt": "2026-11-09T19:14:30Z",
+     "scope": "current-job",
+     "total": 10,
+     "unit": "fixture-units"
+    }
+   ],
+   "progressChangedAt": "2026-11-09T19:14:30Z",
+   "reason": "acceptance fixture: heartbeat, then silence",
+   "recordType": "workload",
+   "roomId": "operations",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 2,
+   "sourceId": "akimb0-pc/runner",
+   "startedAt": "2026-11-09T19:14:30Z",
+   "state": "running",
+   "stateChangedAt": "2026-11-09T19:14:30Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:14:30Z",
+     "eventId": "a5d20229c1fe4bbe2fb7",
+     "reason": "acceptance fixture: start",
+     "seq": 1,
+     "state": "running"
+    },
+    {
+     "at": "2026-11-09T19:14:30Z",
+     "eventId": "87a6637c0e4339a94579",
+     "reason": "acceptance fixture: heartbeat, then silence",
+     "seq": 2,
+     "state": "running"
+    }
+   ],
+   "workloadId": "akimb0-pc/fixture-live-office"
+  },
+  {
+   "agentId": "f7f568e8-ee08-46f3-be89-eb0a16f5a481",
+   "agentName": "Doctor",
+   "attemptId": "fixture-a2-retry",
+   "cadenceS": 10,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "evidence": {
+    "type": "self"
+   },
+   "evidenceAt": "2026-11-09T19:14:30Z",
+   "expiresAt": "2026-11-09T19:15:00Z",
+   "finishedAt": "2026-11-09T19:14:30Z",
+   "heartbeatAt": "2026-11-09T19:14:30Z",
+   "issueId": null,
+   "issueKey": null,
+   "kind": "fixture",
+   "machineId": "akimb0-pc",
+   "observationSource": "runner",
+   "observed": {
+    "ageS": 844,
+    "expired": true,
+    "path": "workloads/akimb0-pc_fixture-live-office_fixture-a2-retry~692b1ad4a8.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "acceptance fixture: a failed retry is terminal and safe to resend",
+   "recordType": "workload",
+   "roomId": "operations",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 2,
+   "sourceId": "akimb0-pc/runner",
+   "startedAt": "2026-11-09T19:14:30Z",
+   "state": "failed",
+   "stateChangedAt": "2026-11-09T19:14:30Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:14:30Z",
+     "eventId": "4f70b041767a9a45c7c8",
+     "reason": "acceptance fixture: retry attempt, no inherited progress",
+     "seq": 1,
+     "state": "running"
+    },
+    {
+     "at": "2026-11-09T19:14:30Z",
+     "eventId": "1f527512b58fdaddd2ab",
+     "reason": "acceptance fixture: a failed retry is terminal and safe to resend",
+     "seq": 2,
+     "state": "failed"
+    }
+   ],
+   "workloadId": "akimb0-pc/fixture-live-office"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T14:23:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "5bb6929f-c24b-42bd-a828-5e6ec48aa4b8",
+   "issueKey": "NEB-686",
+   "kind": "engine-research",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb225-stage0_last-start-2026-11-09T14_23_29Z~9b9b2ad853.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "observatory",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "41195010daa659252f92",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb225-stage0"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T06:08:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "03cadfd5-ae23-4510-9702-e986395fcd05",
+   "issueKey": "NEB-318",
+   "kind": "evaluation",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb318-k1-evals_last-start-2026-11-09T06_08_29Z~3593bc7eb4.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "training",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "027601e1050197c00261",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb318-k1-evals"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T10:18:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "03cadfd5-ae23-4510-9702-e986395fcd05",
+   "issueKey": "NEB-318",
+   "kind": "listening-packet",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb318-listen_last-start-2026-11-09T10_18_29Z~98bedac31e.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "music",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "11dbe5c3b34de0b00600",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb318-listen"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-07T22:09:38Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "finishedAt": "2026-11-09T08:10:58Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "03cadfd5-ae23-4510-9702-e986395fcd05",
+   "issueKey": "NEB-318",
+   "kind": "training-queue",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb318-queue_last-start-2026-11-07T22_09_38Z~b96889852c.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [
+    {
+     "done": 95,
+     "measuredAt": "2026-11-09T19:28:29Z",
+     "scope": "queue",
+     "total": 95,
+     "unit": "jobs"
+    }
+   ],
+   "progressChangedAt": "2026-11-09T19:10:04Z",
+   "reason": "finished: done",
+   "recordType": "workload",
+   "roomId": "training",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "done",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "337612b3990f9ccadcd8",
+     "reason": "finished: done",
+     "seq": 1,
+     "state": "done"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb318-queue"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T16:08:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "0a2c412c-c6f7-408e-b181-1558d3fe03d2",
+   "issueKey": "NEB-618",
+   "kind": "listening-packet",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb618-listen_last-start-2026-11-09T16_08_29Z~ae2b7802f6.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "music",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "06b1e322d89afa84f5fa",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb618-listen"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T15:43:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "749b048a-c251-4eb4-a3ed-9be59a8c9aa3",
+   "issueKey": "NEB-619",
+   "kind": "exploration-benchmark",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb619-explore_last-start-2026-11-09T15_43_29Z~d2625267e5.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "training",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "2d8e451c7028e6a5d783",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb619-explore"
+  },
+  {
+   "agentId": "abe2420a-f7ae-460f-ae5d-b75bdc956a12",
+   "agentName": "Training",
+   "attemptId": "last-start-2026-11-09T18:23:29Z",
+   "cadenceS": 300,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "expiresAt": "2026-11-09T19:43:29Z",
+   "heartbeatAt": "2026-11-09T19:28:29Z",
+   "issueId": "749b048a-c251-4eb4-a3ed-9be59a8c9aa3",
+   "issueKey": "NEB-619",
+   "kind": "exploration-benchmark",
+   "machineId": "akimb0-pc",
+   "observationSource": "keeper",
+   "observed": {
+    "ageS": 5,
+    "expired": false,
+    "path": "workloads/akimb0-pc_neb619-reference_last-start-2026-11-09T18_23_29Z~3ca1c78f2d.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "turned off in its job file",
+   "recordType": "workload",
+   "roomId": "training",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "akimb0-pc/keeper",
+   "state": "idle",
+   "stateChangedAt": "2026-11-09T19:10:04Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:10:04Z",
+     "eventId": "233e463dfed065eb5db3",
+     "reason": "turned off in its job file",
+     "seq": 1,
+     "state": "idle"
+    }
+   ],
+   "workloadId": "akimb0-pc/neb619-reference"
+  },
+  {
+   "agentId": "0f0300e1-dd24-4730-a29e-21893947aaa0",
+   "agentName": "Data",
+   "attemptId": "p6712-2026-11-09T00:10:06Z",
+   "cadenceS": 60,
+   "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+   "evidence": {
+    "logModifiedAt": "2026-11-09T19:06:59Z",
+    "pid": 6712,
+    "processes": 5,
+    "type": "process-tree"
+   },
+   "evidenceAt": "2026-11-09T19:28:25Z",
+   "expiresAt": "2026-11-09T19:31:25Z",
+   "heartbeatAt": "2026-11-09T19:28:25Z",
+   "issueId": "d8a43e2f-7add-45c2-b6a2-5ccf7d005544",
+   "issueKey": "NEB-657",
+   "kind": "dataset-render",
+   "machineId": "vm116",
+   "observationSource": "observer",
+   "observed": {
+    "ageS": 9,
+    "expired": false,
+    "path": "workloads/vm116_neb657-wave2a-full_p6712-2026-11-09T00_10_06Z~6b618943e9.json",
+    "transport": "machine-portal"
+   },
+   "parentWorkloadId": null,
+   "progress": [],
+   "reason": "phase: clean",
+   "recordType": "workload",
+   "roomId": "data",
+   "schemaVersion": "nebula.telemetry/1",
+   "seq": 1,
+   "sourceId": "vm116/observer",
+   "startedAt": "2026-11-09T00:10:06Z",
+   "state": "running",
+   "stateChangedAt": "2026-11-09T19:12:12Z",
+   "transitions": [
+    {
+     "at": "2026-11-09T19:12:12Z",
+     "eventId": "64f11fb4a796652f595e",
+     "reason": "phase: clean",
+     "seq": 1,
+     "state": "running"
+    }
+   ],
+   "workloadId": "vm116/neb657-wave2a-full"
+  }
+ ]
+}

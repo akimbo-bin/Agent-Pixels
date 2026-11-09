@@ -1,0 +1,24 @@
+{
+ "cadenceS": 120,
+ "checkedAt": "2026-11-09T19:28:43Z",
+ "companyId": "7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f",
+ "error": null,
+ "expiresAt": "2026-11-09T19:34:43Z",
+ "heartbeatAt": "2026-11-09T19:28:43Z",
+ "historyStartsAt": "2026-11-09T12:59:02Z",
+ "lastPoll": {
+  "appended": 19,
+  "droppedPrivate": 0,
+  "pageLimit": 500,
+  "returned": 500
+ },
+ "lastSuccessAt": "2026-11-09T19:28:43Z",
+ "machineId": "ct125",
+ "producer": "nebula-activity-collect",
+ "recordType": "source",
+ "schemaVersion": "nebula.telemetry/1",
+ "seq": 451,
+ "sourceId": "ct125/paperclip-activity",
+ "status": "ok",
+ "watermark": "2026-11-09T19:28:32Z"
+}
