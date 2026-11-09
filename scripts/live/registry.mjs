@@ -12,6 +12,8 @@
 //   { "id": "...", "title": "...", "kind": "json-file", "path": "...", "map": { "state": "a.b", ... }, "states": { "raw": "running" } }
 //   { "id": "...", "kind": "http-json", "url": "http://127.0.0.1:9000/status", "map": { ... } }
 //   { "id": "...", "kind": "module", "module": "./adapters/x.mjs", "options": { ... } }   // exports async read(options) -> LiveTask fields
+import {OfficeTelemetry} from './telemetry-model.mjs';
+import {telemetryHistory} from './telemetry-history.mjs';
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -87,6 +89,7 @@ async function readSource(src, baseDir) {
 }
 
 const cache = new Map();
+export async function telemetryPage(configPath,name,params){const cfg=JSON.parse(readFileSync(configPath,'utf8')),src=cfg.sources?.find(s=>s.module?.endsWith('/office-telemetry.mjs'));if(!src)throw Error('Telemetry history is not configured');return telemetryHistory(src.options).page(name,params);}
 /** All configured tasks, normalized; cached for 5 s. */
 export async function liveTasks(configPath) {
   const hit = cache.get(configPath);
@@ -95,14 +98,16 @@ export async function liveTasks(configPath) {
   try { cfg = JSON.parse(readFileSync(configPath, 'utf8')); } catch (e) { return { observedAt: Date.now(), tasks: {}, why: `no live config: ${e.message}` }; }
   const baseDir = path.dirname(configPath);
   // A source may also report sub-tasks (`tasks`, published as "<sourceId>.<key>") and organisation data (`org`).
-  const tasks = {}, org = {};
+  const tasks = {}, org = {};let telemetry=null;
   await Promise.all((cfg.sources ?? []).map(async s => {
     const raw = await readSource(s, baseDir);
     tasks[s.id] = normalize(s.id, s.title, raw);
     for (const [k, t] of Object.entries(raw?.tasks ?? {})) tasks[`${s.id}.${k}`] = normalize(`${s.id}.${k}`, t?.title, t);
     if (raw?.org) org[s.id] = raw.org;
+    if(raw?.telemetry)telemetry=raw.telemetry;
   }));
-  const result = { observedAt: Date.now(), tasks, org };
+  if(telemetry){delete tasks['nebula.training'];for(const id of Object.keys(tasks))if(id.startsWith('paperclip.job.')||id==='paperclip.renders.vm116')delete tasks[id];const training=OfficeTelemetry.training(telemetry);if(training)tasks['nebula.training']={...training,id:'nebula.training'};const v=OfficeTelemetry.view(telemetry);if(v.eligibleArtifacts.length)tasks['nebula.renders']={id:'nebula.renders',state:v.available?'idle':'unknown',detail:'Validated dataset manifests · historical coverage partial',updatedAt:OfficeTelemetry.stamp(telemetry.collector?.finishedAt),metrics:[{label:'Tracked renders',value:v.renderCount}],coverage:{complete:false,cohorts:v.eligibleArtifacts.map(a=>({id:a.sha256,name:a.issueKey||'Validated dataset',count:a.count})),source:'nebula.telemetry/1'}};}
+  const result = { observedAt: Date.now(), tasks, org,...(telemetry?{telemetry}:{}) };
   cache.set(configPath, result);
   return result;
 }

@@ -1,5 +1,7 @@
 # Live objects: connecting background work to Agent Pixels
 
+> The furniture/`__engine` examples below describe the legacy engine. For the official illustrated office, use [the live-office contract and plan](ops/LIVE_OFFICE_PLAN.md), [Claude's producer return](ops/CLAUDE_LIVE_DATA_RETURN.md), and [the connected interface/endpoint notes](ops/CODEX_LIVE_DATA_CONNECTION.md). Its workload data now comes from `nebula.telemetry/1`; machine placement never determines a room or workload kind.
+
 Agent Pixels can show any background work as an animated object in the building: a training run, a render farm, a CI queue, a crawler. A **live task** is the bridge. Your project reports a task in one normalized shape, and any piece of furniture with a screen can be bound to it.
 
 Live data is **real or nothing**. A source that can't be read shows `NO SOURCE` with its reason. A reading older than 30 s shows `STALE`. Values are never guessed.

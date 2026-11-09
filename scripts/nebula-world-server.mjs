@@ -16,6 +16,9 @@ http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('Cache-Control','no-cache');
  if(await handleListening(req,res,url))return;
  if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'});res.end();return;}
+ if(['/api/activity','/api/telemetry/events'].includes(url.pathname)){
+  try{if(!localLive)throw Error('History not configured');const value=(key,fallback)=>{const v=url.searchParams.get(key);if(v===null)return fallback;const n=Number(v);if(!Number.isSafeInteger(n)||n<0)throw Error('Invalid cursor');return n;};const data=await localLive.telemetryPage(path.join(root,'live.config.json'),url.pathname==='/api/activity'?'activity':'events',{afterSeq:value('afterSeq',0),beforeSeq:value('beforeSeq',Infinity),limit:Math.max(1,Math.min(200,value('limit',100)))});res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(req.method==='HEAD'?'':JSON.stringify(data));}catch{res.writeHead(503,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'History unavailable'}));}return;
+ }
  if(url.pathname==='/api/handoffs'){await live();const data=await handoffs.read();res.writeHead(data.error?503:200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(req.method==='HEAD'?'':JSON.stringify(data));return;}
  if(url.pathname==='/live'){try{const body=await live();res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(req.method==='HEAD'?'':body);}catch{res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({error:'Live source unavailable',tasks:{}}));}return;}
  const selected=JSON.parse(await readFile(path.join(root,'current.json'),'utf8'));

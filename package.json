@@ -14,7 +14,7 @@
     "clean": "rm -rf dist",
     "package:release": "node scripts/package-release.mjs",
     "typecheck": "tsc --noEmit",
-    "world:build": "python scripts/build-illustrated-editor.py --serve-copy",
+    "world:build": "node scripts/build-telemetry-validator.mjs && python scripts/build-illustrated-editor.py --serve-copy",
     "world:release": "node scripts/deploy-illustrated-world.mjs",
     "world:deploy": "node scripts/deploy-world-ct125.mjs",
     "world:serve": "node scripts/nebula-world-server.mjs",
@@ -24,11 +24,13 @@
     "world:rollback-local": "node scripts/rollback-illustrated-world.mjs --root C:/NebulaWorld",
     "world:check-dashboard": "node scripts/check-dashboard.cjs",
     "world:check-dashboard-mobile": "node scripts/check-dashboard-mobile.cjs",
-    "world:check-data": "node scripts/check-training-dashboard.cjs && node scripts/check-render-counts.cjs && node scripts/check-listening-api.cjs"
+    "world:check-data": "node scripts/check-training-dashboard.cjs && node scripts/check-render-counts.cjs && node scripts/check-listening-api.cjs",
+    "world:check-telemetry": "node scripts/check-office-telemetry.mjs && node scripts/check-office-connection.cjs"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",
     "@types/react": "^19.0.8",
+    "ajv": "^8.20.0",
     "esbuild": "^0.27.3",
     "react": "^19.0.0",
     "typescript": "^5.7.3"

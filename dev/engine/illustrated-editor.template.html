@@ -100,6 +100,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const inside=(x,y,p)=>{let hit=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;};
 const cell=(x,y)=>[Math.floor(x/12),Math.floor(y/8)];
 const ELEVATOR_SLICES=@@ELEVATOR_SLICES@@;
+@@OFFICE_TELEMETRY@@
 @@ROOM_STATES@@
 @@ELEVATOR@@
 const terraceProps=@@TERRACE_PROPS@@;const sharedWorkspaces=@@SHARED_WORKSPACES@@;const reviewWorkstations=@@REVIEW_WORKSTATIONS@@;

@@ -41,6 +41,8 @@ text=text.replace('@@AMBIENT@@',(root/'dev/engine/illustrated-ambient.js').read_
 
 text=text.replace('@@AGENT_MOTION@@',(root/'dev/engine/illustrated-agent-motion.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@OFFICE_TELEMETRY@@',(root/'scripts/live/telemetry-model.mjs').read_text(encoding='utf-8').replace('export{OfficeTelemetry};',''))
+
 text=text.replace('@@ROOM_STATES@@',(root/'dev/engine/illustrated-room-states.js').read_text(encoding='utf-8'))
 
 text=text.replace('@@PIXEL_FONT@@','data:font/ttf;base64,'+base64.b64encode((root/'public/assets/fonts/silkscreen/Silkscreen-Regular.ttf').read_bytes()).decode())

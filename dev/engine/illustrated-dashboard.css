@@ -36,3 +36,6 @@
 
 /* Scale the bars and their contents together, reclaiming layout space for the map. */
 .command-header,.dashboard-footer{zoom:.8}
+
+/* Source gaps remain legible without widening the phone inspector. */
+.dash-gap{border:1px solid #d5a25e;background:#46302066;padding:12px;margin:10px 0;color:#ffe0a5;overflow-wrap:anywhere}.dash-job h4,.dash-job p,.dash-issue p{overflow-wrap:anywhere}.dash-tabs{flex-wrap:wrap}

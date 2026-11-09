@@ -10,15 +10,6 @@
       }
     },
     {
-      "id": "nebula.training",
-      "title": "Nebula training queue",
-      "kind": "module",
-      "module": "./live/adapters/workstation-file.mjs",
-      "options": {
-        "id": "nebula.training"
-      }
-    },
-    {
       "id": "host.gpu",
       "title": "AKIMB0 GPU",
       "kind": "module",
@@ -34,6 +25,19 @@
       "module": "./live/adapters/workstation-file.mjs",
       "options": {
         "id": "nebula.renders"
+      }
+    },
+    {
+      "id": "nebula.telemetry",
+      "title": "Nebula workload telemetry v1",
+      "kind": "module",
+      "module": "./live/adapters/office-telemetry.mjs",
+      "options": {
+        "file": "/var/lib/nebula-telemetry/v1/snapshot.json",
+        "eventsFile": "/var/lib/nebula-telemetry/v1/events.jsonl",
+        "activityFile": "/var/lib/nebula-telemetry/v1/activity/activity.jsonl",
+        "activityStatusFile": "/var/lib/nebula-telemetry/v1/activity/status.json",
+        "stateDirectory": "/var/lib/nebula-world/telemetry-state"
       }
     }
   ]

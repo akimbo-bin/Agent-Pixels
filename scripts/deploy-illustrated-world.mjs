@@ -6,6 +6,7 @@ import {gzipSync} from 'node:zlib';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),args=process.argv.slice(2),i=args.indexOf('--root'),root=path.resolve(i<0?path.join(repo,'release/world'):args[i+1]);
+const validator=spawnSync(process.execPath,['scripts/build-telemetry-validator.mjs'],{cwd:repo,stdio:'inherit'});if(validator.status!==0)throw Error('Telemetry validator build failed');
 const build=spawnSync(process.env.NEBULA_PYTHON||'python',['scripts/build-illustrated-editor.py','--serve-copy'],{cwd:repo,stdio:'inherit'});if(build.status!==0)throw Error('World build failed');
 const html=await readFile(path.join(repo,'dev/engine/illustrated-walk-prototype.html')),sha=createHash('sha256').update(html).digest('hex'),git=spawnSync('git',['rev-parse','--short','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(),id=`${git}-${sha.slice(0,12)}`,dir=path.join(root,'releases',id);
 await mkdir(dir,{recursive:true});await cp(path.join(repo,'public/assets/nebula-app'),dir,{recursive:true});await writeFile(path.join(dir,'index.html'),html);await writeFile(path.join(dir,'index.html.gz'),gzipSync(html,{level:6}));

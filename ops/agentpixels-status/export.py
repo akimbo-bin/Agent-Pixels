@@ -46,7 +46,7 @@ def main():
     snap = {'exportedAt': datetime.now(timezone.utc).isoformat(), 'errors': []}
     try:
         companies = items(get('/api/companies'), 'companies')
-        company = next(c for c in companies if str(c.get('name', '')).lower().startswith('nebula'))
+        company = next(c for c in companies if c.get('id') == '7b3de9f6-dc63-4fa6-8cb5-65d1693aec3f')
         cid = company['id']
         snap['company'] = {'name': company.get('name'), 'issuePrefix': company.get('issuePrefix'), 'id': cid}
         agents = items(get(f'/api/companies/{cid}/agents'), 'agents')

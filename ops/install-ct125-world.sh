@@ -23,6 +23,7 @@ chmod -R go-w "$root"
 install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/listening-state
 if [ ! -e "$root/listening-state" ]; then ln -s /var/lib/nebula-world/listening-state "$root/listening-state"; fi
 install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/handoff-state
+install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/telemetry-state
 if [ ! -e "$root/handoff-state" ]; then ln -s /var/lib/nebula-world/handoff-state "$root/handoff-state"; fi
 cat >/etc/systemd/system/nebula-world.service <<'UNIT'
 [Unit]
@@ -38,7 +39,7 @@ RestartSec=3
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state
+ReadWritePaths=/var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state /var/lib/nebula-world/telemetry-state
 PrivateTmp=yes
 [Install]
 WantedBy=multi-user.target
