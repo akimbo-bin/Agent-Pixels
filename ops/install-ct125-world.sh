@@ -4,7 +4,7 @@ bundle=$1
 root=/srv/nebula-world
 id nebula-world >/dev/null 2>&1 || useradd --system --home-dir /var/lib/nebula-world --shell /usr/sbin/nologin nebula-world
 install -d -m 0755 "$root" /var/lib/nebula-world
-runtime_hash(){ (find "$root/live" -type f 2>/dev/null; printf '%s\n' "$root/server.mjs" "$root/listening-api.mjs" "$root/listening-review.mjs" "$root/handoff-journal.mjs" "$root/live.config.json") | sort | xargs -r sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1; }
+runtime_hash(){ (find "$root/live" -type f 2>/dev/null; printf '%s\n' "$root/server.mjs" "$root/listening-api.mjs" "$root/listening-review.mjs" "$root/handoff-journal.mjs" "$root/seat-layout-api.mjs" "$root/live.config.json") | sort | xargs -r sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1; }
 old_server=$(runtime_hash)
 # The active pointer is promoted separately after all referenced files exist.
 tar -xzf "$bundle" -C "$root" --exclude=current.json
@@ -25,6 +25,8 @@ if [ ! -e "$root/listening-state" ]; then ln -s /var/lib/nebula-world/listening-
 install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/handoff-state
 install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/telemetry-state
 if [ ! -e "$root/handoff-state" ]; then ln -s /var/lib/nebula-world/handoff-state "$root/handoff-state"; fi
+install -d -m 0750 -o nebula-world -g nebula-world /var/lib/nebula-world/seat-state
+if [ ! -e "$root/seat-state" ]; then ln -s /var/lib/nebula-world/seat-state "$root/seat-state"; fi
 cat >/etc/systemd/system/nebula-world.service <<'UNIT'
 [Unit]
 Description=Nebula illustrated campus (official)
@@ -39,7 +41,7 @@ RestartSec=3
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state /var/lib/nebula-world/telemetry-state
+ReadWritePaths=/var/lib/nebula-world/seat-state /var/lib/nebula-world/listening-state /var/lib/nebula-world/handoff-state /var/lib/nebula-world/telemetry-state
 PrivateTmp=yes
 [Install]
 WantedBy=multi-user.target

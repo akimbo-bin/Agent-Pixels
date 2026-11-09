@@ -11,7 +11,7 @@ await copyFile(path.join(repo,'ops/ct125-world-live.config.json'),path.join(stag
 for(const name of ['install-ct125-world.sh','install-world-tailnet-proxy.sh'])await writeFile(path.join(stage,name),(await readFile(path.join(repo,'ops',name),'utf8')).replace(/^\uFEFF/,'').replace(/\r\n/g,'\n'));
 const selected=JSON.parse(await readFile(path.join(stage,'current.json'),'utf8'));if(!/^[a-zA-Z0-9._-]+$/.test(selected.release))throw Error('Invalid release ID');
 const bundle=path.join(repo,'artifacts','nebula-world-'+selected.release+'.tar.gz'),remote='/var/tmp/nebula-world-'+selected.release+'.tar.gz';
-run('tar',['-czf',bundle,'-C',stage,'current.json','server.mjs','listening-api.mjs','listening-review.mjs','handoff-journal.mjs','rollback.mjs','live','live.config.json','releases/'+selected.release]);
+run('tar',['-czf',bundle,'-C',stage,'current.json','server.mjs','listening-api.mjs','listening-review.mjs','handoff-journal.mjs','seat-layout-api.mjs','rollback.mjs','live','live.config.json','releases/'+selected.release]);
 run('scp',['-o','BatchMode=yes',bundle,host+':'+remote]);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-ct125-world.sh'),host+':/var/tmp/install-ct125-world.sh']);
 run('scp',['-o','BatchMode=yes',path.join(stage,'install-world-tailnet-proxy.sh'),host+':/var/tmp/install-world-tailnet-proxy.sh']);
