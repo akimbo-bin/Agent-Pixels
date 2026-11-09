@@ -34,7 +34,7 @@ const Paperwork=(()=>{
   for(const e of items.values()){
    if(e.source!==Dashboard.source()||e.stage!=='delivered'||e.handling==='filed'||now-(e.deliveredAt||0)<4||active?.recipientAgentId===e.recipientAgentId)continue;
    const m=people.find(p=>p.id===e.recipientAgentId),c=characterOverrides[e.recipientAgentId];if(!m||!c?.visible||c.wander===false||Characters.controlledId()===m.id||!['idle','waiting','paused'].includes(Characters.presenceFor(m.id)))continue;
-   const actor=AgentMotion.get(m,c),a=anchor(m.id);if(actor.floor!==a.floor||actor.visit||actor.path.length||actor.docked||Math.hypot(actor.x-a.approach[0],actor.y-a.approach[1])>140||!stand(a.floor,...a.approach))continue;
+   const actor=AgentMotion.get(m,c),a=anchor(m.id);if(actor.floor!==a.floor||actor.visit||actor.path.length||Math.hypot(actor.x-a.approach[0],actor.y-a.approach[1])>140||!stand(a.floor,...a.approach))continue;
    const tripId='receive:'+e.id;if(!AgentMotion.deliver(m,c,{floor:a.floor,x:a.approach[0],y:a.approach[1],room:c.room},tripId))continue;
    const ids=[...items.values()].filter(i=>i.source===e.source&&i.recipientAgentId===m.id&&i.stage==='delivered'&&i.handling!=='filed'&&!!i.preview===!!e.preview).slice(0,4).map(i=>i.id);receiving={agentId:m.id,ids,tripId,phase:'approaching',started:now,at:now};for(const id of ids)items.get(id).handling='approaching';break;
   }
