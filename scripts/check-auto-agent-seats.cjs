@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const allocate=vm.runInNewContext(fs.readFileSync('dev/engine/illustrated-seat-allocation.js','utf8')+';allocateAgentSeats');
+const seats=[{id:'desk-1',room:'data'},{id:'desk-2',room:'data'},{id:'shared-other-room',room:'music'}],configs={a:{room:'data',visible:true,seatId:''},b:{room:'data',visible:true,seatId:'desk-1'},c:{room:'data',visible:true,seatId:''}},agents=Object.keys(configs).map(id=>({id}));
+const run=()=>allocate({agents,configs,seats,roomFor:s=>s.room,allows:()=>true,usable:s=>!s.blocked});
+const original=JSON.stringify(configs);let r=run();assert.equal(r.assignments.b,'desk-1');assert.equal(r.assignments.a,'desk-2');assert.equal(r.assignments.c,undefined,'Overflow never takes a manually reserved or other-room shared seat');assert.equal(JSON.stringify(configs),original,'Allocator never rewrites authored configuration');
+configs.a.autoSeatId='desk-2';agents.push({id:'0-new'});configs['0-new']={room:'data',visible:true,seatId:''};r=run();assert.equal(r.assignments.a,'desk-2','A new earlier-sorted agent does not displace an existing automatic seat');assert.equal(r.assignments['0-new'],undefined);
+agents.splice(agents.findIndex(a=>a.id==='b'),1);r=run();assert.equal(r.owners['desk-1'],'b','Absent manual owners retain their reservation');assert.notEqual(r.assignments.c,'desk-1');
+configs.c.seatId='desk-1';r=run();assert.equal(r.assignments.c,undefined,'Conflicting manual choices do not create duplicate occupants');assert.equal(configs.c.seatId,'desk-1','Conflicting authored choices are retained');assert.match(r.status.c,/another agent/);
+configs.a.seatMode='none';r=run();assert.equal(r.assignments.a,undefined,'Explicit standing posts stay standing');assert.equal(r.assignments['0-new'],'desk-2');
+seats[1].blocked=true;r=run();assert.equal(r.assignments['0-new'],undefined,'Blocked seats are not allocated');
+seats.push({id:'desk-3',room:'data'});r=run();assert.equal(r.assignments['0-new'],'desk-3','New seats become available without reassigning manual owners');
+assert.equal(new Set(Object.values(r.assignments)).size,Object.values(r.assignments).length);
+console.log('PASS manual/absent reservations, stable automatic seats, overflow, standing choice, blocked/new seats, duplicate assignments and untouched authored configs');

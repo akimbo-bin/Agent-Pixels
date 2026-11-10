@@ -39,6 +39,7 @@ text=text.replace('@@HARDWARE@@',(root/'dev/engine/illustrated-hardware.js').rea
 
 text=text.replace('@@AMBIENT@@',(root/'dev/engine/illustrated-ambient.js').read_text(encoding='utf-8'))
 
+text=text.replace('@@SEAT_ALLOCATION@@',(root/'dev/engine/illustrated-seat-allocation.js').read_text(encoding='utf-8'))
 text=text.replace('@@AGENT_MOTION@@',(root/'dev/engine/illustrated-agent-motion.js').read_text(encoding='utf-8'))
 
 text=text.replace('@@OFFICE_TELEMETRY@@',(root/'scripts/live/telemetry-model.mjs').read_text(encoding='utf-8').replace('export{OfficeTelemetry};',''))
