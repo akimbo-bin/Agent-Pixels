@@ -4,6 +4,20 @@ const OfficeTelemetry=(()=>{
  const agents={'77b41f73-5f28-48bb-9011-0d481936dc9e':'lead','bd01ea5e-0f61-4e04-bf0a-ef61293793f7':'second','ecd3cbaf-c405-4dc0-b83a-1caf46bb7459':'clerk','f50c7658-254b-46ab-94de-68abe9990255':'observatory','3ef85421-09a9-4a3f-828a-29513c05c65f':'engine','e7f4a9e1-b56b-47b5-b193-51d61c4809ed':'engine','0f0300e1-dd24-4730-a29e-21893947aaa0':'data','abe2420a-f7ae-460f-ae5d-b75bdc956a12':'training','f7f568e8-ee08-46f3-be89-eb0a16f5a481':'doctor','ab19de07-cc8e-4c7f-bebe-ac4b1a0101b7':'review','86bac1d2-a575-4971-86d8-b1a825752aca':'review','35f1840a-63ec-4463-8c4b-50cc737b63e6':'review','11998dd6-aed1-40d7-89e4-282731458ff8':'review','e4b2d16c-37c7-40b7-940d-0a1af7fc4a0a':'data','bc051761-f1fc-4872-9f8f-89827a7abcfb':'training','789bbdd1-d796-4ac2-8f8c-9d7f8f6095c1':'observatory','d816c231-a88c-4c59-a856-f43d0d69ebd6':'doctor','e7f5e69c-28d2-4fbe-a81f-7166bb9e85fb':'clerk','2e806341-34b9-40f9-9273-14c7c618efe9':null};
  const kindRooms={training:'training','training-queue':'training',evaluation:'training','oracle-fit':'training','exploration-benchmark':'training','dataset-render':'data','dataset-qa':'data','dataset-ingest':'data','audio-render':'music','listening-packet':'music',build:'engine',ci:'engine','engine-research':'observatory','health-check':'doctor',fixture:'operations'};
  const rooms=new Set(['lead','second','clerk','observatory','engine','data','training','music','doctor','review','operations','queue']);
+ // Stable identities retain established offices. New identities use team names,
+ // then specialist titles/roles, then a non-leadership reporting line.
+ function agentRoom(value,roster=[],seen=new Set()){
+  const a=typeof value==='string'?roster.find(a=>a.id===value)||{id:value}:value;if(!a||seen.has(a.id))return null;seen.add(a.id);
+  if(Object.hasOwn(agents,a.id))return agents[a.id];
+  const normalize=s=>String(s||'').normalize('NFKC').toLowerCase().replace(/[_–—-]+/g,' ').trim();
+  const match=value=>{const text=value.replace(/^(?:(?:senior|junior|staff|principal|assistant)\s+)+/,'');
+   const rules=[['second',/^(?:lead (?:second|sol|deputy)|second lead|deputy lead|director)\b/],['lead',/^lead$|^chief executive\b/],['clerk',/^(?:clerk|admin|administration|reception)\b/],['observatory',/^(?:engine|observatory|astronomy|astronomer|quantum)\b/],['engine',/^(?:builder|engineering|rocket|propulsion|build engineer)\b/],['data',/^(?:data|dataset|signal processing)\b/],['training',/^(?:training|trainer|model training|machine learning)\b/],['doctor',/^(?:doctor|devops|health|infrastructure|site reliability)\b/],['review',/^(?:reviewer|review|qa|quality assurance)\b/],['music',/^(?:music|audio|sound|listening)\b/],['operations',/^(?:operations|pipeline)\b/],['queue',/^(?:ticket queue|queue|triage)\b/]];
+   return rules.find(([,pattern])=>pattern.test(text))?.[0]||null;
+  };
+  const named=match(normalize(a.name)),titled=match(normalize(a.title));if(named)return named;if(titled)return titled;
+  const role=normalize(a.role);if(['qa','quality assurance'].includes(role))return'review';if(['devops','sre'].includes(role))return'doctor';if(role==='ceo')return'lead';
+  const manager=roster.find(m=>m.id===a.reportsTo),inherited=manager&&agentRoom(manager,roster,seen);return inherited&&!['lead','second','operations','queue'].includes(inherited)?inherited:null;
+ }
  const stamp=value=>typeof value==='string'?Date.parse(value):NaN;
  const age=(value,now=Date.now())=>Number.isFinite(stamp(value))?Math.max(0,(now-stamp(value))/1000):null;
  const fresh=(expiresAt,now=Date.now())=>Number.isFinite(stamp(expiresAt))&&now<stamp(expiresAt);
@@ -33,6 +47,6 @@ const OfficeTelemetry=(()=>{
  function roomStates(data,now=Date.now()){
   const v=view(data,now);return Object.fromEntries([...rooms].map(room=>{const all=v?.current.filter(w=>w.roomId===room&&!w.fixture)||[],priority=['running','failed','waiting','paused','unknown','done','idle'],known=all.filter(w=>w.executionFresh),w=[...(known.length?known:all)].sort((a,b)=>priority.indexOf(a.state)-priority.indexOf(b.state))[0];return[room,{state:w?.state||(v?.available?'idle':'unknown'),available:!!v?.available,expiresAt:Math.min(stamp(data?.collector?.expiresAt)||now,...all.filter(w=>w.executionFresh).map(w=>stamp(w.expiresAt)||now)),workloads:all.map(task)}];}));
  }
- return{companyId,version,agents,kindRooms,rooms,stamp,age,fresh,key,roomFor,view,progress,task,training,roomStates,agentRoom:id=>agents[id]??null};
+ return{companyId,version,agents,kindRooms,rooms,stamp,age,fresh,key,roomFor,view,progress,task,training,roomStates,agentRoom};
 })();
 export{OfficeTelemetry};

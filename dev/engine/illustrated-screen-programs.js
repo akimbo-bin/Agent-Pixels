@@ -21,7 +21,7 @@ const ScreenPrograms=(()=>{
   // Legacy/demo sources may still render explicitly configured tasks; registrations are not execution.
   return Object.entries(feed?.tasks||{}).filter(([id])=>id==='nebula.training'||id==='demo.audio').map(([id])=>({...task(id),id}));
  }
- function liveModel(profile){const o=organization(),b=board(),assigned=o.agents.filter(a=>a.issue),jobs=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.job.')),machines=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.machine.')),engineAgents=o.agents.filter(a=>typeof OfficeTelemetry!=='undefined'&&OfficeTelemetry.agentRoom(a.id)==='engine');
+ function liveModel(profile){const o=organization(),b=board(),assigned=o.agents.filter(a=>a.issue),jobs=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.job.')),machines=Object.values(feed?.tasks||{}).filter(t=>t.id?.startsWith('paperclip.machine.')),engineAgents=o.agents.filter(a=>typeof OfficeTelemetry!=='undefined'&&OfficeTelemetry.agentRoom(a,o.agents)==='engine');
   if(profile==='training'){
    const t=trainingTask(),p=t.progress,current=t.activity?.progress,gpu=task('host.gpu');
    const valid=p=>t.fresh&&p&&Number.isFinite(p.done)&&p.done>=0&&(p.total===null||Number.isFinite(p.total)&&p.total>0&&p.done<=p.total);

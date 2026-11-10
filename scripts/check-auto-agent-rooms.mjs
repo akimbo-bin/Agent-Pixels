@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {OfficeTelemetry as model} from './live/telemetry-model.mjs';
+const a=(id,name,extra={})=>({id,name,...extra});
+for(const[name,room]of [['Data-Sol-B','data'],['Training-Terra','training'],['Engine-New','observatory'],['Builder-New','engine'],['Doctor-Mini','doctor'],['Clerk-Future','clerk'],['Reviewer-New','review'],['Audio-Worker','music'],['Operations-New','operations'],['Queue-New','queue']])assert.equal(model.agentRoom(a('new',name)),room,name);
+assert.equal(model.agentRoom(a('senior','Morgan',{title:'Senior Data Engineer'})),'data');
+assert.equal(model.agentRoom(a('qa','Morgan',{role:'qa'})),'review');
+assert.equal(model.agentRoom(a('generic','Morgan',{role:'engineer'})),null,'Generic engineering is ambiguous');
+const manager=a('manager','Data-Future'),child=a('child','Morgan',{role:'engineer',reportsTo:'manager'}),lead=a('77b41f73-5f28-48bb-9011-0d481936dc9e','Lead');
+assert.equal(model.agentRoom(child,[manager,child]),'data');
+assert.equal(model.agentRoom({...child,reportsTo:lead.id},[lead]),null,'Reporting to Lead does not make everyone a Lead');
+assert.equal(model.agentRoom(a('first','Morgan',{reportsTo:'second'}),[a('second','Taylor',{reportsTo:'first'}),a('first','Morgan',{reportsTo:'second'})]),null,'Cycles stop safely');
+assert.equal(model.agentRoom(a('2e806341-34b9-40f9-9273-14c7c618efe9','Training Planner')),null,'Explicit unassigned legacy identity stays unassigned');
+console.log('PASS automatic team names, specialist titles, role, reporting lines, stable identities and ambiguous/cyclic teams');
